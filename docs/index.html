@@ -77,13 +77,35 @@
   .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 20px 40px; }
   header h1 { font-size: 34px; font-weight: 600; margin: 0 0 2px; text-wrap: balance;
     letter-spacing: .01em; }
-  .byline { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);
-    margin: 0 0 10px; }
-  .byline a { color: var(--ink-3); }
-  .byline a:hover { color: var(--accent); }
+  header h1 { font-size: 38px; line-height: 1.08; }
+  .byline, header .subtitle { font-family: var(--font-mono); font-size: 12px;
+    color: var(--ink-3); margin: 2px 0 14px; }
+  .byline a, header .subtitle a { color: var(--ink-3); }
+  .byline a:hover, header .subtitle a:hover { color: var(--accent); }
   header .method { color: var(--ink-2); font-size: 17px; margin: 0; max-width: 88ch; }
+  header .method b { color: var(--ink-1); }
   header .stats { font-family: var(--font-mono); color: var(--ink-3); font-size: 11.5px;
     margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+  .anchornav { display: flex; flex-wrap: wrap; align-items: baseline;
+    margin: 16px 0 2px; font: 500 12.5px var(--font-mono); }
+  .anchornav a { color: var(--accent); text-decoration: none; padding: 3px 0; }
+  .anchornav a:hover { text-decoration: underline; }
+  .anchornav a:not(:last-child)::after { content: "·"; color: var(--ink-3);
+    padding: 0 9px; text-decoration: none; display: inline-block; }
+  .group-h, .notes h2.group-h { font: 500 13px var(--font-mono); letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-1); margin: 34px 0 4px;
+    padding-top: 10px; border-top: 2px solid var(--grid); scroll-margin-top: 12px; }
+  .group-lead { font-size: 15.5px; color: var(--ink-2); margin: 4px 0 14px;
+    max-width: 92ch; }
+  .group-lead b { color: var(--ink-1); }
+  .trycity { font: inherit; color: var(--accent); background: none; border: none;
+    padding: 0 1px; cursor: pointer; text-decoration: underline;
+    text-underline-offset: 2px; }
+  .trycity:hover { color: var(--ink-1); }
+  .ex-quote { font-style: italic; font-size: 15px; color: var(--ink-2);
+    margin: 10px 0 0; padding-left: 11px; border-left: 2px solid var(--grid); }
+  .ex-quote .src { font: normal 11px var(--font-mono); color: var(--ink-3); }
+  .ex-quote .src a { color: var(--ink-3); }
   .rule-double { border: none; border-top: 1px solid var(--grid);
     border-bottom: 1px solid var(--grid); height: 4px; margin: 26px 0 20px;
     background: none; }
@@ -263,6 +285,11 @@
   .notes { margin-top: 26px; color: var(--ink-2); font-size: 16.5px; max-width: 80ch; }
   .notes h2 { font: 500 12px var(--font-mono); letter-spacing: .09em;
     text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+  .meth-sub { font: 600 15.5px var(--font-body); color: var(--ink-1);
+    margin: 20px 0 2px; }
+  .meth-sub::before { content: ""; display: inline-block; width: 14px;
+    height: 2px; background: var(--accent); vertical-align: middle;
+    margin-right: 8px; }
   .notes ul, .notes ol { margin: 0; padding-left: 20px; }
   .notes li { margin: 6px 0; }
   .notes ol li { margin: 10px 0; }
@@ -294,6 +321,12 @@
   details { margin-top: 24px; }
   summary { cursor: pointer; color: var(--ink-2); font: 500 12px var(--font-mono);
     letter-spacing: .07em; text-transform: uppercase; }
+  .notes details { margin: 6px 0 0; }
+  .notes summary { font: italic 15px var(--font-body); letter-spacing: 0;
+    text-transform: none; color: var(--accent); }
+  .notes summary:hover { text-decoration: underline; }
+  .notes details[open] > summary { margin-bottom: 8px; }
+  .summary-note { color: var(--ink-3); font-size: 13px; margin: 3px 0 0; }
   .tblwrap { overflow-x: auto; margin-top: 10px; border: 1px solid var(--hairline);
     border-radius: 9px; }
   table.data { border-collapse: collapse; width: 100%; font: 12px var(--font-mono);
@@ -323,25 +356,24 @@
 
 <div class="wrap">
   <header>
-    <h1>124 world cities by word2vec similarity</h1>
-    <p class="byline">a teaching demo by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
-    <blockquote class="epigraph">&ldquo;You shall know a word by the company it
-      keeps.&rdquo;<span class="src">&mdash; J. R. Firth
-      <a class="cite" href="#ref-firth">(1957)</a></span></blockquote>
-    <p class="method">Could a computer sketch a map of the world having read the
-      news, but never seen an atlas? Every city name here is turned into an
-      <b>embedding</b> — a vector of 300 numbers learned by word2vec from the
-      contexts the name appears in, so that similar usage means similar numbers
-      (how: cards 1&ndash;4 below). Comparing all vectors gives a 124&times;124
-      similarity matrix, shown in two views. <b>Geographic network:</b> cities at
-      their real coordinates, links join pairs above the similarity cutoff.
-      <b>Semantic map:</b> position itself encodes similarity — the layout is
-      computed from the matrix alone. Hover a city for its top-5 neighbours;
-      <b>click</b> to pin it and see the full ranked list.</p>
-    <p class="stats stat">124 cities &middot; 9 regions &middot; 7,626 pairs &middot;
-      cosine range &minus;.06 to .86 &middot; MDS Stress-1 = .347</p>
+    <h1>Could language reconstruct a map of the world?</h1>
+    <p class="subtitle">124 world cities arranged by word2vec similarity &mdash; a
+      teaching demo by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
+    <p class="method"><b>Short answer: partly, yes.</b> word2vec never saw
+      coordinates — it learned each city name only from how it is <i>used</i> in
+      Google News. Comparing those usages reconstructs a surprising amount of real
+      geography, while news events, ambiguous names and shared institutions bend
+      the map in revealing ways. The 124&times;124 table of similarities behind it
+      is explored in <b>three linked views</b> below; select any city to light up
+      its neighbours in all of them.</p>
+    <p class="stats stat">124 cities &middot; 9 regions &middot; 7,626 pairs
+      &middot; Google News, circa 2013</p>
+    <nav class="anchornav" aria-label="Sections">
+      <a href="#how">How it works</a><a href="#explore">Explore the maps</a><a href="#methodology">Methodology</a><a href="#data">Data</a>
+    </nav>
   </header>
 
+  <h2 class="group-h" id="how">How it works</h2>
   <div class="explain">
     <div class="ex-card">
       <h3><span class="n">1</span>word2vec: meaning from context</h3>
@@ -359,6 +391,9 @@
       vectors. All three cities are English-speaking — what separates them is
       <i>whose news</i> they share, not language. No atlas, no coordinates: the
       model never sees geography, only text.
+      <p class="ex-quote">&ldquo;You shall know a word by the company it
+        keeps.&rdquo; <span class="src">&mdash; J. R. Firth
+        <a class="cite" href="#ref-firth">(1957)</a></span></p>
     </div>
     <div class="ex-card">
       <h3><span class="n">2</span>a name becomes 300 numbers</h3>
@@ -407,13 +442,22 @@
     </div>
   </div>
 
+  <h2 class="group-h" id="explore">Explore the maps</h2>
+  <p class="group-lead">The cutoff slider and city search drive all
+    <b>three views at once</b>. <b>Select a city</b> — hover, tap, or Tab to it —
+    to preview its five closest neighbours; <b>pin it</b> (click or Enter) to open
+    the full ranking in the side panel. Try:
+    <button type="button" class="trycity">Lisbon</button> ·
+    <button type="button" class="trycity">Dubai</button> ·
+    <button type="button" class="trycity">Sydney</button>.</p>
+
   <div class="toolbar">
     <input id="find" type="search" list="citylist" placeholder="Find a city&hellip;"
       aria-label="Find a city">
     <datalist id="citylist"></datalist>
     <div class="slider">
-      <label for="thr">Similarity&nbsp;cutoff</label>
-      <input id="thr" type="range" aria-label="Similarity cutoff for links">
+      <label for="thr">Cutoff &mdash; both maps</label>
+      <input id="thr" type="range" aria-label="Similarity cutoff for links in both maps">
     </div>
     <div class="readout">
       <div class="cut">cosine ≥ <b id="tval">0.50</b></div>
@@ -507,10 +551,9 @@
     </div>
   </section>
 
-  <hr class="rule-double">
-
   <section class="notes">
-    <h2>Methodology</h2>
+    <h2 class="group-h" id="methodology">Methodology</h2>
+    <h3 class="meth-sub">Data and representation</h3>
     <ol>
       <li><b>Embedding model.</b> GoogleNews-vectors-negative300: word2vec
         (skip-gram with negative sampling) trained by Google on ~100&nbsp;billion
@@ -545,8 +588,9 @@
         <span class="tok">Mexico_City</span>, <span class="tok">New_York_City</span>,
         <span class="tok">New_Delhi</span> and <span class="tok">Ho_Chi_Minh_City</span>
         genuinely do not (verified by scanning all 3M entries; the resolver tries
-        an ordered candidate list and takes the first hit). The decisions that
-        needed judgment:
+        an ordered candidate list and takes the first hit).
+        <details><summary>The four judgment calls (Mexico City, Ho Chi Minh City,
+          St&nbsp;Petersburg, …)</summary>
         <ul>
           <li><b>Mexico City</b> has no usable token at all, so its vector is the
             average of <span class="tok">Mexico</span> and
@@ -571,11 +615,15 @@
             <span class="tok">New_York</span> and <span class="tok">Delhi</span>;
             <b>Kyiv</b> resolves to its own token even in this era.</li>
         </ul>
+        </details>
         The unavoidable residue: a token fuses <i>every</i> sense of its string.
         Treaty-of-Lisbon coverage drags Lisbon away from Iberia,
         <span class="tok">Santiago</span> and <span class="tok">Hyderabad</span>
         each name several cities, and no resolver can untangle that — entity-level
         embeddings can (step&nbsp;12).</li>
+    </ol>
+    <h3 class="meth-sub">Similarity</h3>
+    <ol start="4">
       <li class="stat"><b>Similarity matrix.</b> Vectors are L2-normalized and all
         pairwise cosine similarities computed,
         <span class="math disp" data-tex="\cos(\mathbf{u},\mathbf{v}) \;=\; \frac{\mathbf{u}\cdot\mathbf{v}}{\lVert\mathbf{u}\rVert\,\lVert\mathbf{v}\rVert},">cos(u,v) = u&middot;v / (&#8214;u&#8214; &#8214;v&#8214;)</span>
@@ -607,6 +655,9 @@
         disparity &le;&nbsp;.005). Chord would be the safer default for datasets
         with near-duplicate items; here the simplest transform is also the
         best-behaved, so the map keeps d&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;cos.</li>
+    </ol>
+    <h3 class="meth-sub">Projection and evaluation</h3>
+    <ol start="6">
       <li><b>MDS.</b> Metric MDS <a class="cite" href="#ref-kruskal">(Kruskal,
         1964; Borg &amp; Groenen, 2005)</a> via SMACOF (scikit-learn 1.9) on the
         precomputed dissimilarities: 2 components, classical-MDS (Torgerson)
@@ -672,6 +723,9 @@
         so they describe residual correspondence rather than prove unsupervised
         recovery — for that, see the alignment-free geo-fidelity metric under the
         layout switcher.</li>
+    </ol>
+    <h3 class="meth-sub">Additional views and limitations</h3>
+    <ol start="10">
       <li><b>Geographic network view.</b> The same similarity matrix drawn over
         real geography: cities at their true (longitude, latitude) on an
         equirectangular projection, with a simplified Natural Earth 110m land
@@ -693,8 +747,12 @@
         pale rows = cities similar to nothing in particular.</li>
       <li><b>Beyond word2vec.</b> The 2013 model is kept deliberately — it is the
         canonical teaching model, ships ready-made phrase tokens, and its quirks
-        (Lisbon, St&nbsp;Petersburg) are instructive. Better representations
-        exist: <b>Wikipedia2Vec</b> embeds Wikipedia <i>entities</i>, so
+        (Lisbon, St&nbsp;Petersburg) are instructive. Swapping the embedding layer
+        changes step 1 only — the rest of the pipeline (cosine &rarr; dissimilarity
+        &rarr; layout) is unchanged.
+        <details><summary>Cleaner embeddings that would fix the quirks</summary>
+        Better representations exist: <b>Wikipedia2Vec</b> embeds Wikipedia
+        <i>entities</i>, so
         "Santiago (Chile)" and "Santiago de Cuba" stop sharing one vector — the
         cleanest fix for name collisions
         <a class="cite" href="#ref-yamada">(Yamada et&nbsp;al., 2020)</a>;
@@ -705,14 +763,14 @@
         <a class="cite" href="#ref-pennington">(Pennington, Socher, &amp;
         Manning, 2014)</a>; modern <b>sentence/LLM embeddings</b> could encode a
         whole city description, trading the elegant "meaning from raw
-        co-occurrence" story for quality. Swapping the embedding layer changes
-        step 1 only — the rest of this pipeline (cosine &rarr; dissimilarity
-        &rarr; layout) stays identical.</li>
+        co-occurrence" story for quality.</details></li>
     </ol>
   </section>
 
-  <details>
-    <summary>Data table (124 cities)</summary>
+  <details id="data" style="scroll-margin-top:12px">
+    <summary>View data for all 124 cities</summary>
+    <p class="summary-note">City · region · vocabulary token · nearest neighbour ·
+      cosine similarity. The full matrix is browsable in the heatmap above.</p>
     <div class="tblwrap"><table class="data" id="tbl">
       <thead><tr><th>City</th><th>Region</th><th>Vocabulary token</th>
         <th>Nearest neighbour</th><th>cos</th></tr></thead>
@@ -1265,6 +1323,15 @@
     document.getElementById("find").addEventListener("input", e => {
       const k = C.findIndex(c => c.n.toLowerCase() === e.target.value.trim().toLowerCase());
       if (k >= 0) select(k);
+    });
+    // "Try:" example chips — pin the city and scroll the maps into view
+    document.querySelectorAll(".trycity").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const k = C.findIndex(c => c.n === btn.textContent.trim());
+        if (k < 0) return;
+        select(k);
+        document.getElementById("explore").scrollIntoView({ block: "start" });
+      });
     });
 
     // ---------- table ----------

@@ -25,27 +25,32 @@ Europe, Lisbon is pulled away from Iberia by Treaty-of-Lisbon coverage).
 Supporting study: [dissim_study.py](dissim_study.py) — empirical comparison of
 similarity→dissimilarity transforms (see below).
 
-## Two views
+## Three linked views
 
-- **Semantic map** ([plot_map.py](plot_map.py)) — cities placed by MDS, so
-  *distance itself* encodes dissimilarity; the layout is then rotated onto real
-  geography (step 8 below).
+The [combined page](https://pozdniakov.github.io/city-similarity-map/) presents
+one similarity matrix three ways, with shared state (one cutoff slider, one
+selection):
+
 - **Geographic network** ([plot_geo_network.py](plot_geo_network.py)) — cities
   at their *true* longitude/latitude on an equirectangular world map, with an
-  edge drawn between any pair whose cosine similarity clears a threshold (line
-  opacity/width ∝ similarity). The slider spans **0.30–0.86**; the default
-  cutoff is **0.50** (451 of 7 626 pairs, avg degree ≈ 7 — dense enough to show
-  regional constellations, sparse enough to stay legible). A compact Natural
-  Earth 110m land outline (`data/ne_110m_land.geojson`) is simplified and
-  embedded so the page needs no external map tiles.
-- **Combined page** ([build_combined.py](build_combined.py) →
-  `output/similarity_maps.html`) — both views on one page with shared state:
-  one cutoff slider drives the network edges and the list split; hovering a
-  city previews its top-5 links on *both* charts; clicking pins it and opens a
-  side drawer ranking all 123 other cities (region glyph on every row), split
-  at the cutoff — links above draw solid, links below draw dashed and faint.
-  Ships the full 7 626-pair similarity array inline, so every list is computed
-  live.
+  edge drawn between any pair whose cosine similarity clears the cutoff (line
+  opacity/width ∝ similarity). Slider spans **0.30–0.86**; default **0.50**
+  (~450 of 7 626 pairs). A compact Natural Earth 110m land outline
+  (`data/ne_110m_land.geojson`) is embedded, so no external map tiles.
+- **Semantic map** ([plot_map.py](plot_map.py), [make_layouts.py](make_layouts.py))
+  — cities placed by dimensionality reduction, so *distance itself* encodes
+  dissimilarity; switchable between MDS / PCA / t-SNE / UMAP, each rotated onto
+  real geography (step 9).
+- **Clustered similarity matrix** — the full 124×124 matrix, rows/columns
+  seriated by hierarchical clustering, dendrogram + region-coloured names down
+  the left edge.
+
+The page ([build_combined.py](build_combined.py) → `output/similarity_maps.html`,
+`docs/index.html`) is structured as **question → How it works (4 cards) →
+Explore (the three views) → Methodology → Data → References**, with anchor
+navigation. Hovering a city previews its top-5 neighbours on both maps; clicking
+pins it and opens a side drawer ranking all 123 others. Ships the full
+7 626-pair similarity array inline, so every list is computed live.
 
 ## Method
 
