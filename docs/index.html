@@ -430,9 +430,12 @@
       <span class="sub">the same cities, laid out by meaning instead of geography</span></div>
     <div class="callout"><b>Here position is similarity itself: the closer two
       cities sit, the more similar their vectors.</b> No geography enters this
-      chart — the layout is computed from the vectors alone, then rigidly rotated
-      so that &rarr;&nbsp;east and &uarr;&nbsp;north match the globe where the
-      semantics allow it. Links show the same cutoff as above.</div>
+      chart — the layout is computed from the vectors alone (it is only turned
+      rigidly afterwards, so that &rarr;&nbsp;east and &uarr;&nbsp;north match the
+      globe where possible). How strictly the promise holds depends on the
+      algorithm you pick below: MDS honours all pairwise distances, t-SNE and
+      UMAP honour only neighbourhoods, PCA is the flat linear shadow. Links show
+      the same cutoff as above.</div>
     <div class="m-row">
       <span class="m-lab">Layout algorithm &mdash; try all four:</span>
       <div class="seg" id="seg" role="radiogroup" aria-label="Layout method">
