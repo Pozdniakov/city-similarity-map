@@ -80,9 +80,10 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cchip { border: 1.5px solid; border-radius: 5px; padding: 0 4px;
     color: var(--ink-1); font-weight: 500; }
-  .vrow { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-  .vrow .vl { font: 11px var(--font-mono); color: var(--ink-2); width: 58px;
-    flex: none; display: flex; align-items: center; gap: 5px; }
+  .vrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .vrow .vl { font: 11px var(--font-mono); color: var(--ink-2); width: 88px;
+    flex: none; display: flex; align-items: center; gap: 5px;
+    white-space: nowrap; }
   .vrow .vl i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
   .vrow canvas { flex: 1; height: 15px; border-radius: 2px; min-width: 0; }
   .mini-row { display: flex; align-items: center; gap: 4px; margin: 8px 0;
@@ -166,8 +167,11 @@
   .seg button.on { background: var(--accent); color: var(--plane); }
   .m-note { font-size: 16px; color: var(--ink-2); margin: 0 0 6px; max-width: 92ch; }
   .m-note b { color: var(--ink-1); }
-  .m-stats { font: 11px var(--font-mono); color: var(--ink-3); margin: 0 0 10px;
+  .m-stats { font: 11.5px var(--font-mono); color: var(--ink-2); margin: 0 0 3px;
     font-variant-numeric: tabular-nums; }
+  .m-legend { font: 10.5px var(--font-mono); color: var(--ink-3); margin: 0 0 10px;
+    max-width: 100ch; }
+  #cmheat { width: 100%; height: auto; display: block; cursor: crosshair; }
 
   .panel { background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 10px; padding: 8px; position: relative; }
@@ -357,11 +361,14 @@
       <h3><span class="n">3</span>cosine: the angle between vectors</h3>
       The same list of numbers can be drawn as an <b>arrow</b>: 300 numbers = an
       arrow in a 300-axis space (two axes shown). The closer two arrows point the
-      same way, the smaller the angle &theta; between them — and
+      same way, the smaller the angle &theta; between them, and
       <span class="math" data-tex="\cos\theta">cos&nbsp;&theta;</span> turns that
-      angle into a similarity score: 1 = same direction, 0 = unrelated. Below,
-      the arrows of the three vectors from card&nbsp;2, at their <b>real,
-      measured angles</b>:
+      angle into a similarity score:
+      <span class="math" data-tex="\cos 0^{\circ} = 1">cos 0&deg; = 1</span> for
+      identical directions,
+      <span class="math" data-tex="\cos 90^{\circ} = 0">cos 90&deg; = 0</span>
+      for unrelated ones. Below, the arrows of the three vectors from
+      card&nbsp;2, at their <b>real, measured angles</b>:
       <svg id="angdemo" class="diagram" viewBox="0 0 230 132" width="230" height="132"
         aria-label="Real angles between the Sydney, Melbourne and New York vectors in a coordinate plane"></svg>
       <div id="angcap"></div>
@@ -403,7 +410,12 @@
       <span class="sub">the familiar world map, with the semantics drawn on top</span></div>
     <div class="callout"><b>Here position is real geography</b> — every city sits at
       its true coordinates. The word2vec similarity lives only in the lines: a link
-      joins each pair above the cutoff, and thicker&nbsp;=&nbsp;more similar.</div>
+      joins each pair above the cutoff, and thicker&nbsp;=&nbsp;more similar. Read
+      it as a test of Tobler's first law of geography — <i>"everything is related
+      to everything else, but near things are more related than distant
+      things"</i> <a class="cite" href="#ref-tobler">(Tobler, 1970)</a> — against
+      news text: mostly the law wins, and the exceptions are the interesting
+      part.</div>
     <div class="panel geo">
       <svg id="map" class="chart" role="img"
         aria-label="World map of cities connected by semantic similarity"></svg>
@@ -420,19 +432,51 @@
       so that &rarr;&nbsp;east and &uarr;&nbsp;north match the globe where the
       semantics allow it. Links show the same cutoff as above.</div>
     <div class="m-row">
-      <span class="m-lab">Layout algorithm &mdash; try all three:</span>
+      <span class="m-lab">Layout algorithm &mdash; try all four:</span>
       <div class="seg" id="seg" role="radiogroup" aria-label="Layout method">
         <button data-l="mds" class="on" role="radio" aria-checked="true">MDS</button>
-        <button data-l="umap" role="radio" aria-checked="false">UMAP</button>
+        <button data-l="pca" role="radio" aria-checked="false">PCA</button>
         <button data-l="tsne" role="radio" aria-checked="false">t-SNE</button>
+        <button data-l="umap" role="radio" aria-checked="false">UMAP</button>
       </div>
     </div>
     <p class="m-note" id="m-note"></p>
     <p class="m-stats" id="m-stats"></p>
+    <p class="m-legend"><b>Stress-1</b> — how far on-screen distances deviate
+      from the target dissimilarities (0 = perfect fit; reported only for MDS,
+      which optimizes it) &middot; <b>recall@10</b> — what share of each city's
+      10 truly nearest neighbours (by cosine, in 300-d) are still among its 10
+      nearest on this 2-D screen &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> —
+      correlation of the axes with real longitude / latitude.</p>
     <div class="panel">
       <svg id="chart" class="chart" role="img"
         aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
       <div class="tip" id="tip1"></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <div class="sect-h"><h2>Similarity matrix</h2>
+      <span class="sub">all 7,626 pairs at once, ordered by hierarchical clustering</span></div>
+    <div class="callout"><b>The raw material of every view above.</b> Rows and
+      columns are the 124 cities; each cell is one cosine similarity. Hierarchical
+      clustering (average linkage on
+      <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>)
+      orders them so similar cities sit together: red blocks on the diagonal are
+      regions emerging on their own, warm patches off the blocks are cross-region
+      bridges, pale rows are loners. The tree on top shows where groups merge —
+      lower&nbsp;=&nbsp;more similar. Hover any cell for the pair; click to pin
+      the row's city.</div>
+    <div class="panel">
+      <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix"></canvas>
+      <div class="tip" id="tip3"></div>
+      <div class="heatcap" style="margin-top:6px">
+        <i style="background:rgba(227,73,72,1)"></i> cos = 1
+        <i style="background:rgba(227,73,72,.5)"></i> .5
+        <i style="background:rgba(227,73,72,.12)"></i> &approx; 0
+        <i style="background:rgba(42,120,214,.5)"></i> &lt; 0
+        <span style="margin-left:auto">region colours along both edges</span>
+      </div>
     </div>
   </section>
 
@@ -451,7 +495,12 @@
         Under the distributional hypothesis
         <a class="cite" href="#ref-harris">(Harris, 1954)</a>, cities mentioned in
         similar news contexts receive similar vectors — no geographic information
-        enters the similarity computation at any point.</li>
+        enters the similarity computation at any point. Two caveats follow
+        directly from the training data: what drives similarity is <i>news
+        salience</i>, not geography (a shared war, league or stock exchange pulls
+        cities together as surely as a shared border), and the corpus is frozen
+        in ~2013 — prominence and usage reflect that period's coverage (Kyiv
+        already resolves to its own token, but from pre-2014 usage).</li>
       <li><b>City list.</b> 124 cities curated by hand: metro population roughly
         &gt;1&nbsp;million and global prominence, deliberately <i>balanced</i>
         across 9 regions rather than ranked by population — a strict top-N by
@@ -459,26 +508,47 @@
         map would lose most of the regions a general reader recognizes. Region
         labels are used only for coloring — they play no role in the
         computation.</li>
-      <li class="stat"><b>Token resolution.</b> Each city has an ordered list of
-        candidate tokens (explicit overrides first, then the underscored display
-        name and a diacritics-stripped variant). A single streaming pass over the
-        1.74&nbsp;GB binary matches candidates byte-exactly against all 3M
-        vocabulary entries; the first candidate present wins. Absences are
-        verified, not assumed: <span class="tok">Mexico_City</span>,
-        <span class="tok">New_York_City</span>, <span class="tok">New_Delhi</span>
-        and <span class="tok">Ho_Chi_Minh_City</span> genuinely do not exist in
-        this vocabulary, so New York &rarr; <span class="tok">New_York</span>,
-        Delhi &rarr; <span class="tok">Delhi</span>, and Ho Chi Minh City maps to
-        <span class="tok">Saigon</span>. Ambiguous tokens were tested empirically
-        before choosing: <b>St&nbsp;Petersburg</b> uses
-        <span class="tok">Saint_Petersburg</span>, because the more frequent
-        <span class="tok">St._Petersburg</span> is dominated by the Florida city
-        (cos to Tampa = .68 vs Moscow = .60); <b>Mexico City</b>, lacking any
-        title-case token, is the mean of <span class="tok">Mexico</span> +
-        <span class="tok">City</span> — the all-caps dateline token
-        <span class="tok">MEXICO_CITY</span> was rejected because its
-        register-depressed similarities exile the city to the map edge;
-        <b>Kyiv</b> resolves to its own token even in this 2013-era corpus.</li>
+      <li class="stat"><b>Token resolution.</b> word2vec has no notion of
+        "city" — only of tokens, so each city must be mapped to the vocabulary
+        entry that best carries its meaning. Multiword names are the tricky part:
+        GoogleNews merged word pairs into single tokens <i>automatically</i>,
+        keeping only combinations that co-occur unusually often, so coverage is
+        arbitrary — <span class="tok">New_York</span> and
+        <span class="tok">Buenos_Aires</span> exist, while
+        <span class="tok">Mexico_City</span>, <span class="tok">New_York_City</span>,
+        <span class="tok">New_Delhi</span> and <span class="tok">Ho_Chi_Minh_City</span>
+        genuinely do not (verified by scanning all 3M entries; the resolver tries
+        an ordered candidate list and takes the first hit). The decisions that
+        needed judgment:
+        <ul>
+          <li><b>Mexico City</b> has no usable token at all, so its vector is the
+            average of <span class="tok">Mexico</span> and
+            <span class="tok">City</span> — the standard fallback for a missing
+            phrase. An alternative existed: <span class="tok">MEXICO_CITY</span>,
+            an all-caps token born from agency datelines ("MEXICO CITY (Reuters)
+            &mdash;&hellip;"). It was tested and rejected: dateline tokens live
+            among other datelines, so their cosines to ordinary words run
+            uniformly low, and the city was exiled to the edge of every map.</li>
+          <li><b>Ho Chi Minh City</b> lost its full name to the same phrase
+            lottery (only fragments like <span class="tok">Minh_City</span>
+            survive), but 2013 news text overwhelmingly calls the city
+            <span class="tok">Saigon</span> — a well-trained single token with
+            the right meaning, so it is used instead.</li>
+          <li><b>St&nbsp;Petersburg</b> is an ambiguity case: the frequent
+            <span class="tok">St._Petersburg</span> is dominated by
+            St.&nbsp;Petersburg, <i>Florida</i> (cos to Tampa = .68 vs
+            Moscow = .60), so the map uses
+            <span class="tok">Saint_Petersburg</span>, which is cleanly
+            Russian.</li>
+          <li><b>New York</b> and <b>Delhi</b> simply fall back to
+            <span class="tok">New_York</span> and <span class="tok">Delhi</span>;
+            <b>Kyiv</b> resolves to its own token even in this era.</li>
+        </ul>
+        The unavoidable residue: a token fuses <i>every</i> sense of its string.
+        Treaty-of-Lisbon coverage drags Lisbon away from Iberia,
+        <span class="tok">Santiago</span> and <span class="tok">Hyderabad</span>
+        each name several cities, and no resolver can untangle that — entity-level
+        embeddings can (step&nbsp;12).</li>
       <li class="stat"><b>Similarity matrix.</b> Vectors are L2-normalized and all
         pairwise cosine similarities computed,
         <span class="math disp" data-tex="\cos(\mathbf{u},\mathbf{v}) \;=\; \frac{\mathbf{u}\cdot\mathbf{v}}{\lVert\mathbf{u}\rVert\,\lVert\mathbf{v}\rVert},">cos(u,v) = u&middot;v / (&#8214;u&#8214; &#8214;v&#8214;)</span>
@@ -529,19 +599,25 @@
         adjacency are trustworthy; small distance differences are not. The hover
         overlay shows each city's true 300-d nearest neighbours precisely so the
         projection's compromises stay visible.</li>
-      <li class="stat"><b>Alternative layouts (the switcher).</b> UMAP
-        <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al., 2018)</a> and
-        t-SNE <a class="cite" href="#ref-vandermaaten">(van der Maaten &amp;
-        Hinton, 2008)</a> answer a different question than MDS. Both run on the
-        same vectors with cosine distance: UMAP (n_neighbors&nbsp;=&nbsp;15,
-        min_dist&nbsp;=&nbsp;0.3) builds a nearest-neighbour graph and lays the
-        <i>graph</i> out; t-SNE (perplexity&nbsp;=&nbsp;20) matches neighbour
-        probabilities. They preserve neighbourhoods far better than MDS —
-        recall@10 rises from .52 to .70&ndash;.71 — at the price that distances
-        <i>between</i> clusters stop meaning anything, which is why MDS (the only
-        distance-faithful method) stays the default view of this demo. All three
-        layouts are aligned to geography by the same rigid Procrustes step, so
-        the east&ndash;west reading survives switching.</li>
+      <li class="stat"><b>Alternative layouts (the switcher).</b> The four
+        algorithms, in historical order, answer progressively different
+        questions. <b>PCA</b> <a class="cite" href="#ref-pearson">(Pearson,
+        1901)</a> projects the cloud onto the two directions of greatest
+        variance — linear, so it cannot bend around curved structure and keeps
+        the fewest true neighbourhoods (recall@10 = .41). <b>MDS</b> optimizes
+        distances globally (Stress-1 = .347, recall@10 = .52) and is the only
+        distance-faithful view, hence the default. <b>t-SNE</b>
+        <a class="cite" href="#ref-vandermaaten">(van der Maaten &amp; Hinton,
+        2008)</a> and <b>UMAP</b>
+        <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al., 2018)</a> are
+        nonlinear neighbourhood methods on the same vectors with cosine distance
+        (perplexity&nbsp;=&nbsp;20; n_neighbors&nbsp;=&nbsp;15,
+        min_dist&nbsp;=&nbsp;0.3): they preserve local structure far better
+        (recall@10 = .71 / .70) at the price that distances <i>between</i>
+        clusters stop meaning anything. All four layouts are aligned to
+        geography by the same rigid Procrustes step, so the east&ndash;west
+        reading survives switching; the metric definitions sit under the
+        switcher itself.</li>
       <li><b>Orientation (geographic).</b> An MDS solution is unique only up to
         rotation, reflection and translation, so the raw axes are meaningless.
         Instead of an arbitrary convention, the configuration is aligned to real
@@ -565,6 +641,16 @@
         (edge count vs cutoff: 0.45&nbsp;&rarr;&nbsp;740, 0.50&nbsp;&rarr;&nbsp;451,
         0.55&nbsp;&rarr;&nbsp;265, 0.60&nbsp;&rarr;&nbsp;164,
         0.70&nbsp;&rarr;&nbsp;64).</li>
+      <li><b>Clustered similarity matrix.</b> The heatmap section shows the full
+        124&times;124 matrix with rows and columns reordered by agglomerative
+        hierarchical clustering: average linkage on
+        <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
+        with optimal leaf ordering (SciPy). No cluster count is chosen — the
+        dendrogram records the entire merge history, and the reordering alone
+        makes block structure visible. It is the exact matrix from card&nbsp;4,
+        complete and seriated: diagonal blocks = regions, off-block warm bands =
+        cross-region bridges (find the Gulf&nbsp;&harr;&nbsp;South Asia patch),
+        pale rows = cities similar to nothing in particular.</li>
       <li><b>Beyond word2vec.</b> The 2013 model is kept deliberately — it is the
         canonical teaching model, ships ready-made phrase tokens, and its quirks
         (Lisbon, St&nbsp;Petersburg) are instructive. Better representations
@@ -582,13 +668,6 @@
         co-occurrence" story for quality. Swapping the embedding layer changes
         step 1 only — the rest of this pipeline (cosine &rarr; dissimilarity
         &rarr; layout) stays identical.</li>
-      <li><b>Known limitations.</b> The corpus is 2013-era news: prominence
-        reflects that period's coverage (Kyiv still resolves, but from pre-2014
-        usage). A token conflates every sense of the string — Treaty-of-Lisbon
-        coverage displaces Lisbon, <span class="tok">Santiago</span> and
-        <span class="tok">Hyderabad</span> name multiple cities, and news
-        salience, not geography, drives similarity. One vector (Mexico City) is a
-        two-token composition rather than a native token.</li>
     </ol>
   </section>
 
@@ -627,10 +706,17 @@
       Dean, J. (2013). Distributed representations of words and phrases and their
       compositionality. <i>Advances in Neural Information Processing Systems,
       26</i>, 3111&ndash;3119. <a href="https://arxiv.org/abs/1310.4546">https://arxiv.org/abs/1310.4546</a></p>
+    <p id="ref-pearson">Pearson, K. (1901). On lines and planes of closest fit to
+      systems of points in space. <i>The London, Edinburgh, and Dublin
+      Philosophical Magazine and Journal of Science, 2</i>(11), 559&ndash;572.
+      <a href="https://doi.org/10.1080/14786440109462720">https://doi.org/10.1080/14786440109462720</a></p>
     <p id="ref-pennington">Pennington, J., Socher, R., &amp; Manning, C. D. (2014).
       GloVe: Global vectors for word representation. In <i>Proceedings of the 2014
       Conference on Empirical Methods in Natural Language Processing</i>
       (pp. 1532&ndash;1543). <a href="https://doi.org/10.3115/v1/D14-1162">https://doi.org/10.3115/v1/D14-1162</a></p>
+    <p id="ref-tobler">Tobler, W. R. (1970). A computer movie simulating urban
+      growth in the Detroit region. <i>Economic Geography, 46</i>(Suppl.),
+      234&ndash;240. <a href="https://doi.org/10.2307/143141">https://doi.org/10.2307/143141</a></p>
     <p id="ref-vandermaaten">van der Maaten, L., &amp; Hinton, G. (2008).
       Visualizing data using t-SNE. <i>Journal of Machine Learning Research, 9</i>,
       2579&ndash;2605. <a href="https://jmlr.org/papers/v9/vandermaaten08a.html">https://jmlr.org/papers/v9/vandermaaten08a.html</a></p>
@@ -709,7 +795,7 @@
     const SMAX = sims.reduce((m, v) => Math.max(m, v), 0);
 
     // ---------- project all semantic layouts to a common pixel space ----------
-    const LKEYS = ["mds", "umap", "tsne"];
+    const LKEYS = ["mds", "pca", "tsne", "umap"];
     const PROJ = {};
     for (const key of LKEYS) {
       const L = DATA.layouts[key];
@@ -733,26 +819,37 @@
 
     const METHOD_NOTE = {
       mds: `<b>MDS</b> <a class="cite" href="#ref-kruskal">(Kruskal, 1964)</a>
-        reproduces the distances themselves: the layout minimizes the mismatch
-        between screen distance and 1&nbsp;&minus;&nbsp;cos. Global geometry is
-        honest, but only about half of each city's true top-10 survives in 2-D —
-        hover to see what the plane had to give up.`,
-      umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes, Healy, &amp;
-        Melville, 2018)</a> builds a 15-nearest-neighbour graph in cosine space and
-        lays out the <i>graph</i>. Neighbourhoods are preserved much better than
-        MDS, but distance <i>between</i> clusters is not meaningful — do not read
-        the gaps, read the groupings.`,
+        reproduces the distances themselves: it seeks the layout whose on-screen
+        distances match the semantic dissimilarities
+        <span class="math" data-tex="d = 1 - \\cos\\theta">d = 1 &minus; cos&nbsp;&theta;</span>
+        as closely as possible. Global geometry is honest, but only about half of
+        each city's true top-10 survives in 2-D — hover to see what the plane had
+        to give up.`,
+      pca: `<b>PCA</b> <a class="cite" href="#ref-pearson">(Pearson, 1901)</a> is
+        the classical linear baseline: it projects the 300-d cloud onto the two
+        directions of greatest variance — a flat shadow. Being linear, it cannot
+        bend around curved structure, so it keeps the fewest true neighbourhoods
+        of the four; t-SNE and UMAP exist precisely to capture what this shadow
+        loses.`,
       tsne: `<b>t-SNE</b> <a class="cite" href="#ref-vandermaaten">(van der Maaten
-        &amp; Hinton, 2008)</a> matches neighbour probabilities (perplexity 20).
-        Local structure is the sharpest of the three, but global arrangement and
-        the space between clusters are largely artifacts of the optimizer.`,
+        &amp; Hinton, 2008)</a> is nonlinear: it matches neighbour probabilities
+        (perplexity 20), so local structure is the sharpest of the four — but
+        global arrangement and the space between clusters are largely artifacts
+        of the optimizer.`,
+      umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes, Healy, &amp;
+        Melville, 2018)</a>, the most recent of the four, builds a
+        15-nearest-neighbour graph in cosine space and lays out the <i>graph</i>.
+        Neighbourhoods are preserved as well as t-SNE with somewhat more global
+        coherence — but distance <i>between</i> clusters is still not meaningful.`,
     };
     const METHOD_STATS = {
-      mds: `Stress-1 = .347 &middot; neighbours kept: recall@10 = .52 &middot; ` +
+      mds: `Stress-1 = .347 &middot; recall@10 = .52 &middot; ` +
         `E–W <i>r</i> = .70 &middot; N–S <i>r</i> = .17`,
-      umap: `recall@10 = .70 &middot; E–W <i>r</i> = .85 &middot; N–S <i>r</i> = .21 ` +
-        `&middot; inter-cluster distances not comparable`,
+      pca: `recall@10 = .41 &middot; E–W <i>r</i> = .80 &middot; N–S <i>r</i> = .10 ` +
+        `&middot; linear projection`,
       tsne: `recall@10 = .71 &middot; E–W <i>r</i> = .90 &middot; N–S <i>r</i> = .40 ` +
+        `&middot; inter-cluster distances not comparable`,
+      umap: `recall@10 = .70 &middot; E–W <i>r</i> = .85 &middot; N–S <i>r</i> = .21 ` +
         `&middot; inter-cluster distances not comparable`,
     };
 
@@ -895,7 +992,9 @@
         mdsEls[k].setAttribute("x2", P.pts[j][0].toFixed(1));
         mdsEls[k].setAttribute("y2", P.pts[j][1].toFixed(1));
       });
-      document.getElementById("m-note").innerHTML = METHOD_NOTE[key];
+      const note = document.getElementById("m-note");
+      note.innerHTML = METHOD_NOTE[key];
+      renderMath(note);
       document.getElementById("m-stats").innerHTML = METHOD_STATS[key];
       document.querySelectorAll("#seg button").forEach(b => {
         const on = b.dataset.l === key;
@@ -1123,12 +1222,14 @@
     // ---------- teaching demos ----------
     // KaTeX render (deferred CDN script runs before DOMContentLoaded; if it is
     // blocked, the plain-text fallback inside each .math span stays visible)
-    if (window.katex) {
-      document.querySelectorAll(".math[data-tex]").forEach(el => {
+    function renderMath(root) {
+      if (!window.katex) return;
+      root.querySelectorAll(".math[data-tex]").forEach(el => {
         try { katex.render(el.dataset.tex, el, { throwOnError: false }); }
         catch (e) { /* keep fallback */ }
       });
     }
+    renderMath(document);
 
     // ---- through-line demo: Paris / London / Lagos in every card ----
     const demo = DATA.demo;
@@ -1233,9 +1334,10 @@
         Math.round(Math.acos(Math.min(1, demo.sims[0][i])) * 180 / Math.PI);
       document.getElementById("angcap").innerHTML = [1, 2].map(i =>
         `<div class="caprow"><span class="arc${i === 2 ? " dash" : ""}"></span>` +
+        `&theta; = ${degTo(i)}&deg;, so ` +
         `cos(<i class="dot" style="background:${DCOL[0]}"></i>${demo.cities[0]},&nbsp;` +
         `<i class="dot" style="background:${DCOL[i]}"></i>${demo.cities[i]})` +
-        ` = ${fmt2(demo.sims[0][i])} &nbsp;&rarr;&nbsp; &theta; = ${degTo(i)}&deg;</div>`
+        ` = ${fmt2(demo.sims[0][i])}</div>`
       ).join("");
 
       // card 4: the trio's similarity sub-matrix -> points on a mini map
@@ -1288,6 +1390,109 @@
       svgPut(md, "text", { x: 168, y: 114, "font-size": 8.5,
         fill: "var(--ink-3)", "text-anchor": "middle" },
         "distances ∝ 1 − cos");
+    }
+
+    // ---------- clustered similarity heatmap ----------
+    const cmc = document.getElementById("cmheat");
+    if (cmc && DATA.cluster) {
+      const cl = DATA.cluster, ord = cl.order;
+      const CELLC = 5, STRIP = 8, GAPC = 2, DH = 64;
+      const ox = STRIP + GAPC, oy = DH + GAPC + STRIP + GAPC;
+      cmc.width = ox + n * CELLC;
+      cmc.height = oy + n * CELLC;
+      const cssVar = v => getComputedStyle(document.documentElement)
+        .getPropertyValue(v).trim();
+      const cmBase = document.createElement("canvas");
+      cmBase.width = cmc.width; cmBase.height = cmc.height;
+      const blit = () => {
+        const g = cmc.getContext("2d");
+        g.clearRect(0, 0, cmc.width, cmc.height);
+        g.drawImage(cmBase, 0, 0);
+      };
+
+      function drawCmBase() {
+        const g = cmBase.getContext("2d");
+        g.clearRect(0, 0, cmBase.width, cmBase.height);
+        // dendrogram: icoord in 10k+5 leaf units, dcoord in d = 1-cos units
+        g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 1; g.globalAlpha = 0.75;
+        const dxu = u => ox + ((u - 5) / 10) * CELLC + CELLC / 2;
+        const dyu = d => DH - (d / cl.dmax) * (DH - 4);
+        cl.icoord.forEach((seg, si) => {
+          g.beginPath();
+          seg.forEach((u, k) => {
+            const x = dxu(u), y = dyu(cl.dcoord[si][k]);
+            k ? g.lineTo(x, y) : g.moveTo(x, y);
+          });
+          g.stroke();
+        });
+        g.globalAlpha = 1;
+        // region strips along top and left edges
+        ord.forEach((ci, k) => {
+          g.fillStyle = cssVar(st(C[ci].r).c);
+          g.fillRect(ox + k * CELLC, DH + GAPC, CELLC, STRIP);
+          g.fillRect(0, oy + k * CELLC, STRIP, CELLC);
+        });
+        // similarity cells
+        for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) {
+          const s = S(ord[a], ord[b]);
+          g.fillStyle = s >= 0
+            ? `rgba(227,73,72,${Math.min(1, s).toFixed(3)})`
+            : `rgba(42,120,214,${Math.min(1, -s).toFixed(3)})`;
+          g.fillRect(ox + b * CELLC, oy + a * CELLC, CELLC, CELLC);
+        }
+        blit();
+      }
+      drawCmBase();
+      // strip/dendrogram colours are computed from the theme — redraw on change
+      if (matchMedia("(prefers-color-scheme: dark)").addEventListener)
+        matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", drawCmBase);
+      new MutationObserver(drawCmBase).observe(document.documentElement,
+        { attributes: true, attributeFilter: ["data-theme"] });
+
+      const tip3 = document.getElementById("tip3");
+      const cmPanel = cmc.parentElement;
+      const cmCell = ev => {
+        const r = cmc.getBoundingClientRect();
+        const sc = cmc.width / r.width;
+        const x = (ev.clientX - r.left) * sc, y = (ev.clientY - r.top) * sc;
+        const b = Math.floor((x - ox) / CELLC), a = Math.floor((y - oy) / CELLC);
+        return (a >= 0 && a < n && b >= 0 && b < n) ? [a, b] : null;
+      };
+      cmc.addEventListener("pointermove", ev => {
+        blit();
+        const cell = cmCell(ev);
+        if (!cell) { tip3.style.display = "none"; return; }
+        const [a, b] = cell, i = ord[a], j = ord[b];
+        const g = cmc.getContext("2d");
+        g.fillStyle = "rgba(127,127,127,0.18)";
+        g.fillRect(ox, oy + a * CELLC, n * CELLC, CELLC);
+        g.fillRect(ox + b * CELLC, oy, CELLC, n * CELLC);
+        g.strokeStyle = cssVar("--ink-1"); g.lineWidth = 1.5;
+        g.strokeRect(ox + b * CELLC - 0.5, oy + a * CELLC - 0.5,
+          CELLC + 1, CELLC + 1);
+        tip3.innerHTML =
+          `<div class="t-row">${glyph(C[i].r, 12)}<span class="nm">${C[i].n}</span></div>` +
+          `<div class="t-row">${glyph(C[j].r, 12)}<span class="nm">${C[j].n}</span></div>` +
+          `<div class="t-meta" style="margin:4px 0 0">cos = ${i === j ? "1" : fmt2(S(i, j))}</div>`;
+        tip3.style.display = "block";
+        const pr = cmPanel.getBoundingClientRect();
+        let tx = (ev.clientX - pr.left) + 14, ty = (ev.clientY - pr.top) + 14;
+        const tw = tip3.offsetWidth, th = tip3.offsetHeight;
+        if (tx + tw > pr.width - 8) tx = (ev.clientX - pr.left) - tw - 14;
+        if (ty + th > pr.height - 8) ty = (ev.clientY - pr.top) - th - 14;
+        tip3.style.left = Math.max(6, tx).toFixed(0) + "px";
+        tip3.style.top = Math.max(6, ty).toFixed(0) + "px";
+      });
+      cmc.addEventListener("pointerleave", () => {
+        tip3.style.display = "none";
+        blit();
+      });
+      cmc.addEventListener("click", ev => {
+        const cell = cmCell(ev);
+        if (cell) select(ord[cell[0]]);
+      });
+      io.observe(cmPanel);
     }
 
     applyThreshold();

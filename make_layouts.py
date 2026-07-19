@@ -77,6 +77,12 @@ def main():
     mds_xy = pd.read_csv("data/mds_coordinates.csv")[["x", "y"]].to_numpy()
     layouts["mds"] = mds_xy
 
+    # PCA: the classical linear baseline — project onto the two directions of
+    # maximum variance; cannot capture nonlinear structure
+    from sklearn.decomposition import PCA
+    layouts["pca"] = align_to_geo(
+        PCA(n_components=2, random_state=RS).fit_transform(V), geo)
+
     import umap
     um = umap.UMAP(n_components=2, metric="cosine", n_neighbors=15,
                    min_dist=0.3, random_state=RS)

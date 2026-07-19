@@ -18,6 +18,8 @@ import sys
 
 import numpy as np
 import pandas as pd
+from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import squareform
 
 from cities import CITY_LATLON
 from plot_geo_network import LAT0, LAT1, LON0, LON1, load_land
@@ -64,11 +66,27 @@ def main():
     print("demo sims:", {f"{trio[a]}-{trio[b]}": demo["sims"][a][b]
                          for a in range(3) for b in range(a + 1, 3)})
 
+    # clustered heatmap: average-linkage hierarchy on d = 1 - cos with optimal
+    # leaf ordering; export the leaf order and ready-to-draw dendrogram polylines
+    D = 1.0 - S
+    np.fill_diagonal(D, 0.0)
+    Z = linkage(squareform((D + D.T) / 2.0, checks=False),
+                method="average", optimal_ordering=True)
+    dg = dendrogram(Z, no_plot=True)
+    cluster = {
+        "order": [int(i) for i in dg["leaves"]],
+        "icoord": [[round(x, 1) for x in seg] for seg in dg["icoord"]],
+        "dcoord": [[round(y, 3) for y in seg] for seg in dg["dcoord"]],
+        "dmax": round(float(Z[:, 2].max()), 3),
+    }
+    print("cluster order head:", [names[i] for i in cluster["order"][:8]])
+
     data = {
         "cities": cities,
         "sims": sims,
         "layouts": layouts,
         "demo": demo,
+        "cluster": cluster,
         "land": load_land("data/ne_110m_land.geojson"),
         "geometa": {"lon0": LON0, "lon1": LON1, "lat0": LAT0, "lat1": LAT1},
         "meta": {"min": SLIDER_MIN, "max": SLIDER_MAX, "default": SLIDER_DEFAULT},
