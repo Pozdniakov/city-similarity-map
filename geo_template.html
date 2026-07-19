@@ -1,0 +1,301 @@
+<meta charset="utf-8">
+<title>City similarity network — geographic map</title>
+<style>
+  :root {
+    --surface: #fcfcfb; --plane: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --hairline: rgba(11,11,11,0.10); --tip-bg: #ffffff;
+    --ocean: #f4f3ee; --land: #e4e1d7; --land-edge: #d3cfc3;
+    --edge: 42,120,214;              /* rgb of similarity links (blue) */
+    --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
+    --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834; --c9: #00838a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #1a1a19; --plane: #0d0d0d;
+      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+      --hairline: rgba(255,255,255,0.10); --tip-bg: #242423;
+      --ocean: #15150f; --land: #302e26; --land-edge: #3d3a30;
+      --edge: 90,160,240;
+      --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #009000;
+      --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926; --c9: #24a7ad;
+    }
+  }
+  :root[data-theme="light"] {
+    --surface: #fcfcfb; --plane: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --hairline: rgba(11,11,11,0.10); --tip-bg: #ffffff;
+    --ocean: #f4f3ee; --land: #e4e1d7; --land-edge: #d3cfc3;
+    --edge: 42,120,214;
+    --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
+    --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834; --c9: #00838a;
+  }
+  :root[data-theme="dark"] {
+    --surface: #1a1a19; --plane: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+    --hairline: rgba(255,255,255,0.10); --tip-bg: #242423;
+    --ocean: #15150f; --land: #302e26; --land-edge: #3d3a30;
+    --edge: 90,160,240;
+    --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #009000;
+    --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926; --c9: #24a7ad;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--plane); color: var(--ink-1);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+  header h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-wrap: balance; }
+  header .method { color: var(--ink-3); font-size: 13px; margin: 0; max-width: 82ch; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px;
+    margin: 18px 0 10px; padding: 12px 16px;
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px;
+  }
+  .slider { display: flex; align-items: center; gap: 12px; flex: 1 1 340px; min-width: 260px; }
+  .slider label { font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; white-space: nowrap; }
+  .slider input[type="range"] { flex: 1; accent-color: var(--c1); height: 22px; cursor: pointer; }
+  .slider input[type="range"]:focus-visible { outline: 2px solid var(--c1); outline-offset: 3px; }
+  .readout { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .readout .cut { font-size: 20px; font-weight: 700; color: var(--ink-1); }
+  .readout .sub { font-size: 12px; color: var(--ink-3); }
+  .readout .cut b { color: var(--c1); }
+
+  .panel { background: var(--ocean); border: 1px solid var(--hairline);
+    border-radius: 12px; padding: 6px; position: relative; overflow: hidden; }
+  #map { width: 100%; height: auto; display: block; }
+  #map .land { fill: var(--land); stroke: var(--land-edge); stroke-width: 0.4; }
+  #map .edge { stroke: rgb(var(--edge)); stroke-linecap: round; pointer-events: none; }
+  #map .dot { stroke: var(--surface); stroke-width: 1; cursor: pointer; }
+  #map .dot.mute { opacity: 0.28; }
+  #map .edge.hot { stroke: var(--c1); }
+  #map.hovering .edge:not(.hot) { opacity: 0.12 !important; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 2px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--ink-2); }
+  .legend i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+
+  #tip { position: absolute; z-index: 5; max-width: 240px; pointer-events: none;
+    background: var(--tip-bg); border: 1px solid var(--hairline); border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.16); padding: 9px 11px; font-size: 12.5px; display: none; }
+  #tip .t-name { font-weight: 650; font-size: 13.5px; color: var(--ink-1); }
+  #tip .t-meta { color: var(--ink-3); margin: 1px 0 7px; }
+  #tip .t-row { display: grid; grid-template-columns: 1fr 34px; gap: 8px;
+    align-items: center; margin: 2px 0; }
+  #tip .t-row .nm { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #tip .t-row .v { color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
+  #tip .none { color: var(--ink-3); font-style: italic; }
+
+  .notes { margin-top: 22px; color: var(--ink-2); font-size: 13.5px; max-width: 74ch; }
+  .notes h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0 0 8px; font-weight: 600; }
+  .notes ul { margin: 0; padding-left: 18px; }
+  .notes li { margin: 5px 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>City similarity as a geographic network</h1>
+    <p class="method">The same 124 cities at their <b>true coordinates</b>
+      (equirectangular projection). A line joins two cities when their word2vec
+      (Google News, 300d) cosine similarity clears the cutoff below; line weight
+      and opacity grow with similarity. Drag the slider to prune weak links.</p>
+  </header>
+
+  <div class="controls">
+    <div class="slider">
+      <label for="thr">Similarity&nbsp;cutoff</label>
+      <input id="thr" type="range" aria-label="Similarity cutoff">
+    </div>
+    <div class="readout">
+      <div class="cut">cosine ≥ <b id="tval">0.55</b></div>
+      <div class="sub"><span id="ecount">0</span> links shown · <span id="epct">0</span>% of all pairs</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <svg id="map" role="img" aria-label="World map of cities connected by semantic similarity"></svg>
+    <div id="tip"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <section class="notes">
+    <h2>Reading notes</h2>
+    <ul>
+      <li>This is the <b>real</b> world map — contrast it with the semantic (MDS)
+        map, where position itself encodes similarity. Here position is fixed by
+        geography and similarity is carried only by the lines.</li>
+      <li>Most links are <b>short and regional</b> (US cities to each other, the
+        Gulf states, the Indian metros, the Chinese tier-1 cities), which is why
+        the network reads as a set of national/regional constellations.</li>
+      <li>The interesting links are the <b>long ones</b> that survive a high
+        cutoff — e.g. the Gulf to South Asia, or intra-Anglosphere ties — bridges
+        the news corpus draws across oceans. Push the slider up to isolate them.</li>
+      <li>Hover or tap a city to spotlight just its links and list the cities it
+        connects to at the current cutoff.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  const DATA = __DATA__;
+  function init() {
+    const { cities, edges, land, meta } = DATA;
+    const NS = "http://www.w3.org/2000/svg";
+    const REGION = {
+      "North America": "--c1", "South America": "--c2", "Europe": "--c3",
+      "Middle East & North Africa": "--c4", "Sub-Saharan Africa": "--c5",
+      "South Asia": "--c6", "East Asia": "--c7", "Southeast Asia": "--c8",
+      "Oceania": "--c9",
+    };
+    const map = document.getElementById("map");
+    const tip = document.getElementById("tip");
+    const panel = map.parentElement;
+
+    const { lon0, lon1, lat0, lat1 } = meta;
+    const W = 1000, H = Math.round(W * (lat1 - lat0) / (lon1 - lon0));
+    map.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const projX = lon => (lon - lon0) / (lon1 - lon0) * W;
+    const projY = lat => (lat1 - lat) / (lat1 - lat0) * H;
+
+    // ---- land ----
+    const gLand = document.createElementNS(NS, "g");
+    for (const poly of land) {
+      let d = "";
+      for (const ring of poly) {
+        d += "M" + ring.map(p => `${projX(p[0]).toFixed(1)},${projY(p[1]).toFixed(1)}`).join("L") + "Z";
+      }
+      const path = document.createElementNS(NS, "path");
+      path.setAttribute("d", d);
+      path.setAttribute("class", "land");
+      path.setAttribute("fill-rule", "evenodd");
+      gLand.append(path);
+    }
+    map.append(gLand);
+
+    // ---- edges (all pre-created; slider toggles visibility) ----
+    const smax = edges.reduce((m, e) => Math.max(m, e[2]), 0);
+    const gEdge = document.createElementNS(NS, "g");
+    const adj = cities.map(() => []);
+    const edgeEls = edges.map(([i, j, s]) => {
+      const ln = document.createElementNS(NS, "line");
+      ln.setAttribute("x1", projX(cities[i].lon).toFixed(1));
+      ln.setAttribute("y1", projY(cities[i].lat).toFixed(1));
+      ln.setAttribute("x2", projX(cities[j].lon).toFixed(1));
+      ln.setAttribute("y2", projY(cities[j].lat).toFixed(1));
+      ln.setAttribute("class", "edge");
+      gEdge.append(ln);
+      adj[i].push([j, s]); adj[j].push([i, s]);
+      return { el: ln, i, j, s };
+    });
+    map.append(gEdge);
+
+    // ---- city dots ----
+    const gDot = document.createElementNS(NS, "g");
+    const dotEls = cities.map((c, k) => {
+      const dot = document.createElementNS(NS, "circle");
+      dot.setAttribute("cx", projX(c.lon).toFixed(1));
+      dot.setAttribute("cy", projY(c.lat).toFixed(1));
+      dot.setAttribute("r", 3.1);
+      dot.setAttribute("fill", `var(${REGION[c.r] || "--c1"})`);
+      dot.setAttribute("class", "dot");
+      dot.setAttribute("tabindex", "0");
+      dot.setAttribute("aria-label", c.n);
+      gDot.append(dot);
+      dot.addEventListener("pointerenter", () => spotlight(k));
+      dot.addEventListener("focus", () => spotlight(k));
+      dot.addEventListener("pointerleave", clear);
+      dot.addEventListener("blur", clear);
+      return dot;
+    });
+    map.append(gDot);
+    map.addEventListener("pointerleave", clear);
+
+    // ---- slider ----
+    const slider = document.getElementById("thr");
+    slider.min = meta.min; slider.max = meta.max; slider.step = 0.01; slider.value = meta.default;
+    const tval = document.getElementById("tval");
+    const ecount = document.getElementById("ecount");
+    const epct = document.getElementById("epct");
+    const totalPairs = cities.length * (cities.length - 1) / 2;
+
+    let curT = +slider.value;
+    function applyThreshold(t) {
+      curT = t;
+      let shown = 0;
+      for (const e of edgeEls) {
+        if (e.s >= t) {
+          const f = (e.s - t) / Math.max(1e-6, smax - t);
+          e.el.style.display = "";
+          e.el.style.strokeWidth = (0.35 + 1.9 * f).toFixed(2);
+          e.el.style.strokeOpacity = (0.14 + 0.5 * f).toFixed(3);
+          shown++;
+        } else {
+          e.el.style.display = "none";
+        }
+      }
+      tval.textContent = t.toFixed(2);
+      ecount.textContent = shown;
+      epct.textContent = (100 * shown / totalPairs).toFixed(1);
+    }
+    slider.addEventListener("input", () => applyThreshold(+slider.value));
+
+    // ---- hover spotlight ----
+    function spotlight(k) {
+      map.classList.add("hovering");
+      const linked = [];
+      for (const e of edgeEls) {
+        const on = e.s >= curT && (e.i === k || e.j === k);
+        e.el.classList.toggle("hot", on);
+        if (on) linked.push([e.i === k ? e.j : e.i, e.s]);
+      }
+      dotEls.forEach((d, idx) => d.classList.toggle("mute",
+        idx !== k && !linked.some(l => l[0] === idx)));
+      linked.sort((a, b) => b[1] - a[1]);
+      const c = cities[k];
+      tip.innerHTML = `<div class="t-name">${c.n}</div>` +
+        `<div class="t-meta">${c.r} · ${c.lat.toFixed(1)}°, ${c.lon.toFixed(1)}°</div>` +
+        (linked.length
+          ? linked.map(([idx, s]) =>
+              `<div class="t-row"><span class="nm">${cities[idx].n}</span>` +
+              `<span class="v">${s.toFixed(2)}</span></div>`).join("")
+          : `<div class="none">no links at this cutoff</div>`);
+      tip.style.display = "block";
+      const pr = panel.getBoundingClientRect();
+      const sx = projX(c.lon) / W * pr.width, sy = projY(c.lat) / H * pr.height;
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let tx = sx + 14; if (tx + tw > pr.width - 8) tx = sx - tw - 14;
+      let ty = sy + 14; if (ty + th > pr.height - 8) ty = sy - th - 14;
+      tip.style.left = Math.max(6, tx).toFixed(0) + "px";
+      tip.style.top = Math.max(6, ty).toFixed(0) + "px";
+    }
+    function clear() {
+      map.classList.remove("hovering");
+      edgeEls.forEach(e => e.el.classList.remove("hot"));
+      dotEls.forEach(d => d.classList.remove("mute"));
+      tip.style.display = "none";
+    }
+
+    // ---- legend ----
+    const leg = document.getElementById("legend");
+    const counts = {};
+    cities.forEach(c => { counts[c.r] = (counts[c.r] || 0) + 1; });
+    Object.keys(REGION).forEach(r => {
+      if (!counts[r]) return;
+      const s = document.createElement("span");
+      s.innerHTML = `<i style="background:var(${REGION[r]})"></i>${r} (${counts[r]})`;
+      leg.append(s);
+    });
+
+    applyThreshold(+slider.value);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>

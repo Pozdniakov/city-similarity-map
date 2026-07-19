@@ -1,0 +1,438 @@
+<meta charset="utf-8">
+<title>Semantic City Map — word2vec · MDS</title>
+<style>
+  :root {
+    --surface: #fcfcfb; --plane: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --grid: #e1e0d9; --hairline: rgba(11,11,11,0.10);
+    --tip-bg: #ffffff;
+    --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
+    --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #1a1a19; --plane: #0d0d0d;
+      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+      --grid: #2c2c2a; --hairline: rgba(255,255,255,0.10);
+      --tip-bg: #242423;
+      --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #008300;
+      --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926;
+    }
+  }
+  :root[data-theme="light"] {
+    --surface: #fcfcfb; --plane: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --grid: #e1e0d9; --hairline: rgba(11,11,11,0.10);
+    --tip-bg: #ffffff;
+    --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
+    --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834;
+  }
+  :root[data-theme="dark"] {
+    --surface: #1a1a19; --plane: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+    --grid: #2c2c2a; --hairline: rgba(255,255,255,0.10);
+    --tip-bg: #242423;
+    --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #008300;
+    --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--plane); color: var(--ink-1);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+  header h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-wrap: balance; }
+  header .method { color: var(--ink-3); font-size: 13px; margin: 0; }
+  header .stats { color: var(--ink-2); font-size: 13px; margin: 6px 0 0;
+    font-variant-numeric: tabular-nums; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 18px 0 10px; }
+  .toolbar input[type="search"] {
+    background: var(--surface); border: 1px solid var(--hairline); color: var(--ink-1);
+    border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; width: 190px;
+  }
+  .toolbar input[type="search"]:focus-visible,
+  .chip:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--c1); outline-offset: 2px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--hairline); color: var(--ink-2);
+    border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px;
+    transition: opacity .15s;
+  }
+  .chip.off { opacity: .38; }
+  .chip svg { display: block; }
+  .panel {
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 12px; padding: 8px; position: relative;
+  }
+  #chart { width: 100%; height: auto; display: block; }
+  #chart text.lbl {
+    fill: var(--ink-2); font-size: 10.5px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    paint-order: stroke; stroke: var(--surface); stroke-width: 2.5px; stroke-linejoin: round;
+  }
+  #chart .pt { cursor: pointer; }
+  #chart .dim { opacity: .13; }
+  #chart .nbline { pointer-events: none; }
+  #tip {
+    position: absolute; z-index: 5; max-width: 260px; pointer-events: none;
+    background: var(--tip-bg); border: 1px solid var(--hairline); border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.14); padding: 10px 12px; font-size: 12.5px;
+    display: none;
+  }
+  #tip .t-name { font-weight: 650; font-size: 13.5px; color: var(--ink-1); }
+  #tip .t-meta { color: var(--ink-3); margin: 1px 0 8px; }
+  #tip .t-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 7px;
+    align-items: center; margin: 3px 0; }
+  #tip .t-row .nm { color: var(--ink-2); white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; }
+  #tip .t-row .bar { height: 5px; border-radius: 3px; background: var(--grid);
+    overflow: hidden; }
+  #tip .t-row .bar i { display: block; height: 100%; border-radius: 3px; }
+  #tip .t-row .v { color: var(--ink-3); text-align: right;
+    font-variant-numeric: tabular-nums; }
+  .notes { margin-top: 22px; color: var(--ink-2); font-size: 13.5px; max-width: 72ch; }
+  .notes h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0 0 8px; font-weight: 600; }
+  .notes ul, .notes ol { margin: 0; padding-left: 18px; }
+  .notes li { margin: 5px 0; }
+  .notes ol li { margin: 9px 0; }
+  .notes .formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; }
+  .notes .tok { font-size: 12.5px; background: var(--surface);
+    border: 1px solid var(--hairline); border-radius: 5px; padding: 0 5px; }
+  details { margin-top: 22px; }
+  summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; font-weight: 600; }
+  .tblwrap { overflow-x: auto; margin-top: 10px; border: 1px solid var(--hairline);
+    border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 640px; }
+  th, td { text-align: left; padding: 6px 12px; border-top: 1px solid var(--grid);
+    white-space: nowrap; }
+  thead th { border-top: none; color: var(--ink-3); font-weight: 600; font-size: 12px;
+    position: sticky; top: 0; background: var(--surface); }
+  td.num { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody tr:hover { background: var(--plane); }
+  @media (max-width: 640px) {
+    #chart text.lbl { display: none; }
+    .toolbar input[type="search"] { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Semantic map of 124 world cities</h1>
+    <p class="method">word2vec (Google News, 300d) &rarr; cosine similarity &rarr;
+      dissimilarity (1&nbsp;&minus;&nbsp;cos) &rarr; 2-D metric MDS (SMACOF), then
+      rigidly rotated to real geography: &rarr;&nbsp;east, &uarr;&nbsp;north.</p>
+    <p class="stats">124 cities &middot; 9 regions &middot; Kruskal stress-1 0.347 &middot;
+      east&ndash;west tracks longitude (r&nbsp;0.70), north&ndash;south latitude only
+      weakly (r&nbsp;0.17)</p>
+  </header>
+
+  <div class="toolbar">
+    <input id="find" type="search" list="citylist" placeholder="Find a city&hellip;"
+      aria-label="Find a city">
+    <datalist id="citylist"></datalist>
+    <div class="chips" id="chips" role="group" aria-label="Toggle regions"></div>
+  </div>
+
+  <div class="panel">
+    <svg id="chart" role="img" aria-label="Scatter plot of 124 cities positioned by semantic similarity"></svg>
+    <div id="tip"></div>
+  </div>
+
+  <section class="notes">
+    <h2>Reading notes</h2>
+    <ul>
+      <li><b>Orientation is real.</b> The map is rotated (a rigid, distance-preserving
+        fit to each city's true longitude/latitude) so left&rarr;right runs
+        west&rarr;east and bottom&rarr;top runs south&rarr;north. The east&ndash;west
+        axis genuinely tracks longitude (r&nbsp;0.70) — the Americas fall on the left,
+        Asia on the right — but the north&ndash;south axis barely tracks latitude
+        (r&nbsp;0.17): word2vec encodes which <i>region/language</i> a city belongs to
+        far more than how far north it sits.</li>
+      <li>Hover or tap a city to see its five nearest neighbours in the full 300-d
+        space — lines show where 2-D had to compromise (e.g. Dubai is pulled between
+        the Gulf and South Asia).</li>
+      <li><b>Mexico City</b> has no title-case token in the GoogleNews vocabulary
+        (verified by a full scan); its vector is the mean of
+        <span class="tok">Mexico</span> + <span class="tok">City</span>. The
+        dateline token <span class="tok">MEXICO_CITY</span> was tried and rejected
+        — its register-depressed similarities exile the city to the map edge.</li>
+      <li><b>St&nbsp;Petersburg</b> uses <span class="tok">Saint_Petersburg</span> —
+        the more frequent <span class="tok">St._Petersburg</span> is dominated by the
+        Florida city (similarity to Tampa 0.68 vs Moscow 0.60).</li>
+      <li><b>Ho Chi Minh City</b> maps to <span class="tok">Saigon</span>;
+        <b>Kyiv</b> resolves to its own token in this 2013-era corpus.</li>
+      <li><b>Lisbon</b> drifts away from Iberia — its vector is polluted by
+        Treaty-of-Lisbon news coverage. Corpus artifacts like this are part of what
+        the map reveals.</li>
+    </ul>
+  </section>
+
+  <section class="notes">
+    <h2>Methodology</h2>
+    <ol>
+      <li><b>Embedding model.</b> GoogleNews-vectors-negative300: word2vec
+        (skip-gram with negative sampling) trained by Google on ~100&nbsp;billion
+        words of Google News text (circa 2013). Vocabulary of 3&nbsp;million
+        tokens, 300 dimensions per vector, with frequent multiword phrases merged
+        into single tokens (<span class="tok">New_York</span>,
+        <span class="tok">Buenos_Aires</span>). Under the distributional
+        hypothesis, cities mentioned in similar news contexts receive similar
+        vectors — no geographic information enters the pipeline at any point.</li>
+      <li><b>City list.</b> 124 cities curated by hand: metro population roughly
+        &gt;1&nbsp;million and global prominence, balanced across 9 regions
+        (North America 21, Europe 24, Middle East &amp; North Africa 17, East Asia 13,
+        South Asia 12, Sub-Saharan Africa 12, South America 11, Southeast Asia 9,
+        Oceania 5). Region labels are used only for coloring the map — they play
+        no role in the computation.</li>
+      <li><b>Token resolution.</b> Each city has an ordered list of candidate
+        tokens (explicit overrides first, then the underscored display name and a
+        diacritics-stripped variant). A single streaming pass over the 1.74&nbsp;GB
+        binary matches candidates byte-exactly against all 3M vocabulary entries;
+        the first candidate present wins. Absences are verified, not assumed:
+        <span class="tok">Mexico_City</span>, <span class="tok">New_York_City</span>,
+        <span class="tok">New_Delhi</span> and <span class="tok">Ho_Chi_Minh_City</span>
+        genuinely do not exist in this vocabulary. Ambiguous tokens were tested
+        empirically before choosing (see reading notes: the Tampa test for
+        St&nbsp;Petersburg, the dateline-register test for Mexico City).</li>
+      <li><b>Similarity matrix.</b> Vectors are L2-normalized and all pairwise
+        cosine similarities computed:
+        <span class="formula">cos(u,v) = u&middot;v / (&#8214;u&#8214;&#8214;v&#8214;)</span>,
+        giving a symmetric 124&times;124 matrix (7,626 unique pairs). Observed
+        range &minus;0.06 (Houston&ndash;Lisbon) to 0.86 (Sydney&ndash;Melbourne),
+        mean 0.30.</li>
+      <li><b>Dissimilarity.</b> <span class="formula">d = 1 &minus; cos</span>,
+        diagonal forced to 0, matrix symmetrized. This is the direct reading of
+        "convert similarity to dissimilarity"; it is not guaranteed to satisfy
+        the triangle inequality, which is fine — SMACOF accepts arbitrary
+        dissimilarities.</li>
+      <li><b>MDS.</b> Metric MDS via SMACOF (scikit-learn 1.9) on the precomputed
+        dissimilarities: 2 components, classical-MDS (Torgerson) initialization
+        followed by stress-majorization iterations (max 3000, tolerance
+        10<sup>&minus;9</sup>), which makes the solution deterministic. SMACOF
+        minimizes raw stress
+        <span class="formula">&Sigma; (d&#770;<sub>ij</sub> &minus; d<sub>ij</sub>)&sup2;</span>
+        between input dissimilarities d&#770; and embedding distances d.</li>
+      <li><b>Fit diagnostics.</b> Kruskal stress-1
+        <span class="formula">= &radic;(&Sigma;(d&#770;<sub>ij</sub> &minus; d<sub>ij</sub>)&sup2;
+        / &Sigma; d<sub>ij</sub>&sup2;) = 0.347</span>; Pearson correlation between
+        input dissimilarities and 2-D distances r&nbsp;=&nbsp;0.71 (Spearman
+        &rho;&nbsp;=&nbsp;0.71). By Kruskal's rule of thumb (&lt;0.05 excellent,
+        &gt;0.2 poor) this is a heavily compressed fit — unavoidable when
+        flattening the high-rank similarity structure of 300-d embeddings into a
+        plane. Read the map accordingly: cluster membership and adjacency are
+        trustworthy; small distance differences are not. The hover overlay shows
+        each city's true 300-d nearest neighbours precisely so the projection's
+        compromises stay visible.</li>
+      <li><b>Orientation (geographic).</b> An MDS solution is unique only up to
+        rotation, reflection and translation, so the raw axes are meaningless.
+        Instead of an arbitrary convention, the configuration is aligned to real
+        geography by <b>orthogonal Procrustes</b>: the rotation + reflection that
+        best maps the embedding onto each city's true (longitude, latitude), with
+        the two geographic axes standardized so east&ndash;west and north&ndash;south
+        count equally. This is a rigid transform — it preserves every pairwise
+        distance and the stress exactly, and only decides which way is up. The
+        result: east&ndash;west correspondence with longitude jumps from an
+        arbitrary r&nbsp;0.48 to <b>0.70</b>, and north&ndash;south flips
+        right-side-up (r&nbsp;&minus;0.21&nbsp;&rarr;&nbsp;+0.17). Latitude stays
+        weak because even the single best rotation cannot push it past r&nbsp;0.21
+        — the semantic structure simply does not encode north&ndash;south.</li>
+      <li><b>Known limitations.</b> The corpus is 2013-era news: prominence
+        reflects that period's coverage (Kyiv still resolves, but from pre-2014
+        usage). A token conflates every sense of the string — Treaty-of-Lisbon
+        coverage displaces Lisbon, <span class="tok">Santiago</span> and
+        <span class="tok">Hyderabad</span> name multiple cities, and news
+        salience, not geography, drives similarity. One vector (Mexico City) is a
+        two-token composition rather than a native token.</li>
+    </ol>
+  </section>
+
+  <details>
+    <summary>Data table (124 cities)</summary>
+    <div class="tblwrap"><table id="tbl">
+      <thead><tr><th>City</th><th>Region</th><th>Vocabulary token</th>
+        <th>Nearest neighbour</th><th>cos</th><th>x</th><th>y</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </details>
+</div>
+
+<script>
+(function () {
+  const DATA = __DATA__;
+  function init() {
+  const REGION = {
+    "North America":              { c: "--c1", m: "circle" },
+    "South America":              { c: "--c2", m: "square" },
+    "Europe":                     { c: "--c3", m: "tri" },
+    "Middle East & North Africa": { c: "--c4", m: "diamond" },
+    "Sub-Saharan Africa":         { c: "--c5", m: "tridown" },
+    "South Asia":                 { c: "--c6", m: "plus" },
+    "East Asia":                  { c: "--c7", m: "x" },
+    "Southeast Asia":             { c: "--c8", m: "pent" },
+    "Oceania":                    { c: "--c1", m: "tri" },
+  };
+  const MARK = {
+    circle:  s => `M ${-s},0 a ${s},${s} 0 1,0 ${2*s},0 a ${s},${s} 0 1,0 ${-2*s},0`,
+    square:  s => `M ${-s*0.9},${-s*0.9} h ${1.8*s} v ${1.8*s} h ${-1.8*s} Z`,
+    tri:     s => `M 0,${-s*1.15} L ${s*1.05},${s*0.85} L ${-s*1.05},${s*0.85} Z`,
+    tridown: s => `M 0,${s*1.15} L ${s*1.05},${-s*0.85} L ${-s*1.05},${-s*0.85} Z`,
+    diamond: s => `M 0,${-s*1.2} L ${s*1.2},0 L 0,${s*1.2} L ${-s*1.2},0 Z`,
+    plus:    s => { const w = s*0.42, o = s*1.15;
+      return `M ${-w},${-o} h ${2*w} v ${o-w} h ${o-w} v ${2*w} h ${-(o-w)} v ${o-w} h ${-2*w} v ${-(o-w)} h ${-(o-w)} v ${-2*w} h ${o-w} Z`; },
+    x:       s => { const w = s*0.40, o = s*0.95;
+      return `M ${-o-w},${-o+w} L ${-w},0 L ${-o-w},${o-w} L ${-o+w},${o+w} L 0,${w} L ${o-w},${o+w} L ${o+w},${o-w} L ${w},0 L ${o+w},${-o+w} L ${o-w},${-o-w} L 0,${-w} L ${-o+w},${-o-w} Z`; },
+    pent:    s => { const p = []; for (let k = 0; k < 5; k++) {
+        const a = -Math.PI/2 + k*2*Math.PI/5;
+        p.push(`${(Math.cos(a)*s*1.15).toFixed(2)},${(Math.sin(a)*s*1.15).toFixed(2)}`); }
+      return "M " + p.join(" L ") + " Z"; },
+  };
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const C = DATA.cities;
+  const svg = document.getElementById("chart");
+  const tip = document.getElementById("tip");
+  const panel = svg.parentElement;
+  const NS = "http://www.w3.org/2000/svg";
+
+  // view box from data extents (labels included so none clip)
+  const xs = C.flatMap(c => [c.x, c.lx]), ys = C.flatMap(c => [c.y, c.ly]);
+  const pad = 0.07;
+  const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad + 0.05;
+  const y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+  const W = 1080, H = W * (y1 - y0) / (x1 - x0);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H.toFixed(0)}`);
+  const px = x => (x - x0) / (x1 - x0) * W;
+  const py = y => H - (y - y0) / (y1 - y0) * H;   // data y-up -> svg y-down
+
+  const gLines = document.createElementNS(NS, "g");
+  const gPts = document.createElementNS(NS, "g");
+  const gLbl = document.createElementNS(NS, "g");
+  svg.append(gLines, gPts, gLbl);
+
+  const nodes = [];
+  C.forEach((c, i) => {
+    const st = REGION[c.r];
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", MARK[st.m](6));
+    p.setAttribute("transform", `translate(${px(c.x).toFixed(1)},${py(c.y).toFixed(1)})`);
+    p.setAttribute("fill", `var(${st.c})`);
+    p.setAttribute("stroke", "var(--surface)");
+    p.setAttribute("stroke-width", "1.4");
+    p.setAttribute("class", "pt");
+    p.setAttribute("tabindex", "0");
+    p.setAttribute("aria-label", c.n);
+    gPts.append(p);
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", px(c.lx).toFixed(1));
+    t.setAttribute("y", (py(c.ly) - 4).toFixed(1));
+    t.setAttribute("class", "lbl");
+    t.textContent = c.n;
+    gLbl.append(t);
+    nodes.push({ p, t });
+    p.addEventListener("pointerenter", e => select(i, e));
+    p.addEventListener("focus", e => select(i, e));
+    p.addEventListener("pointerleave", clear);
+    p.addEventListener("blur", clear);
+  });
+  svg.addEventListener("pointerleave", clear);
+
+  function select(i, ev) {
+    clear();
+    const c = C[i], st = REGION[c.r];
+    c.nb.forEach(([j]) => {
+      const l = document.createElementNS(NS, "line");
+      l.setAttribute("x1", px(c.x)); l.setAttribute("y1", py(c.y));
+      l.setAttribute("x2", px(C[j].x)); l.setAttribute("y2", py(C[j].y));
+      l.setAttribute("stroke", `var(${st.c})`);
+      l.setAttribute("stroke-opacity", "0.45");
+      l.setAttribute("stroke-width", "1.6");
+      l.setAttribute("class", "nbline");
+      gLines.append(l);
+    });
+    tip.innerHTML =
+      `<div class="t-name">${c.n}</div>` +
+      `<div class="t-meta">${c.r} &middot; token <b>${c.t}</b></div>` +
+      c.nb.map(([j, s]) => {
+        const nc = REGION[C[j].r].c;
+        return `<div class="t-row"><span class="nm">${C[j].n}</span>` +
+          `<span class="bar"><i style="width:${(s*100).toFixed(0)}%;background:var(${nc})"></i></span>` +
+          `<span class="v">${s.toFixed(2)}</span></div>`;
+      }).join("");
+    tip.style.display = "block";
+    const pr = panel.getBoundingClientRect();
+    const sx = px(c.x) / W * pr.width, sy = py(c.y) / H * (pr.width * H / W);
+    let tx = sx + 18, ty = sy - 10;
+    tip.style.left = "0px"; tip.style.top = "0px";
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    if (tx + tw > pr.width - 10) tx = sx - tw - 18;
+    ty = Math.max(8, Math.min(ty, pr.height - th - 8));
+    tip.style.left = tx.toFixed(0) + "px";
+    tip.style.top = ty.toFixed(0) + "px";
+  }
+  function clear() {
+    gLines.replaceChildren();
+    tip.style.display = "none";
+  }
+
+  // region chips
+  const off = new Set();
+  const chipBox = document.getElementById("chips");
+  const chipGlyph = (st) => {
+    const s = document.createElementNS(NS, "svg");
+    s.setAttribute("width", "14"); s.setAttribute("height", "14");
+    s.setAttribute("viewBox", "-8 -8 16 16");
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", MARK[st.m](5.4));
+    p.setAttribute("fill", `var(${st.c})`);
+    s.append(p);
+    return s;
+  };
+  Object.entries(REGION).forEach(([r, st]) => {
+    const n = C.filter(c => c.r === r).length;
+    if (!n) return;
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.append(chipGlyph(st), document.createTextNode(`${r} (${n})`));
+    b.setAttribute("aria-pressed", "true");
+    b.addEventListener("click", () => {
+      off.has(r) ? off.delete(r) : off.add(r);
+      b.classList.toggle("off", off.has(r));
+      b.setAttribute("aria-pressed", String(!off.has(r)));
+      C.forEach((c, i) => {
+        nodes[i].p.classList.toggle("dim", off.has(c.r));
+        nodes[i].t.classList.toggle("dim", off.has(c.r));
+      });
+    });
+    chipBox.append(b);
+  });
+
+  // search
+  const dl = document.getElementById("citylist");
+  C.forEach(c => { const o = document.createElement("option"); o.value = c.n; dl.append(o); });
+  document.getElementById("find").addEventListener("input", e => {
+    const i = C.findIndex(c => c.n.toLowerCase() === e.target.value.trim().toLowerCase());
+    if (i >= 0) { select(i); nodes[i].p.focus(); }
+  });
+
+  // table
+  const tb = document.querySelector("#tbl tbody");
+  [...C].sort((a, b) => a.r.localeCompare(b.r) || a.n.localeCompare(b.n)).forEach(c => {
+    const [j, s] = c.nb[0];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${c.n}</td><td>${c.r}</td><td>${c.t}</td>` +
+      `<td>${C[j].n}</td><td class="num">${s.toFixed(3)}</td>` +
+      `<td class="num">${c.x.toFixed(3)}</td><td class="num">${c.y.toFixed(3)}</td>`;
+    tb.append(tr);
+  });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>

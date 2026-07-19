@@ -1,0 +1,125 @@
+city,region,token
+New York,North America,New_York
+Los Angeles,North America,Los_Angeles
+Chicago,North America,Chicago
+Houston,North America,Houston
+Phoenix,North America,Phoenix
+Philadelphia,North America,Philadelphia
+San Francisco,North America,San_Francisco
+Boston,North America,Boston
+Seattle,North America,Seattle
+Atlanta,North America,Atlanta
+Dallas,North America,Dallas
+Denver,North America,Denver
+Miami,North America,Miami
+Washington DC,North America,Washington_DC
+Toronto,North America,Toronto
+Montreal,North America,Montreal
+Vancouver,North America,Vancouver
+Mexico City,North America,"mean(Mexico,City)"
+Guadalajara,North America,Guadalajara
+Monterrey,North America,Monterrey
+Havana,North America,Havana
+Sao Paulo,South America,Sao_Paulo
+Rio de Janeiro,South America,Rio_de_Janeiro
+Brasilia,South America,Brasilia
+Buenos Aires,South America,Buenos_Aires
+Lima,South America,Lima
+Bogota,South America,Bogota
+Medellin,South America,Medellin
+Santiago,South America,Santiago
+Caracas,South America,Caracas
+Quito,South America,Quito
+Montevideo,South America,Montevideo
+London,Europe,London
+Paris,Europe,Paris
+Berlin,Europe,Berlin
+Madrid,Europe,Madrid
+Barcelona,Europe,Barcelona
+Rome,Europe,Rome
+Milan,Europe,Milan
+Amsterdam,Europe,Amsterdam
+Brussels,Europe,Brussels
+Vienna,Europe,Vienna
+Munich,Europe,Munich
+Zurich,Europe,Zurich
+Prague,Europe,Prague
+Warsaw,Europe,Warsaw
+Budapest,Europe,Budapest
+Bucharest,Europe,Bucharest
+Athens,Europe,Athens
+Stockholm,Europe,Stockholm
+Copenhagen,Europe,Copenhagen
+Dublin,Europe,Dublin
+Lisbon,Europe,Lisbon
+Kyiv,Europe,Kyiv
+Moscow,Europe,Moscow
+St Petersburg,Europe,Saint_Petersburg
+Istanbul,Middle East & North Africa,Istanbul
+Ankara,Middle East & North Africa,Ankara
+Cairo,Middle East & North Africa,Cairo
+Tehran,Middle East & North Africa,Tehran
+Baghdad,Middle East & North Africa,Baghdad
+Riyadh,Middle East & North Africa,Riyadh
+Jeddah,Middle East & North Africa,Jeddah
+Dubai,Middle East & North Africa,Dubai
+Abu Dhabi,Middle East & North Africa,Abu_Dhabi
+Doha,Middle East & North Africa,Doha
+Amman,Middle East & North Africa,Amman
+Beirut,Middle East & North Africa,Beirut
+Jerusalem,Middle East & North Africa,Jerusalem
+Tel Aviv,Middle East & North Africa,Tel_Aviv
+Casablanca,Middle East & North Africa,Casablanca
+Algiers,Middle East & North Africa,Algiers
+Tunis,Middle East & North Africa,Tunis
+Lagos,Sub-Saharan Africa,Lagos
+Kinshasa,Sub-Saharan Africa,Kinshasa
+Johannesburg,Sub-Saharan Africa,Johannesburg
+Cape Town,Sub-Saharan Africa,Cape_Town
+Nairobi,Sub-Saharan Africa,Nairobi
+Addis Ababa,Sub-Saharan Africa,Addis_Ababa
+Dar es Salaam,Sub-Saharan Africa,Dar_es_Salaam
+Accra,Sub-Saharan Africa,Accra
+Abidjan,Sub-Saharan Africa,Abidjan
+Dakar,Sub-Saharan Africa,Dakar
+Luanda,Sub-Saharan Africa,Luanda
+Khartoum,Sub-Saharan Africa,Khartoum
+Mumbai,South Asia,Mumbai
+Delhi,South Asia,Delhi
+Kolkata,South Asia,Kolkata
+Chennai,South Asia,Chennai
+Bangalore,South Asia,Bangalore
+Hyderabad,South Asia,Hyderabad
+Karachi,South Asia,Karachi
+Lahore,South Asia,Lahore
+Islamabad,South Asia,Islamabad
+Dhaka,South Asia,Dhaka
+Colombo,South Asia,Colombo
+Kathmandu,South Asia,Kathmandu
+Tokyo,East Asia,Tokyo
+Osaka,East Asia,Osaka
+Seoul,East Asia,Seoul
+Beijing,East Asia,Beijing
+Shanghai,East Asia,Shanghai
+Guangzhou,East Asia,Guangzhou
+Shenzhen,East Asia,Shenzhen
+Chengdu,East Asia,Chengdu
+Wuhan,East Asia,Wuhan
+Chongqing,East Asia,Chongqing
+Tianjin,East Asia,Tianjin
+Hong Kong,East Asia,Hong_Kong
+Taipei,East Asia,Taipei
+Jakarta,Southeast Asia,Jakarta
+Manila,Southeast Asia,Manila
+Bangkok,Southeast Asia,Bangkok
+Singapore,Southeast Asia,Singapore
+Kuala Lumpur,Southeast Asia,Kuala_Lumpur
+Ho Chi Minh City,Southeast Asia,Saigon
+Hanoi,Southeast Asia,Hanoi
+Yangon,Southeast Asia,Yangon
+Phnom Penh,Southeast Asia,Phnom_Penh
+Sydney,Oceania,Sydney
+Melbourne,Oceania,Melbourne
+Brisbane,Oceania,Brisbane
+Perth,Oceania,Perth
+Auckland,Oceania,Auckland
