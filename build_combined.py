@@ -54,7 +54,7 @@ def main():
     # teaching demo: three through-line cities (a close pair + a distant one)
     # with their real vectors and real pairwise cosines, reused by every card
     vecs = np.load("data/city_vectors.npy")
-    trio = ["Paris", "London", "Lagos"]
+    trio = ["Sydney", "Melbourne", "New York"]
     ti = [names.index(c) for c in trio]
     demo = {
         "cities": trio,
