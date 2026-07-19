@@ -16,6 +16,7 @@ import json
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 
 from cities import CITY_LATLON
@@ -50,10 +51,23 @@ def main():
     layouts = json.load(open("output/layouts.json"))
     assert all(len(layouts[k]["xy"]) == n for k in layouts)
 
+    # teaching demo: the real Paris vector (raw values) + real angles to two
+    # reference cities for the cosine card
+    vecs = np.load("data/city_vectors.npy")
+    i_par = names.index("Paris")
+    demo = {
+        "name": "Paris",
+        "vec": [round(float(v), 3) for v in vecs[i_par]],
+        "pairs": [[c, round(float(S[i_par, names.index(c)]), 2)]
+                  for c in ("Rome", "Beijing")],
+    }
+    print("demo cosines:", demo["pairs"])
+
     data = {
         "cities": cities,
         "sims": sims,
         "layouts": layouts,
+        "demo": demo,
         "land": load_land("data/ne_110m_land.geojson"),
         "geometa": {"lon0": LON0, "lon1": LON1, "lat0": LAT0, "lat1": LAT1},
         "meta": {"min": SLIDER_MIN, "max": SLIDER_MAX, "default": SLIDER_DEFAULT},

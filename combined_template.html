@@ -3,6 +3,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <style>
   :root {
     --plane: #f3f1ea; --surface: #faf8f2;
@@ -215,6 +217,20 @@
   .notes ol li { margin: 10px 0; }
   .notes b { color: var(--ink-1); }
   .notes .formula { font-family: var(--font-mono); font-size: 12.5px; }
+  .math { white-space: nowrap; }
+  .math .katex { font-size: 1em; }
+  .notes .math.disp { display: block; margin: 8px 0 8px 8px; }
+  .stat i, .m-stats i { font-style: italic; }
+  a.cite { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  a.cite:hover { text-decoration: underline; }
+  .refs p { padding-left: 1.7em; text-indent: -1.7em; margin: 9px 0;
+    font-size: 15.5px; overflow-wrap: break-word; }
+  .refs a { font-family: var(--font-mono); font-size: 11.5px; }
+  #vecheat { width: 100%; height: 26px; display: block; border-radius: 3px;
+    margin: 8px 0 4px; }
+  .heatcap { display: flex; align-items: center; gap: 6px;
+    font: 10px var(--font-mono); color: var(--ink-3); }
+  .heatcap i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
   .notes .tok { font-family: var(--font-mono); font-size: 12px;
     background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 5px; padding: 0 5px; }
@@ -263,52 +279,59 @@
       <b>Semantic map:</b> position itself encodes similarity — the layout is
       computed from the matrix alone. Hover a city for its top-5 neighbours in
       both views; <b>click</b> to pin it and see the full ranked list.</p>
-    <p class="stats">124 cities &middot; 9 regions &middot; 7,626 pairs &middot;
-      cosine &minus;0.06&hellip;0.86 &middot; MDS stress-1 0.347</p>
+    <p class="stats stat">124 cities &middot; 9 regions &middot; 7,626 pairs &middot;
+      cosine range &minus;.06 to .86 &middot; MDS Stress-1 = .347</p>
   </header>
 
   <div class="explain">
     <div class="ex-card">
       <h3><span class="n">1</span>word2vec: a name becomes a vector</h3>
-      Trained on ~100&nbsp;billion words of Google News (2013). Each city name is a
-      point in 300-dimensional space, learned purely from the words around it —
-      names used in similar news contexts get similar vectors. No coordinates, no
-      atlas: only text.
+      Trained on ~100&nbsp;billion words of Google News, 2013
+      <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>. Each city
+      name becomes a list of 300 numbers — a point in 300-dimensional space,
+      learned purely from the words around it, so names used in similar news
+      contexts get similar vectors. No coordinates, no atlas: only text.
       <svg class="diagram" viewBox="0 0 200 72" width="200" height="72" aria-hidden="true">
         <rect x="6" y="26" width="54" height="22" rx="6" fill="none" stroke="var(--ink-3)"/>
         <text x="33" y="41" text-anchor="middle" font-size="12" fill="var(--ink-1)">Paris</text>
         <line x1="66" y1="37" x2="98" y2="37" stroke="var(--ink-3)"/>
         <polygon points="98,33 106,37 98,41" fill="var(--ink-3)"/>
-        <rect x="116" y="8"  width="12" height="10" fill="var(--accent)" opacity="0.9"/>
-        <rect x="116" y="20" width="12" height="10" fill="var(--accent)" opacity="0.35"/>
-        <rect x="116" y="32" width="12" height="10" fill="var(--accent)" opacity="0.7"/>
-        <rect x="116" y="44" width="12" height="10" fill="var(--accent)" opacity="0.15"/>
-        <rect x="116" y="56" width="12" height="10" fill="var(--accent)" opacity="0.55"/>
+        <rect x="116" y="8"  width="12" height="10" fill="#e34948" opacity="0.9"/>
+        <rect x="116" y="20" width="12" height="10" fill="#2a78d6" opacity="0.4"/>
+        <rect x="116" y="32" width="12" height="10" fill="#e34948" opacity="0.65"/>
+        <rect x="116" y="44" width="12" height="10" fill="#2a78d6" opacity="0.15"/>
+        <rect x="116" y="56" width="12" height="10" fill="#e34948" opacity="0.5"/>
         <text x="136" y="34" font-size="10" fill="var(--ink-3)">300</text>
         <text x="136" y="46" font-size="10" fill="var(--ink-3)">numbers</text>
       </svg>
+      Each square is one of those numbers; colour encodes its value. Here is the
+      <b>actual vector of Paris</b>, all 300 numbers side by side:
+      <canvas id="vecheat" width="600" height="26" aria-label="Heatmap of the real 300-dimensional Paris vector"></canvas>
+      <div class="heatcap"><i style="background:#2a78d6"></i> negative
+        <i style="background:transparent;border:1px solid var(--grid)"></i> &approx;&nbsp;0
+        <i style="background:#e34948"></i> positive
+        <span style="margin-left:auto">dimensions 1&hellip;300</span></div>
     </div>
     <div class="ex-card">
       <h3><span class="n">2</span>cosine: the angle is the similarity</h3>
-      For every pair of cities we measure the angle between their two vectors:
-      cos&nbsp;&theta; near 1 — used in the same contexts; near 0 — unrelated.
-      All 7,626 pairs form the similarity matrix that both charts below read.
-      <svg class="diagram" viewBox="0 0 200 72" width="200" height="72" aria-hidden="true">
-        <text x="8" y="14" font-size="11" fill="var(--ink-2)">cos &theta; = similarity</text>
-        <line x1="20" y1="60" x2="142.4" y2="19.5" stroke="var(--accent)" stroke-width="2"/>
-        <polygon points="150.0,17.0 143.3,22.4 141.5,16.7" fill="var(--accent)"/>
-        <line x1="20" y1="60" x2="142.0" y2="55.3" stroke="var(--c6)" stroke-width="2"/>
-        <polygon points="150.0,55.0 142.1,58.3 141.9,52.3" fill="var(--c6)"/>
-        <path d="M 56.1 48.1 A 38 38 0 0 1 58.0 58.5" fill="none" stroke="var(--ink-3)"/>
-        <text x="65.3" y="55.5" font-size="11" fill="var(--ink-2)">&theta;</text>
-      </svg>
+      A column of 300 numbers can equally be drawn as an <b>arrow</b> — one axis
+      per number (two of the 300 shown here). Similar usage &rarr; arrows point
+      the same way. The angle &theta; between two arrows measures similarity:
+      <span class="math" data-tex="\cos\theta \to 1">cos&nbsp;&theta; &rarr; 1</span>
+      for names used alike, <span class="math" data-tex="\to 0">&rarr; 0</span>
+      for unrelated ones. Below — <b>real angles from this data</b>, measured
+      between the actual vectors:
+      <svg id="angdemo" class="diagram" viewBox="0 0 200 108" width="200" height="108"
+        aria-label="Real angles between the Paris, Rome and Beijing vectors"></svg>
     </div>
     <div class="ex-card">
       <h3><span class="n">3</span>MDS: the matrix becomes a map</h3>
-      Multidimensional scaling converts similarity to distance
-      (d&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;cos) and searches for the 2-D layout whose
-      point-to-point distances reproduce those dissimilarities as faithfully as
-      possible (SMACOF; fit quality: stress-1&nbsp;=&nbsp;0.347).
+      Multidimensional scaling <a class="cite" href="#ref-kruskal">(Kruskal,
+      1964)</a> converts similarity to distance,
+      <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>,
+      and searches for the 2-D layout whose point-to-point distances reproduce
+      those dissimilarities as faithfully as possible (SMACOF; fit quality:
+      Stress-1&nbsp;=&nbsp;.347).
       <svg class="diagram" viewBox="0 0 200 72" width="200" height="72" aria-hidden="true">
         <g>
           <rect x="10" y="12" width="11" height="11" fill="var(--accent)" opacity="1"/>
@@ -410,11 +433,11 @@
         constellations like the US, Indian, Chinese or Gulf cities; push the
         slider up to isolate the long-range bridges (e.g. the Gulf &harr; South
         Asia).</li>
-      <li><b>Orientation is real</b> on both charts. The semantic layouts are
-        rigidly fitted to true longitude/latitude: for MDS east&ndash;west
-        genuinely tracks longitude (r&nbsp;0.70), north&ndash;south barely tracks
-        latitude (r&nbsp;0.17) — word2vec encodes region and language far more
-        than how far north a city sits.</li>
+      <li class="stat"><b>Orientation is real</b> on both charts. The semantic
+        layouts are rigidly fitted to true longitude/latitude: for MDS
+        east&ndash;west genuinely tracks longitude (<i>r</i> = .70),
+        north&ndash;south barely tracks latitude (<i>r</i> = .17) — word2vec
+        encodes region and language far more than how far north a city sits.</li>
       <li><b>Mexico City</b> has no title-case token in the GoogleNews vocabulary
         (verified by a full scan); its vector is the mean of
         <span class="tok">Mexico</span> + <span class="tok">City</span>. The
@@ -436,13 +459,15 @@
     <ol>
       <li><b>Embedding model.</b> GoogleNews-vectors-negative300: word2vec
         (skip-gram with negative sampling) trained by Google on ~100&nbsp;billion
-        words of Google News text (circa 2013). Vocabulary of 3&nbsp;million
-        tokens, 300 dimensions per vector, with frequent multiword phrases merged
-        into single tokens (<span class="tok">New_York</span>,
-        <span class="tok">Buenos_Aires</span>). Under the distributional
-        hypothesis, cities mentioned in similar news contexts receive similar
-        vectors — no geographic information enters the similarity computation at
-        any point.</li>
+        words of Google News text, circa 2013
+        <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>.
+        Vocabulary of 3&nbsp;million tokens, 300 dimensions per vector, with
+        frequent multiword phrases merged into single tokens
+        (<span class="tok">New_York</span>, <span class="tok">Buenos_Aires</span>).
+        Under the distributional hypothesis
+        <a class="cite" href="#ref-harris">(Harris, 1954)</a>, cities mentioned in
+        similar news contexts receive similar vectors — no geographic information
+        enters the similarity computation at any point.</li>
       <li><b>City list.</b> 124 cities curated by hand: metro population roughly
         &gt;1&nbsp;million and global prominence, deliberately <i>balanced</i>
         across 9 regions rather than ranked by population — a strict top-N by
@@ -460,61 +485,69 @@
         genuinely do not exist in this vocabulary. Ambiguous tokens were tested
         empirically before choosing (see reading notes: the Tampa test for
         St&nbsp;Petersburg, the dateline-register test for Mexico City).</li>
-      <li><b>Similarity matrix.</b> Vectors are L2-normalized and all pairwise
-        cosine similarities computed:
-        <span class="formula">cos(u,v) = u&middot;v / (&#8214;u&#8214;&#8214;v&#8214;)</span>,
+      <li class="stat"><b>Similarity matrix.</b> Vectors are L2-normalized and all
+        pairwise cosine similarities computed,
+        <span class="math disp" data-tex="\cos(\mathbf{u},\mathbf{v}) \;=\; \frac{\mathbf{u}\cdot\mathbf{v}}{\lVert\mathbf{u}\rVert\,\lVert\mathbf{v}\rVert},">cos(u,v) = u&middot;v / (&#8214;u&#8214; &#8214;v&#8214;)</span>
         giving a symmetric 124&times;124 matrix (7,626 unique pairs). Observed
-        range &minus;0.06 (Houston&ndash;Lisbon) to 0.86 (Sydney&ndash;Melbourne),
-        mean 0.30.</li>
-      <li><b>Dissimilarity: why d = 1 &minus; cos.</b> Three monotone transforms
-        were compared empirically on this data with identical SMACOF runs
-        (monotone &rArr; a nonmetric MDS would not distinguish them at all):
+        range &minus;.06 (Houston&ndash;Lisbon) to .86 (Sydney&ndash;Melbourne),
+        <i>M</i> = .30.</li>
+      <li class="stat"><b>Dissimilarity: why
+        <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>.</b>
+        Three monotone transforms were compared empirically on this data with
+        identical SMACOF runs (monotone &rArr; a nonmetric MDS would not
+        distinguish them at all):
         <table class="cmp">
-          <tr><th>transform</th><th>stress-1</th><th>recall@10</th><th>Spearman r</th><th>layout &Delta; vs 1&minus;cos</th></tr>
-          <tr><td>1 &minus; cos</td><td>0.347</td><td>0.515</td><td>0.709</td><td>&mdash;</td></tr>
-          <tr><td>&radic;(2(1&minus;cos))</td><td>0.392</td><td>0.505</td><td>0.687</td><td>0.005</td></tr>
-          <tr><td>arccos(cos)</td><td>0.384</td><td>0.511</td><td>0.692</td><td>0.003</td></tr>
+          <tr><th>transform</th><th>Stress-1</th><th>recall@10</th><th>Spearman <i>r</i></th><th>layout &Delta; vs 1&minus;cos</th></tr>
+          <tr><td><span class="math" data-tex="1-\cos\theta">1 &minus; cos</span></td><td>.347</td><td>.515</td><td>.709</td><td>&mdash;</td></tr>
+          <tr><td><span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span></td><td>.392</td><td>.505</td><td>.687</td><td>.005</td></tr>
+          <tr><td><span class="math" data-tex="\arccos(\cos\theta)">arccos(cos)</span></td><td>.384</td><td>.511</td><td>.692</td><td>.003</td></tr>
         </table>
         The textbook objection to 1&nbsp;&minus;&nbsp;cos is that it is only a
-        semi-metric (it can violate the triangle inequality, while the chord
-        &radic;(2(1&minus;cos)) and the angle arccos are true metrics). On this
+        semi-metric: it can violate the triangle inequality, while the chord
+        <span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span>
+        and the angle arccos are true metrics
+        <a class="cite" href="#ref-borg">(Borg &amp; Groenen, 2005)</a>. On this
         dataset the objection is empirically empty: <b>0 violations in 200,000
-        sampled triples</b> (similarities only reach 0.86, far from the regime
+        sampled triples</b> (similarities only reach .86, far from the regime
         where violations appear). Meanwhile 1&nbsp;&minus;&nbsp;cos fits its
         target best, preserves the cosine ranking best, and the three layouts are
-        nearly identical anyway (Procrustes disparity &le;&nbsp;0.005). Chord
+        nearly identical anyway (Procrustes disparity &le;&nbsp;.005). Chord
         would be the safer default for datasets with near-duplicate items; here
         the simplest transform is also the best-behaved, so the map keeps
         d&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;cos.</li>
-      <li><b>MDS.</b> Metric MDS via SMACOF (scikit-learn 1.9) on the precomputed
-        dissimilarities: 2 components, classical-MDS (Torgerson) initialization
-        followed by stress-majorization iterations (max 3000, tolerance
-        10<sup>&minus;9</sup>), which makes the solution deterministic. SMACOF
-        minimizes raw stress
-        <span class="formula">&Sigma; (d&#770;<sub>ij</sub> &minus; d<sub>ij</sub>)&sup2;</span>
-        between input dissimilarities d&#770; and embedding distances d.</li>
-      <li><b>Fit diagnostics.</b> Kruskal stress-1
-        <span class="formula">= &radic;(&Sigma;(d&#770;<sub>ij</sub> &minus; d<sub>ij</sub>)&sup2;
-        / &Sigma; d<sub>ij</sub>&sup2;) = 0.347</span>; Pearson correlation between
-        input dissimilarities and 2-D distances r&nbsp;=&nbsp;0.71 (Spearman
-        &rho;&nbsp;=&nbsp;0.71). By Kruskal's rule of thumb (&lt;0.05 excellent,
-        &gt;0.2 poor) this is a heavily compressed fit — unavoidable when
-        flattening the high-rank similarity structure of 300-d embeddings into a
-        plane. Read the map accordingly: cluster membership and adjacency are
-        trustworthy; small distance differences are not. The hover overlay shows
-        each city's true 300-d nearest neighbours precisely so the projection's
-        compromises stay visible.</li>
-      <li><b>Alternative layouts (the switcher).</b> UMAP and t-SNE answer a
-        different question than MDS. Both run on the same vectors with cosine
-        distance: UMAP (n_neighbors&nbsp;15, min_dist&nbsp;0.3) builds a
-        nearest-neighbour graph and lays the <i>graph</i> out; t-SNE
-        (perplexity&nbsp;20) matches neighbour probabilities. They preserve
-        neighbourhoods far better than MDS — recall@10 rises from 0.52 to
-        0.70&ndash;0.71 — at the price that distances <i>between</i> clusters stop
-        meaning anything, which is why MDS (the only distance-faithful method)
-        stays the default view of this demo. All three layouts are aligned to
-        geography by the same rigid Procrustes step, so the east&ndash;west
-        reading survives switching.</li>
+      <li><b>MDS.</b> Metric MDS <a class="cite" href="#ref-kruskal">(Kruskal,
+        1964; Borg &amp; Groenen, 2005)</a> via SMACOF (scikit-learn 1.9) on the
+        precomputed dissimilarities: 2 components, classical-MDS (Torgerson)
+        initialization followed by stress-majorization iterations (max 3000,
+        tolerance 10<sup>&minus;9</sup>), which makes the solution deterministic.
+        SMACOF minimizes raw stress
+        <span class="math" data-tex="\textstyle\sum_{i<j}\bigl(\hat d_{ij}-d_{ij}\bigr)^2">&Sigma;(d&#770;&#8342;&#8343; &minus; d&#8342;&#8343;)&sup2;</span>
+        between input dissimilarities
+        <span class="math" data-tex="\hat d_{ij}">d&#770;</span> and embedding
+        distances <span class="math" data-tex="d_{ij}">d</span>.</li>
+      <li class="stat"><b>Fit diagnostics.</b> Kruskal Stress-1,
+        <span class="math disp" data-tex="\text{Stress-1}=\sqrt{\frac{\sum_{i<j}\bigl(\hat d_{ij}-d_{ij}\bigr)^{2}}{\sum_{i<j} d_{ij}^{2}}}=.347,">Stress-1 = &radic;(&Sigma;(d&#770; &minus; d)&sup2; / &Sigma; d&sup2;) = .347</span>
+        with Pearson correlation between input dissimilarities and 2-D distances
+        <i>r</i> = .71 (Spearman &rho; = .71). By Kruskal's rule of thumb
+        (&lt;.05 excellent, &gt;.20 poor) this is a heavily compressed fit —
+        unavoidable when flattening the high-rank similarity structure of 300-d
+        embeddings into a plane. Read the map accordingly: cluster membership and
+        adjacency are trustworthy; small distance differences are not. The hover
+        overlay shows each city's true 300-d nearest neighbours precisely so the
+        projection's compromises stay visible.</li>
+      <li class="stat"><b>Alternative layouts (the switcher).</b> UMAP
+        <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al., 2018)</a> and
+        t-SNE <a class="cite" href="#ref-vandermaaten">(van der Maaten &amp;
+        Hinton, 2008)</a> answer a different question than MDS. Both run on the
+        same vectors with cosine distance: UMAP (n_neighbors&nbsp;=&nbsp;15,
+        min_dist&nbsp;=&nbsp;0.3) builds a nearest-neighbour graph and lays the
+        <i>graph</i> out; t-SNE (perplexity&nbsp;=&nbsp;20) matches neighbour
+        probabilities. They preserve neighbourhoods far better than MDS —
+        recall@10 rises from .52 to .70&ndash;.71 — at the price that distances
+        <i>between</i> clusters stop meaning anything, which is why MDS (the only
+        distance-faithful method) stays the default view of this demo. All three
+        layouts are aligned to geography by the same rigid Procrustes step, so
+        the east&ndash;west reading survives switching.</li>
       <li><b>Orientation (geographic).</b> An MDS solution is unique only up to
         rotation, reflection and translation, so the raw axes are meaningless.
         Instead of an arbitrary convention, the configuration is aligned to real
@@ -524,10 +557,11 @@
         count equally. This is a rigid transform — it preserves every pairwise
         distance and the stress exactly, and only decides which way is up. The
         result: east&ndash;west correspondence with longitude jumps from an
-        arbitrary r&nbsp;0.48 to <b>0.70</b>, and north&ndash;south flips
-        right-side-up (r&nbsp;&minus;0.21&nbsp;&rarr;&nbsp;+0.17). Latitude stays
-        weak because even the single best rotation cannot push it past r&nbsp;0.21
-        — the semantic structure simply does not encode north&ndash;south.</li>
+        arbitrary <i>r</i> = .48 to <b><i>r</i> = .70</b>, and north&ndash;south
+        flips right-side-up (<i>r</i> = &minus;.21 &rarr; +.17). Latitude stays
+        weak because even the single best rotation cannot push it past
+        <i>r</i> &asymp; .21 — the semantic structure simply does not encode
+        north&ndash;south.</li>
       <li><b>Geographic network view.</b> The same similarity matrix drawn over
         real geography: cities at their true (longitude, latitude) on an
         equirectangular projection, with a simplified Natural Earth 110m land
@@ -541,14 +575,19 @@
         canonical teaching model, ships ready-made phrase tokens, and its quirks
         (Lisbon, St&nbsp;Petersburg) are instructive. Better representations
         exist: <b>Wikipedia2Vec</b> embeds Wikipedia <i>entities</i>, so
-        "Santiago (Chile)" and "Santiago de Cuba" stop sharing one vector —
-        the cleanest fix for name collisions; <b>fastText</b> adds subword
-        information and handles unseen spellings; <b>GloVe</b> is a close
-        word2vec alternative trained on global co-occurrence counts; modern
-        <b>sentence/LLM embeddings</b> could encode a whole city description,
-        trading the elegant "meaning from raw co-occurrence" story for quality.
-        Swapping the embedding layer changes step 1 only — the rest of this
-        pipeline (cosine &rarr; dissimilarity &rarr; layout) stays identical.</li>
+        "Santiago (Chile)" and "Santiago de Cuba" stop sharing one vector — the
+        cleanest fix for name collisions
+        <a class="cite" href="#ref-yamada">(Yamada et&nbsp;al., 2020)</a>;
+        <b>fastText</b> adds subword information and handles unseen spellings
+        <a class="cite" href="#ref-bojanowski">(Bojanowski, Grave, Joulin, &amp;
+        Mikolov, 2017)</a>; <b>GloVe</b> is a close word2vec alternative trained
+        on global co-occurrence counts
+        <a class="cite" href="#ref-pennington">(Pennington, Socher, &amp;
+        Manning, 2014)</a>; modern <b>sentence/LLM embeddings</b> could encode a
+        whole city description, trading the elegant "meaning from raw
+        co-occurrence" story for quality. Swapping the embedding layer changes
+        step 1 only — the rest of this pipeline (cosine &rarr; dissimilarity
+        &rarr; layout) stays identical.</li>
       <li><b>Known limitations.</b> The corpus is 2013-era news: prominence
         reflects that period's coverage (Kyiv still resolves, but from pre-2014
         usage). A token conflates every sense of the string — Treaty-of-Lisbon
@@ -570,12 +609,49 @@
     </table></div>
   </details>
 
+  <section class="notes refs" id="refs">
+    <h2>References</h2>
+    <p id="ref-bojanowski">Bojanowski, P., Grave, E., Joulin, A., &amp; Mikolov, T.
+      (2017). Enriching word vectors with subword information.
+      <i>Transactions of the Association for Computational Linguistics, 5</i>,
+      135&ndash;146. <a href="https://doi.org/10.1162/tacl_a_00051">https://doi.org/10.1162/tacl_a_00051</a></p>
+    <p id="ref-borg">Borg, I., &amp; Groenen, P. J. F. (2005). <i>Modern
+      multidimensional scaling: Theory and applications</i> (2nd ed.). Springer.
+      <a href="https://doi.org/10.1007/0-387-28981-X">https://doi.org/10.1007/0-387-28981-X</a></p>
+    <p id="ref-harris">Harris, Z. S. (1954). Distributional structure.
+      <i>Word, 10</i>(2&ndash;3), 146&ndash;162.
+      <a href="https://doi.org/10.1080/00437956.1954.11659520">https://doi.org/10.1080/00437956.1954.11659520</a></p>
+    <p id="ref-kruskal">Kruskal, J. B. (1964). Multidimensional scaling by
+      optimizing goodness of fit to a nonmetric hypothesis.
+      <i>Psychometrika, 29</i>(1), 1&ndash;27.
+      <a href="https://doi.org/10.1007/BF02289565">https://doi.org/10.1007/BF02289565</a></p>
+    <p id="ref-mcinnes">McInnes, L., Healy, J., &amp; Melville, J. (2018).
+      <i>UMAP: Uniform manifold approximation and projection for dimension
+      reduction</i>. arXiv. <a href="https://arxiv.org/abs/1802.03426">https://arxiv.org/abs/1802.03426</a></p>
+    <p id="ref-mikolov">Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., &amp;
+      Dean, J. (2013). Distributed representations of words and phrases and their
+      compositionality. <i>Advances in Neural Information Processing Systems,
+      26</i>, 3111&ndash;3119. <a href="https://arxiv.org/abs/1310.4546">https://arxiv.org/abs/1310.4546</a></p>
+    <p id="ref-pennington">Pennington, J., Socher, R., &amp; Manning, C. D. (2014).
+      GloVe: Global vectors for word representation. In <i>Proceedings of the 2014
+      Conference on Empirical Methods in Natural Language Processing</i>
+      (pp. 1532&ndash;1543). <a href="https://doi.org/10.3115/v1/D14-1162">https://doi.org/10.3115/v1/D14-1162</a></p>
+    <p id="ref-vandermaaten">van der Maaten, L., &amp; Hinton, G. (2008).
+      Visualizing data using t-SNE. <i>Journal of Machine Learning Research, 9</i>,
+      2579&ndash;2605. <a href="https://jmlr.org/papers/v9/vandermaaten08a.html">https://jmlr.org/papers/v9/vandermaaten08a.html</a></p>
+    <p id="ref-yamada">Yamada, I., Asai, A., Sakuma, J., Shindo, H., Takeda, H.,
+      Takefuji, Y., &amp; Matsumoto, Y. (2020). Wikipedia2Vec: An efficient
+      toolkit for learning and visualizing the embeddings of words and entities
+      from Wikipedia. In <i>Proceedings of the 2020 Conference on Empirical
+      Methods in Natural Language Processing: System Demonstrations</i>
+      (pp. 23&ndash;30). <a href="https://doi.org/10.18653/v1/2020.emnlp-demos.4">https://doi.org/10.18653/v1/2020.emnlp-demos.4</a></p>
+  </section>
+
   <footer class="foot">
     <hr class="rule-double">
     <div class="row">
       <span>by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></span>
       <span><a href="https://github.com/Pozdniakov/city-similarity-map">source on GitHub</a></span>
-      <span>word2vec &middot; GoogleNews 2013 &middot; MDS / UMAP / t-SNE</span>
     </div>
   </footer>
 </div>
@@ -661,22 +737,28 @@
     }
 
     const METHOD_NOTE = {
-      mds: `<b>MDS</b> reproduces the distances themselves: the layout minimizes the
-        mismatch between screen distance and 1&nbsp;&minus;&nbsp;cos. Global geometry
-        is honest, but only about half of each city's true top-10 survives in 2-D —
+      mds: `<b>MDS</b> <a class="cite" href="#ref-kruskal">(Kruskal, 1964)</a>
+        reproduces the distances themselves: the layout minimizes the mismatch
+        between screen distance and 1&nbsp;&minus;&nbsp;cos. Global geometry is
+        honest, but only about half of each city's true top-10 survives in 2-D —
         hover to see what the plane had to give up.`,
-      umap: `<b>UMAP</b> builds a 15-nearest-neighbour graph in cosine space and lays
-        out the <i>graph</i>. Neighbourhoods are preserved much better than MDS, but
-        distance <i>between</i> clusters is not meaningful — do not read the gaps,
-        read the groupings.`,
-      tsne: `<b>t-SNE</b> matches neighbour probabilities (perplexity 20). Local
-        structure is the sharpest of the three, but global arrangement and the space
-        between clusters are largely artifacts of the optimizer.`,
+      umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes, Healy, &amp;
+        Melville, 2018)</a> builds a 15-nearest-neighbour graph in cosine space and
+        lays out the <i>graph</i>. Neighbourhoods are preserved much better than
+        MDS, but distance <i>between</i> clusters is not meaningful — do not read
+        the gaps, read the groupings.`,
+      tsne: `<b>t-SNE</b> <a class="cite" href="#ref-vandermaaten">(van der Maaten
+        &amp; Hinton, 2008)</a> matches neighbour probabilities (perplexity 20).
+        Local structure is the sharpest of the three, but global arrangement and
+        the space between clusters are largely artifacts of the optimizer.`,
     };
     const METHOD_STATS = {
-      mds: `stress-1 0.347 · neighbours kept: recall@10 0.52 · E–W r 0.70 · N–S r 0.17`,
-      umap: `recall@10 0.70 · E–W r 0.85 · N–S r 0.21 · inter-cluster distances not comparable`,
-      tsne: `recall@10 0.71 · E–W r 0.90 · N–S r 0.40 · inter-cluster distances not comparable`,
+      mds: `Stress-1 = .347 &middot; neighbours kept: recall@10 = .52 &middot; ` +
+        `E–W <i>r</i> = .70 &middot; N–S <i>r</i> = .17`,
+      umap: `recall@10 = .70 &middot; E–W <i>r</i> = .85 &middot; N–S <i>r</i> = .21 ` +
+        `&middot; inter-cluster distances not comparable`,
+      tsne: `recall@10 = .71 &middot; E–W <i>r</i> = .90 &middot; N–S <i>r</i> = .40 ` +
+        `&middot; inter-cluster distances not comparable`,
     };
 
     // ---------- chart scaffolding ----------
@@ -819,7 +901,7 @@
         mdsEls[k].setAttribute("y2", P.pts[j][1].toFixed(1));
       });
       document.getElementById("m-note").innerHTML = METHOD_NOTE[key];
-      document.getElementById("m-stats").textContent = METHOD_STATS[key];
+      document.getElementById("m-stats").innerHTML = METHOD_STATS[key];
       document.querySelectorAll("#seg button").forEach(b => {
         const on = b.dataset.l === key;
         b.classList.toggle("on", on);
@@ -1034,6 +1116,75 @@
           `<td>${C[j].n}</td><td class="num">${s.toFixed(3)}</td>`;
         tb.append(tr);
       });
+
+    // ---------- teaching demos ----------
+    // KaTeX render (deferred CDN script runs before DOMContentLoaded; if it is
+    // blocked, the plain-text fallback inside each .math span stays visible)
+    if (window.katex) {
+      document.querySelectorAll(".math[data-tex]").forEach(el => {
+        try { katex.render(el.dataset.tex, el, { throwOnError: false }); }
+        catch (e) { /* keep fallback */ }
+      });
+    }
+
+    // real Paris vector as a horizontal heatmap (blue = negative, red = positive)
+    const heat = document.getElementById("vecheat");
+    if (heat && DATA.demo) {
+      const v = DATA.demo.vec, ctx = heat.getContext("2d");
+      const vmax = Math.max(...v.map(Math.abs));
+      const w = heat.width / v.length;
+      v.forEach((x, i) => {
+        ctx.fillStyle = x >= 0
+          ? `rgba(227,73,72,${(Math.abs(x) / vmax).toFixed(3)})`
+          : `rgba(42,120,214,${(Math.abs(x) / vmax).toFixed(3)})`;
+        ctx.fillRect(i * w, 0, Math.ceil(w), heat.height);
+      });
+    }
+
+    // real angles between city vectors (arccos of the actual cosines)
+    const ang = document.getElementById("angdemo");
+    if (ang && DATA.demo) {
+      const O = [16, 96], LEN = 86;
+      const ink3 = "var(--ink-3)", colors = ["var(--accent)", "var(--c3)", "var(--c7)"];
+      const items = [[DATA.demo.name, 1], ...DATA.demo.pairs];
+      const put = (tag, attrs, text) => {
+        const el = document.createElementNS(NS, tag);
+        for (const [k, val] of Object.entries(attrs)) el.setAttribute(k, val);
+        if (text) el.textContent = text;
+        ang.append(el);
+        return el;
+      };
+      items.forEach(([nm, cos], idx) => {
+        const th = Math.acos(Math.min(1, cos));
+        const dir = [Math.cos(th), -Math.sin(th)];
+        const tip = [O[0] + LEN * dir[0], O[1] + LEN * dir[1]];
+        const base = [tip[0] - 8 * dir[0], tip[1] - 8 * dir[1]];
+        const perp = [-dir[1] * 3, dir[0] * 3];
+        put("line", { x1: O[0], y1: O[1], x2: base[0].toFixed(1), y2: base[1].toFixed(1),
+          stroke: colors[idx], "stroke-width": 2 });
+        put("polygon", { points:
+          `${tip[0].toFixed(1)},${tip[1].toFixed(1)} ` +
+          `${(base[0] + perp[0]).toFixed(1)},${(base[1] + perp[1]).toFixed(1)} ` +
+          `${(base[0] - perp[0]).toFixed(1)},${(base[1] - perp[1]).toFixed(1)}`,
+          fill: colors[idx] });
+        const t = put("text", {
+          x: (tip[0] + 6).toFixed(1),
+          y: Math.max(tip[1] + 3, 10).toFixed(1),
+          "font-size": 9.5, fill: "var(--ink-2)", "text-anchor": "start" });
+        t.textContent = idx === 0 ? nm
+          : `${nm} · cos = ${cos.toFixed(2).replace("0.", ".")}`;
+        if (idx > 0) {
+          const r = 30 + idx * 14;
+          const p1 = [O[0] + r, O[1]];
+          const p2 = [O[0] + r * Math.cos(th), O[1] - r * Math.sin(th)];
+          put("path", { d: `M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} ` +
+            `A ${r} ${r} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`,
+            fill: "none", stroke: ink3, "stroke-dasharray": idx === 2 ? "3 2" : "none" });
+        }
+      });
+      put("text", { x: 6, y: 106, "font-size": 8.5, fill: "var(--ink-3)",
+        "text-anchor": "start" }, "angles to scale");
+    }
 
     applyThreshold();
     applyLayout("mds");
