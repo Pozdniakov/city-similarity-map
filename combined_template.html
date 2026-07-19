@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Semantic City Map — word2vec · MDS</title>
+<title>Could language reconstruct a map of the world?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -8,6 +8,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <style>
   :root {
+    --measure: 92ch;
     --plane: #f3f1ea; --surface: #faf8f2;
     --ink-1: #322f2c; --ink-2: #5b564e; --ink-3: #7f7a72;
     --grid: #e4dfd3; --hairline: rgba(50,47,44,0.14); --tip-bg: #fdfcf8;
@@ -60,7 +61,7 @@
   a { color: var(--accent); text-decoration-color: var(--grid); }
   a:hover { text-decoration-color: var(--accent); }
   .mono { font-family: var(--font-mono); }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 20px 40px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 30px 20px 40px; }
   header h1 { font-size: 34px; font-weight: 600; margin: 0 0 2px; text-wrap: balance;
     letter-spacing: .01em; }
   header h1 { font-size: 38px; line-height: 1.08; }
@@ -68,7 +69,7 @@
     color: var(--ink-3); margin: 2px 0 14px; }
   .byline a, header .subtitle a { color: var(--ink-3); }
   .byline a:hover, header .subtitle a:hover { color: var(--accent); }
-  header .method { color: var(--ink-2); font-size: 17px; margin: 0; max-width: 88ch; }
+  header .method { color: var(--ink-2); font-size: 17px; margin: 0; max-width: var(--measure); }
   header .method b { color: var(--ink-1); }
   header .stats { font-family: var(--font-mono); color: var(--ink-3); font-size: 11.5px;
     margin: 10px 0 0; font-variant-numeric: tabular-nums; }
@@ -82,12 +83,19 @@
     text-transform: uppercase; color: var(--ink-1); margin: 34px 0 4px;
     padding-top: 10px; border-top: 2px solid var(--grid); scroll-margin-top: 12px; }
   .group-lead { font-size: 15.5px; color: var(--ink-2); margin: 4px 0 14px;
-    max-width: 92ch; }
+    max-width: var(--measure); }
   .group-lead b { color: var(--ink-1); }
   .trycity { font: inherit; color: var(--accent); background: none; border: none;
     padding: 0 1px; cursor: pointer; text-decoration: underline;
     text-underline-offset: 2px; }
   .trycity:hover { color: var(--ink-1); }
+  .findings { list-style: none; padding: 0; margin: 4px 0 8px;
+    display: grid; gap: 11px; max-width: var(--measure); }
+  .findings li { font-size: 15.5px; color: var(--ink-2); padding-left: 18px;
+    position: relative; }
+  .findings li::before { content: "→"; position: absolute; left: 0;
+    color: var(--accent); }
+  .findings b { color: var(--ink-1); }
   .ex-quote { font-style: italic; font-size: 15px; color: var(--ink-2);
     margin: 10px 0 0; padding-left: 11px; border-left: 2px solid var(--grid); }
   .ex-quote .src { font: normal 11px var(--font-mono); color: var(--ink-3); }
@@ -143,7 +151,7 @@
   .callout { margin: 0 0 12px; padding: 10px 16px;
     border-left: 3px solid var(--accent); background: var(--callout-bg);
     border-radius: 0 8px 8px 0; font-size: 16.5px; color: var(--ink-2);
-    max-width: 92ch; }
+    max-width: var(--measure); }
   .callout b { color: var(--ink-1); }
 
   .toolbar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center;
@@ -188,15 +196,14 @@
     border: none; color: var(--ink-2); cursor: pointer; }
   .seg button:hover { color: var(--accent); }
   .seg button.on { background: var(--accent); color: var(--plane); }
-  .m-note { font-size: 16px; color: var(--ink-2); margin: 0 0 6px; max-width: 92ch; }
+  .m-note { font-size: 16px; color: var(--ink-2); margin: 0 0 6px; max-width: var(--measure); }
   .m-note b { color: var(--ink-1); }
   .m-stats { font: 11.5px var(--font-mono); color: var(--ink-2); margin: 0 0 3px;
     font-variant-numeric: tabular-nums; }
   .m-legend { font: 10.5px var(--font-mono); color: var(--ink-3); margin: 0 0 10px;
-    max-width: 100ch; }
-  .cmwrap { position: relative; max-height: 68vh; overflow: auto;
-    border-radius: 8px; }
-  #cmheat { display: block; cursor: crosshair; }
+    max-width: var(--measure); }
+  .cmwrap { position: relative; overflow-x: auto; border-radius: 8px; }
+  #cmheat { display: block; cursor: crosshair; margin: 0 auto; }
 
   .panel { background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 10px; padding: 8px; position: relative; }
@@ -208,6 +215,9 @@
   #map text.lbl { stroke: var(--ocean); }
   svg.chart .pt { cursor: pointer; stroke: var(--surface); stroke-width: 1.2; }
   #map .pt { stroke-width: 0.9; }
+  svg.chart .leader { stroke: var(--ink-3); stroke-width: 0.5; opacity: .42;
+    pointer-events: none; }
+  svg.chart.spot .leader { opacity: .12; }
   svg.chart .pt.dim, svg.chart text.dim { opacity: .13; }
   svg.chart .pt.xfocus { stroke: var(--ink-1); stroke-width: 1.6; }
   .land { fill: var(--land); stroke: var(--land-edge); stroke-width: 0.4; }
@@ -268,7 +278,7 @@
     #side.open { transform: none; }
   }
 
-  .notes { margin-top: 26px; color: var(--ink-2); font-size: 16.5px; max-width: 80ch; }
+  .notes { margin-top: 26px; color: var(--ink-2); font-size: 16.5px; max-width: var(--measure); }
   .notes h2 { font: 500 12px var(--font-mono); letter-spacing: .09em;
     text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
   .meth-sub { font: 600 15.5px var(--font-body); color: var(--ink-1);
@@ -345,17 +355,16 @@
     <h1>Could language reconstruct a map of the world?</h1>
     <p class="subtitle">124 world cities arranged by word2vec similarity &mdash; a
       teaching demo by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
-    <p class="method"><b>Short answer: partly, yes.</b> word2vec never saw
-      coordinates — it learned each city name only from how it is <i>used</i> in
-      Google News. Comparing those usages reconstructs a surprising amount of real
-      geography, while news events, ambiguous names and shared institutions bend
-      the map in revealing ways. The 124&times;124 table of similarities behind it
-      is explored in <b>three linked views</b> below; select any city to light up
-      its neighbours in all of them.</p>
-    <p class="stats stat">124 cities &middot; 9 regions &middot; 7,626 pairs
-      &middot; Google News, circa 2013</p>
+    <p class="method"><b>Short answer: partly, yes.</b> <b>word2vec</b> — a model
+      that turns each word into a vector of numbers from the company it keeps —
+      never saw coordinates. It learned each of these 124 city names only from how
+      it is <i>used</i> in Google News. Comparing those usages reconstructs a
+      surprising amount of real geography, while news events, ambiguous names and
+      shared institutions bend the map in revealing ways. The similarities are
+      explored in <b>three linked views</b> below; select any city to light up its
+      neighbours in all of them.</p>
     <nav class="anchornav" aria-label="Sections">
-      <a href="#how">How it works</a><a href="#explore">Explore the maps</a><a href="#methodology">Methodology</a><a href="#data">Data</a>
+      <a href="#how">How it works</a><a href="#explore">Explore</a><a href="#notice">What to notice</a><a href="#methodology">Methodology</a><a href="#data">Data</a>
     </nav>
   </header>
 
@@ -532,10 +541,42 @@
         <i style="background:rgba(227,73,72,.12)"></i> &approx; 0
         <i style="background:rgba(227,73,72,.5)"></i> .5
         <i style="background:rgba(227,73,72,1)"></i> 1
-        <span style="margin-left:auto">124 rows &times; 124 columns &middot; scroll to read every name</span>
+        <span style="margin-left:auto">124 rows &times; 124 columns, clustered</span>
       </div>
     </div>
   </section>
+
+  <h2 class="group-h" id="notice">What to notice</h2>
+  <p class="group-lead">A few things the map gets right, and a few it gets wrong.
+    Click a city to light it up in all three views.</p>
+  <ul class="findings">
+    <li><b>The tightest pair in the whole matrix</b> is
+      <button type="button" class="trycity">Sydney</button> &amp;
+      <button type="button" class="trycity">Melbourne</button> (cos&nbsp;=&nbsp;.86)
+      — Australian cities are nearly interchangeable in world news.</li>
+    <li><b>A bridge between worlds.</b>
+      <button type="button" class="trycity">Dubai</button> sits between the Gulf
+      and South Asia: its closest neighbours are Abu&nbsp;Dhabi and Doha, but
+      Karachi and Mumbai rank just behind, tracing the labour-migration
+      corridor.</li>
+    <li><b>Where the corpus bends the map.</b>
+      <button type="button" class="trycity">Lisbon</button> drifts off Iberia —
+      the <i>Treaty of Lisbon</i> pulls its vector toward EU-institution language
+      rather than toward Madrid or Barcelona.</li>
+    <li><b>The transatlantic hinge.</b>
+      <button type="button" class="trycity">London</button> is the European city
+      that leans hardest toward the United States — a hub both news spheres
+      share.</li>
+    <li><b>A data-quality near-miss.</b>
+      <button type="button" class="trycity">St Petersburg</button> would have
+      landed inside the US cluster with the obvious token, which is dominated by
+      St.&nbsp;Petersburg, <i>Florida</i> (see Methodology&nbsp;&rarr; Token
+      resolution).</li>
+    <li><b>The counter-intuitive winner.</b> Switch the semantic map to
+      <b>UMAP</b>: it reproduces real geography <i>better</i> than MDS
+      (geo-fidelity .67 vs .57), because it locks onto the local neighbourhoods
+      that geography lives in.</li>
+  </ul>
 
   <section class="notes">
     <h2 class="group-h" id="methodology">Methodology</h2>
@@ -676,10 +717,12 @@
         it is the default. <b>t-SNE</b> <a class="cite" href="#ref-vandermaaten">(van
         der Maaten &amp; Hinton, 2008)</a> and <b>UMAP</b>
         <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al., 2018)</a> are
-        nonlinear methods prioritizing local neighbourhoods (perplexity&nbsp;=&nbsp;20;
-        n_neighbors&nbsp;=&nbsp;15, min_dist&nbsp;=&nbsp;0.3): they preserve local
-        structure far better (recall@10 = .71 / .70) at the price that distances
-        <i>between</i> clusters stop being comparable.
+        nonlinear methods prioritizing local neighbourhoods, both on cosine
+        distance (t-SNE: perplexity&nbsp;20, PCA init, learning-rate
+        <span class="tok">"auto"</span>; UMAP: n_neighbors&nbsp;15,
+        min_dist&nbsp;0.3): they preserve local structure far better
+        (recall@10 = .71 / .70) at the price that distances <i>between</i>
+        clusters stop being comparable.
         <b>A surprise on the geography question</b> (your "which map looks most
         like the world?"): scoring each layout by the alignment-free geo-fidelity
         &rho; — rank correlation of on-screen distances with real great-circle
@@ -721,16 +764,25 @@
         (edge count vs cutoff: 0.45&nbsp;&rarr;&nbsp;740, 0.50&nbsp;&rarr;&nbsp;451,
         0.55&nbsp;&rarr;&nbsp;265, 0.60&nbsp;&rarr;&nbsp;164,
         0.70&nbsp;&rarr;&nbsp;64).</li>
-      <li><b>Clustered similarity matrix.</b> The heatmap section shows the full
-        124&times;124 matrix with rows and columns reordered by agglomerative
-        hierarchical clustering: average linkage on
+      <li><b>Clustered similarity matrix.</b> The heatmap reorders the full
+        124&times;124 matrix by <b>agglomerative hierarchical clustering</b> with
+        <b>average linkage</b> (UPGMA). Concretely,
+        <span class="tok">scipy.cluster.hierarchy.linkage</span> is run on the
+        condensed upper triangle of
         <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
-        with optimal leaf ordering (SciPy). No cluster count is chosen — the
-        dendrogram records the entire merge history, and the reordering alone
-        makes block structure visible. It is the exact matrix from card&nbsp;4,
-        complete and seriated: diagonal blocks = regions, off-block warm bands =
-        cross-region bridges (find the Gulf&nbsp;&harr;&nbsp;South Asia patch),
-        pale rows = cities similar to nothing in particular.</li>
+        with <span class="tok">method="average"</span> and
+        <span class="tok">optimal_ordering=True</span>: starting from 124
+        singletons it repeatedly merges the two clusters with the smallest
+        <i>mean</i> pairwise dissimilarity, recording the entire merge tree.
+        <b>No cluster count is imposed</b> — the dendrogram keeps the full
+        history, and the leaf order is refined by <b>optimal leaf ordering</b>
+        <a class="cite" href="#ref-barjoseph">(Bar-Joseph, Gifford, &amp; Jaakkola,
+        2001)</a>, which flips branches to place the most similar neighbours
+        adjacent without changing the tree. That ordering alone makes the block
+        structure legible: it is the exact matrix from card&nbsp;4, complete and
+        seriated — diagonal blocks = regions, off-block warm bands = cross-region
+        bridges (find the Gulf&nbsp;&harr;&nbsp;South Asia patch), pale rows =
+        cities similar to nothing in particular.</li>
       <li><b>Beyond word2vec.</b> The 2013 model is kept deliberately — it is the
         canonical teaching model, ships ready-made phrase tokens, and its quirks
         (Lisbon, St&nbsp;Petersburg) are instructive. Swapping the embedding layer
@@ -751,6 +803,20 @@
         whole city description, trading the elegant "meaning from raw
         co-occurrence" story for quality.</details></li>
     </ol>
+    <h3 class="meth-sub">Reproducibility</h3>
+    <p>Every stochastic step is seeded (<b>seed 42</b>): MDS runs from a
+      deterministic classical-MDS initialisation and a single SMACOF restart; PCA
+      is deterministic; UMAP and t-SNE take the seed directly. All embeddings are
+      L2-normalised before cosine similarity, and every dimensionality reduction
+      runs on the same 124&times;300 matrix. Hyperparameters are stated in full at
+      each step above; library versions are pinned in
+      <a href="https://github.com/Pozdniakov/city-similarity-map/blob/main/requirements.txt">requirements.txt</a>
+      (scikit-learn&nbsp;1.9.0, SciPy&nbsp;1.17.1, umap-learn&nbsp;0.5.12, NumPy,
+      pandas). The full pipeline — the streaming vocabulary scan, token-resolution
+      tests, layout and metric scripts, and this page's build — is in the
+      <a href="https://github.com/Pozdniakov/city-similarity-map">repository</a>;
+      the geographic-fidelity, triangle-inequality and dissimilarity-transform
+      analyses each ship as a runnable script.</p>
   </section>
 
   <details id="data" style="scroll-margin-top:12px">
@@ -766,6 +832,10 @@
 
   <section class="notes refs" id="refs">
     <h2>References</h2>
+    <p id="ref-barjoseph">Bar-Joseph, Z., Gifford, D. K., &amp; Jaakkola, T. S.
+      (2001). Fast optimal leaf ordering for hierarchical clustering.
+      <i>Bioinformatics, 17</i>(Suppl.&nbsp;1), S22&ndash;S29.
+      <a href="https://doi.org/10.1093/bioinformatics/17.suppl_1.S22">https://doi.org/10.1093/bioinformatics/17.suppl_1.S22</a></p>
     <p id="ref-bojanowski">Bojanowski, P., Grave, E., Joulin, A., &amp; Mikolov, T.
       (2017). Enriching word vectors with subword information.
       <i>Transactions of the Association for Computational Linguistics, 5</i>,
@@ -946,9 +1016,10 @@
       const gBack = document.createElementNS(NS, "g");
       const gEdge = document.createElementNS(NS, "g");
       const gSpot = document.createElementNS(NS, "g");
+      const gLead = document.createElementNS(NS, "g");
       const gPts = document.createElementNS(NS, "g");
       const gLbl = document.createElementNS(NS, "g");
-      svg.append(gBack, gEdge, gSpot, gPts, gLbl);
+      svg.append(gBack, gEdge, gSpot, gLead, gPts, gLbl);
       const els = C.map((c, k) => {
         const p = document.createElementNS(NS, "path");
         p.setAttribute("d", MARK[st(c.r).m](markScale));
@@ -960,7 +1031,7 @@
         gPts.append(p);
         return p;
       });
-      return { svg, gBack, gEdge, gSpot, gPts, gLbl, pts: els, xy: pts };
+      return { svg, gBack, gEdge, gSpot, gLead, gPts, gLbl, pts: els, xy: pts };
     }
 
     // semantic chart (starts as MDS)
@@ -978,6 +1049,32 @@
       return t;
     });
     mds.labels = mdsLabels;
+
+    // faint leader lines: shown only when a label drifts from its marker
+    mds.leaders = C.map(() => {
+      const l = document.createElementNS(NS, "line");
+      l.setAttribute("class", "leader");
+      mds.gLead.append(l);
+      return l;
+    });
+    function updateLeaders() {
+      for (let k = 0; k < n; k++) {
+        const px = mds.xy[k][0], py = mds.xy[k][1];
+        const lx = +mds.labels[k].getAttribute("x");
+        const ly = +mds.labels[k].getAttribute("y") + 3;  // ~text mid
+        const dx = lx - px, dy = ly - py, dist = Math.hypot(dx, dy);
+        const L = mds.leaders[k];
+        if (dist > 24) {
+          const ux = dx / dist, uy = dy / dist;
+          L.setAttribute("x1", (px + ux * 6).toFixed(1));
+          L.setAttribute("y1", (py + uy * 6).toFixed(1));
+          L.setAttribute("x2", (lx - ux * 2).toFixed(1));
+          L.setAttribute("y2", (ly - uy * 2).toFixed(1));
+          L.style.display = "";
+        } else L.style.display = "none";
+      }
+    }
+    updateLeaders();
 
     // geographic chart
     const mapSvg = document.getElementById("map");
@@ -1080,6 +1177,7 @@
         mdsEls[k].setAttribute("x2", P.pts[j][0].toFixed(1));
         mdsEls[k].setAttribute("y2", P.pts[j][1].toFixed(1));
       });
+      updateLeaders();
       const note = document.getElementById("m-note");
       note.innerHTML = METHOD_NOTE[key];
       renderMath(note);

@@ -65,7 +65,11 @@ def label_positions(X, names):
     texts = [ax.text(x, y, n, fontsize=7.5) for (x, y), n in zip(X, names)]
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        adjust_text(texts, ax=ax, expand=(1.15, 1.3))
+        # keep labels close to their points: modest repulsion, and pull each
+        # label back toward its own marker so none drifts far (leader lines in
+        # the page connect the few that still separate)
+        adjust_text(texts, ax=ax, expand=(1.04, 1.10),
+                    force_text=(0.2, 0.35), force_pull=(0.4, 0.4))
     pos = np.array([t.get_position() for t in texts])
     plt.close(fig)
     return pos

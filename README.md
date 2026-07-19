@@ -1,7 +1,8 @@
-# Semantic map of world cities
+# Could language reconstruct a map of the world?
 
-**Live page: https://pozdniakov.github.io/city-similarity-map/** — geographic
-similarity network + semantic MDS map, with a cutoff slider and per-city drawer.
+**Live page: https://pozdniakov.github.io/city-similarity-map/** — a teaching
+demo: a geographic similarity network, a semantic map (MDS / PCA / t-SNE / UMAP),
+and a clustered similarity matrix, with a shared cutoff slider and per-city drawer.
 
 A word2vec-based "map" of 124 major world cities: pairwise cosine similarity
 between city name vectors is converted to dissimilarity and projected to 2-D
@@ -133,9 +134,19 @@ pins it and opens a side drawer ranking all 123 others. Ships the full
     embeddings** of city descriptions. Swapping the embedding changes step 1
     only; the rest of the pipeline is unchanged.
 11. **Clustered similarity matrix.** The full 124×124 matrix rendered on the
-    page with rows/columns reordered by average-linkage hierarchical clustering
-    (optimal leaf ordering), dendrogram and region-coloured names down the left
-    edge — the complete, seriated version of the card-4 mini-matrix.
+    page with rows/columns reordered by **agglomerative hierarchical clustering**,
+    **average linkage / UPGMA** — `scipy.cluster.hierarchy.linkage(squareform(1 −
+    cos), method="average", optimal_ordering=True)`. No cluster count is imposed;
+    **optimal leaf ordering** (Bar-Joseph et al., 2001) refines the leaf order,
+    and a dendrogram + region-coloured names run down the left edge.
+
+**Reproducibility.** Every stochastic step is seeded (seed 42): MDS uses a
+deterministic classical-MDS init + single SMACOF restart, PCA is deterministic,
+UMAP/t-SNE take the seed. Hyperparameters are in the scripts; versions are pinned
+in [requirements.txt](requirements.txt) (scikit-learn 1.9.0, SciPy 1.17.1,
+umap-learn 0.5.12). Supporting analyses ship as runnable scripts:
+[dissim_study.py](dissim_study.py) (transform comparison + full triangle
+enumeration), [make_layouts.py](make_layouts.py) (layouts + geo-fidelity).
 
 ## Vocabulary resolution notes
 
