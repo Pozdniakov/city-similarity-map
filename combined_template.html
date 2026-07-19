@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Semantic City Map — word2vec · MDS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -171,7 +172,9 @@
     font-variant-numeric: tabular-nums; }
   .m-legend { font: 10.5px var(--font-mono); color: var(--ink-3); margin: 0 0 10px;
     max-width: 100ch; }
-  #cmheat { width: 100%; height: auto; display: block; cursor: crosshair; }
+  .cmwrap { position: relative; max-height: 68vh; overflow: auto;
+    border-radius: 8px; }
+  #cmheat { display: block; cursor: crosshair; }
 
   .panel { background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 10px; padding: 8px; position: relative; }
@@ -297,6 +300,7 @@
 
   @media (max-width: 640px) {
     svg.chart text.lbl { display: none; }
+    svg.chart text.lbl.show { display: block; font-size: 13px; }
     .toolbar input[type="search"] { width: 100%; }
     .seg { margin-left: 0; }
   }
@@ -367,8 +371,8 @@
       <span class="math" data-tex="\cos 0^{\circ} = 1">cos 0&deg; = 1</span> for
       identical directions,
       <span class="math" data-tex="\cos 90^{\circ} = 0">cos 90&deg; = 0</span>
-      for unrelated ones. Below, the arrows of the three vectors from
-      card&nbsp;2, at their <b>real, measured angles</b>:
+      when they share no direction in this representation. Below, the arrows of
+      the three vectors from card&nbsp;2, at their <b>real, measured angles</b>:
       <svg id="angdemo" class="diagram" viewBox="0 0 230 132" width="230" height="132"
         aria-label="Real angles between the Sydney, Melbourne and New York vectors in a coordinate plane"></svg>
       <div id="angcap"></div>
@@ -383,9 +387,9 @@
       the whole 124&times;124 table (fit: Stress-1&nbsp;=&nbsp;.347).
       <svg id="mdsdemo" class="diagram" viewBox="0 0 230 118" width="230" height="118"
         aria-label="The three-city similarity matrix becoming points on a map"></svg>
-      UMAP and t-SNE (switcher below) answer the same question differently —
-      they skip the global distance table and build the map straight from each
-      vector's nearest neighbours.
+      PCA, t-SNE and UMAP (switcher below) offer alternative 2-D views: instead
+      of honouring the whole distance table, they prioritize each vector's local
+      neighbourhoods.
     </div>
   </div>
 
@@ -399,7 +403,7 @@
     </div>
     <div class="readout">
       <div class="cut">cosine ≥ <b id="tval">0.50</b></div>
-      <div class="sub"><span id="ecount">0</span> links &middot; <span id="epct">0</span>% of pairs</div>
+      <div class="sub"><span id="ecount">0</span> links &middot; strongest <span id="epct">0</span>% of 7,626 pairs</div>
     </div>
   </div>
 
@@ -445,12 +449,16 @@
     </div>
     <p class="m-note" id="m-note"></p>
     <p class="m-stats" id="m-stats"></p>
-    <p class="m-legend"><b>Stress-1</b> — how far on-screen distances deviate
-      from the target dissimilarities (0 = perfect fit; reported only for MDS,
-      which optimizes it) &middot; <b>recall@10</b> — what share of each city's
-      10 truly nearest neighbours (by cosine, in 300-d) are still among its 10
-      nearest on this 2-D screen &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> —
-      correlation of the axes with real longitude / latitude.</p>
+    <p class="m-legend"><b>recall@10</b> — of each city's 10 truly nearest
+      neighbours (by cosine, in 300-d), how many stay among its 10 nearest on
+      this 2-D screen (local faithfulness) &middot; <b>geo-fidelity</b> — rank
+      correlation between on-screen distances and real great-circle distances;
+      alignment-free, so it is a genuine measure of how much geography the layout
+      recovers on its own &middot; <b>Stress-1</b> — how far on-screen distances
+      deviate from the target dissimilarities (0 = perfect; only MDS optimizes it)
+      &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> — axis correlation with
+      longitude / latitude, measured <i>after</i> the geographic alignment, so
+      descriptive only.</p>
     <div class="panel">
       <svg id="chart" class="chart" role="img"
         aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
@@ -465,20 +473,22 @@
       columns are the 124 cities; each cell is one cosine similarity. Hierarchical
       clustering (average linkage on
       <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>)
-      orders them so similar cities sit together: red blocks on the diagonal are
+      reorders them so similar cities sit together: red blocks on the diagonal are
       regions emerging on their own, warm patches off the blocks are cross-region
-      bridges, pale rows are loners. The tree on top shows where groups merge —
-      lower&nbsp;=&nbsp;more similar. Hover any cell for the pair; click to pin
-      the row's city.</div>
+      bridges, pale rows are loners. The tree at left shows where groups merge —
+      shorter&nbsp;=&nbsp;more similar. Row names are coloured by region; hover any
+      cell for the pair, click to pin the row's city.</div>
     <div class="panel">
-      <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix"></canvas>
+      <div class="cmwrap">
+        <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix, with a dendrogram and city names down the left edge"></canvas>
+      </div>
       <div class="tip" id="tip3"></div>
-      <div class="heatcap" style="margin-top:6px">
-        <i style="background:rgba(227,73,72,1)"></i> cos = 1
-        <i style="background:rgba(227,73,72,.5)"></i> .5
+      <div class="heatcap" style="margin-top:8px">
+        <i style="background:rgba(42,120,214,.6)"></i> cos &lt; 0
         <i style="background:rgba(227,73,72,.12)"></i> &approx; 0
-        <i style="background:rgba(42,120,214,.5)"></i> &lt; 0
-        <span style="margin-left:auto">region colours along both edges</span>
+        <i style="background:rgba(227,73,72,.5)"></i> .5
+        <i style="background:rgba(227,73,72,1)"></i> 1
+        <span style="margin-left:auto">124 rows &times; 124 columns &middot; scroll to read every name</span>
       </div>
     </div>
   </section>
@@ -574,14 +584,15 @@
         <span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span>
         and the angle arccos are true metrics
         <a class="cite" href="#ref-borg">(Borg &amp; Groenen, 2005)</a>. On this
-        dataset the objection is empirically empty: <b>0 violations in 200,000
-        sampled triples</b> (similarities only reach .86, far from the regime
-        where violations appear). Meanwhile 1&nbsp;&minus;&nbsp;cos fits its
-        target best, preserves the cosine ranking best, and the three layouts are
-        nearly identical anyway (Procrustes disparity &le;&nbsp;.005). Chord
-        would be the safer default for datasets with near-duplicate items; here
-        the simplest transform is also the best-behaved, so the map keeps
-        d&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;cos.</li>
+        dataset the objection is nearly moot: enumerating <b>all
+        <span class="math" data-tex="\binom{124}{3} = 310{,}124">C(124,3) = 310,124</span>
+        triples</b>, exactly <b>2</b> violate the triangle inequality, by a
+        largest excess of just .023 — negligible for SMACOF. Meanwhile
+        1&nbsp;&minus;&nbsp;cos fits its target best, preserves the cosine ranking
+        best, and the three layouts are nearly identical anyway (Procrustes
+        disparity &le;&nbsp;.005). Chord would be the safer default for datasets
+        with near-duplicate items; here the simplest transform is also the
+        best-behaved, so the map keeps d&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;cos.</li>
       <li><b>MDS.</b> Metric MDS <a class="cite" href="#ref-kruskal">(Kruskal,
         1964; Borg &amp; Groenen, 2005)</a> via SMACOF (scikit-learn 1.9) on the
         precomputed dissimilarities: 2 components, classical-MDS (Torgerson)
@@ -598,43 +609,55 @@
         <i>r</i> = .71 (Spearman &rho; = .71). By Kruskal's rule of thumb
         (&lt;.05 excellent, &gt;.20 poor) this is a heavily compressed fit —
         unavoidable when flattening the high-rank similarity structure of 300-d
-        embeddings into a plane. Read the map accordingly: cluster membership and
-        adjacency are trustworthy; small distance differences are not. The hover
-        overlay shows each city's true 300-d nearest neighbours precisely so the
+        embeddings into a plane. Read the map accordingly: broad groupings are
+        informative, but exact nearest neighbours should be taken from the pinned
+        similarity ranking, not from which dot looks closest. The hover overlay
+        shows each city's true 300-d nearest neighbours precisely so the
         projection's compromises stay visible.</li>
       <li class="stat"><b>Alternative layouts (the switcher).</b> The four
         algorithms, in historical order, answer progressively different
-        questions. <b>PCA</b> <a class="cite" href="#ref-pearson">(Pearson,
-        1901)</a> projects the cloud onto the two directions of greatest
-        variance — linear, so it cannot bend around curved structure and keeps
-        the fewest true neighbourhoods (recall@10 = .41). <b>MDS</b> optimizes
-        distances globally (Stress-1 = .347, recall@10 = .52) and is the only
-        distance-faithful view, hence the default. <b>t-SNE</b>
-        <a class="cite" href="#ref-vandermaaten">(van der Maaten &amp; Hinton,
-        2008)</a> and <b>UMAP</b>
+        questions, all on the same vectors with cosine distance. <b>PCA</b>
+        <a class="cite" href="#ref-pearson">(Pearson, 1901)</a> projects the cloud
+        onto the two directions of greatest variance — linear, so it cannot bend
+        around curved structure and keeps the fewest true neighbourhoods
+        (recall@10 = .41). <b>MDS</b> is the only one that explicitly optimizes
+        all pairwise distances (Stress-1 = .347, recall@10 = .52), which is why
+        it is the default. <b>t-SNE</b> <a class="cite" href="#ref-vandermaaten">(van
+        der Maaten &amp; Hinton, 2008)</a> and <b>UMAP</b>
         <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al., 2018)</a> are
-        nonlinear neighbourhood methods on the same vectors with cosine distance
-        (perplexity&nbsp;=&nbsp;20; n_neighbors&nbsp;=&nbsp;15,
-        min_dist&nbsp;=&nbsp;0.3): they preserve local structure far better
-        (recall@10 = .71 / .70) at the price that distances <i>between</i>
-        clusters stop meaning anything. All four layouts are aligned to
-        geography by the same rigid Procrustes step, so the east&ndash;west
-        reading survives switching; the metric definitions sit under the
-        switcher itself.</li>
-      <li><b>Orientation (geographic).</b> An MDS solution is unique only up to
-        rotation, reflection and translation, so the raw axes are meaningless.
-        Instead of an arbitrary convention, the configuration is aligned to real
-        geography by <b>orthogonal Procrustes</b>: the rotation + reflection that
-        best maps the embedding onto each city's true (longitude, latitude), with
-        the two geographic axes standardized so east&ndash;west and north&ndash;south
-        count equally. This is a rigid transform — it preserves every pairwise
-        distance and the stress exactly, and only decides which way is up. The
-        result: east&ndash;west correspondence with longitude jumps from an
-        arbitrary <i>r</i> = .48 to <b><i>r</i> = .70</b>, and north&ndash;south
-        flips right-side-up (<i>r</i> = &minus;.21 &rarr; +.17). Latitude stays
-        weak because even the single best rotation cannot push it past
-        <i>r</i> &asymp; .21 — the semantic structure simply does not encode
-        north&ndash;south.</li>
+        nonlinear methods prioritizing local neighbourhoods (perplexity&nbsp;=&nbsp;20;
+        n_neighbors&nbsp;=&nbsp;15, min_dist&nbsp;=&nbsp;0.3): they preserve local
+        structure far better (recall@10 = .71 / .70) at the price that distances
+        <i>between</i> clusters stop being comparable.
+        <b>A surprise on the geography question</b> (your "which map looks most
+        like the world?"): scoring each layout by the alignment-free geo-fidelity
+        &rho; — rank correlation of on-screen distances with real great-circle
+        distances — ranks them <b>UMAP .67 &gt; t-SNE .64 &gt; PCA .60 &gt; MDS
+        .57</b>. The neighbourhood methods recover geography <i>better</i> than
+        the distance-faithful one, because geographically near cities really are
+        one another's semantic neighbours, and that is exactly what t-SNE/UMAP
+        lock onto. All four are aligned to geography by the same rigid Procrustes
+        step (which cannot change these distance-based scores), so the
+        east&ndash;west reading survives switching; metric definitions sit under
+        the switcher.</li>
+      <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
+        only up to rotation, reflection and translation, so the raw axes are
+        meaningless. Instead of an arbitrary convention, the configuration is
+        aligned to real geography by <b>orthogonal Procrustes</b>: the rotation +
+        reflection that best maps the embedding onto each city's true (longitude,
+        latitude), with the two geographic axes standardized so east&ndash;west
+        and north&ndash;south count equally. This is a rigid transform — it
+        preserves every pairwise distance and the stress exactly, and only
+        decides which way is up. Afterwards east&ndash;west correlates with
+        longitude at <i>r</i> = .70 and north&ndash;south with latitude at only
+        <i>r</i> = .17; even the single best rotation cannot lift latitude past
+        <i>r</i> &asymp; .21, so <b>this 2-D layout recovers little
+        north&ndash;south structure</b> (a statement about the projection, not a
+        claim that the 300-d space contains none). These axis correlations are
+        measured <i>after</i> an alignment that itself uses the real coordinates,
+        so they describe residual correspondence rather than prove unsupervised
+        recovery — for that, see the alignment-free geo-fidelity metric under the
+        layout switcher.</li>
       <li><b>Geographic network view.</b> The same similarity matrix drawn over
         real geography: cities at their true (longitude, latitude) on an
         equirectangular projection, with a simplified Natural Earth 110m land
@@ -821,13 +844,14 @@
     }
 
     const METHOD_NOTE = {
-      mds: `<b>MDS</b> <a class="cite" href="#ref-kruskal">(Kruskal, 1964)</a>
-        reproduces the distances themselves: it seeks the layout whose on-screen
-        distances match the semantic dissimilarities
-        <span class="math" data-tex="d = 1 - \\cos\\theta">d = 1 &minus; cos&nbsp;&theta;</span>
-        as closely as possible. Global geometry is honest, but only about half of
-        each city's true top-10 survives in 2-D — hover to see what the plane had
-        to give up.`,
+      mds: `<b>MDS</b> <a class="cite" href="#ref-kruskal">(Kruskal, 1964)</a> is
+        the only method here that explicitly optimizes <i>all</i> pairwise
+        distances: it seeks the layout whose on-screen distances match the
+        semantic dissimilarities
+        <span class="math" data-tex="d = 1 - \\cos\\theta">d = 1 &minus; cos&nbsp;&theta;</span>.
+        Broad structure is informative, but the fit is loose (about half of each
+        city's true top-10 lands elsewhere in 2-D) — read exact neighbours from
+        the pinned ranking, not the pixels.`,
       pca: `<b>PCA</b> <a class="cite" href="#ref-pearson">(Pearson, 1901)</a> is
         the classical linear baseline: it projects the 300-d cloud onto the two
         directions of greatest variance — a flat shadow. Being linear, it cannot
@@ -835,25 +859,28 @@
         of the four; t-SNE and UMAP exist precisely to capture what this shadow
         loses.`,
       tsne: `<b>t-SNE</b> <a class="cite" href="#ref-vandermaaten">(van der Maaten
-        &amp; Hinton, 2008)</a> is nonlinear: it matches neighbour probabilities
-        (perplexity 20), so local structure is the sharpest of the four — but
-        global arrangement and the space between clusters are largely artifacts
-        of the optimizer.`,
+        &amp; Hinton, 2008)</a> is a nonlinear method that prioritizes local
+        neighbourhoods over global distances (it matches neighbour probabilities;
+        perplexity 20). Local structure is the sharpest of the four — but the gaps
+        <i>between</i> clusters are largely artifacts of the optimizer, so do not
+        read them as distances.`,
       umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes, Healy, &amp;
-        Melville, 2018)</a>, the most recent of the four, builds a
-        15-nearest-neighbour graph in cosine space and lays out the <i>graph</i>.
-        Neighbourhoods are preserved as well as t-SNE with somewhat more global
-        coherence — but distance <i>between</i> clusters is still not meaningful.`,
+        Melville, 2018)</a>, the most recent, also prioritizes local
+        neighbourhoods (via a 15-nearest-neighbour graph in cosine space). Curiously
+        it lands closest to the real map: its distances track great-circle distances
+        best of the four (geo-fidelity &rho; = .67) — the neighbourhood methods
+        recover geography better than the distance-faithful ones, because nearby
+        cities really do share the most news.`,
     };
     const METHOD_STATS = {
-      mds: `Stress-1 = .347 &middot; recall@10 = .52 &middot; ` +
-        `E–W <i>r</i> = .70 &middot; N–S <i>r</i> = .17`,
-      pca: `recall@10 = .41 &middot; E–W <i>r</i> = .80 &middot; N–S <i>r</i> = .10 ` +
-        `&middot; linear projection`,
-      tsne: `recall@10 = .71 &middot; E–W <i>r</i> = .90 &middot; N–S <i>r</i> = .40 ` +
-        `&middot; inter-cluster distances not comparable`,
-      umap: `recall@10 = .70 &middot; E–W <i>r</i> = .85 &middot; N–S <i>r</i> = .21 ` +
-        `&middot; inter-cluster distances not comparable`,
+      mds: `recall@10 = .52 &middot; geo-fidelity &rho; = .57 &middot; ` +
+        `Stress-1 = .347 &middot; E–W <i>r</i> = .70, N–S <i>r</i> = .17`,
+      pca: `recall@10 = .41 &middot; geo-fidelity &rho; = .60 &middot; ` +
+        `linear projection &middot; E–W <i>r</i> = .80, N–S <i>r</i> = .10`,
+      tsne: `recall@10 = .71 &middot; geo-fidelity &rho; = .64 &middot; ` +
+        `inter-cluster distances not comparable &middot; E–W <i>r</i> = .90, N–S <i>r</i> = .40`,
+      umap: `recall@10 = .70 &middot; geo-fidelity &rho; = .67 &middot; ` +
+        `inter-cluster distances not comparable &middot; E–W <i>r</i> = .85, N–S <i>r</i> = .21`,
     };
 
     // ---------- chart scaffolding ----------
@@ -1003,12 +1030,26 @@
         const on = b.dataset.l === key;
         b.classList.toggle("on", on);
         b.setAttribute("aria-checked", String(on));
+        b.tabIndex = on ? 0 : -1;
       });
       hideTips();
       if (selected >= 0) spotlight(selected, true); else clearSpot();
     }
-    document.querySelectorAll("#seg button").forEach(b =>
-      b.addEventListener("click", () => applyLayout(b.dataset.l)));
+    const segBtns = [...document.querySelectorAll("#seg button")];
+    segBtns.forEach((b, i) => {
+      b.addEventListener("click", () => applyLayout(b.dataset.l));
+      b.tabIndex = i === 0 ? 0 : -1;   // roving tabindex within the radiogroup
+      b.addEventListener("keydown", e => {
+        const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1
+          : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        const nb = segBtns[(i + d + segBtns.length) % segBtns.length];
+        segBtns.forEach(x => (x.tabIndex = -1));
+        nb.tabIndex = 0; nb.focus();
+        applyLayout(nb.dataset.l);
+      });
+    });
 
     // ---------- spotlight ----------
     function drawLines(view, k, pairs, color) {
@@ -1037,6 +1078,7 @@
       chartSvg.classList.remove("spot"); mapSvg.classList.remove("spot");
       mds.pts.forEach(p => p.classList.remove("xfocus"));
       geo.pts.forEach(p => p.classList.remove("xfocus"));
+      mds.labels.forEach(t => t.classList.remove("show"));
     }
     function spotlight(k, full) {
       clearSpot();
@@ -1049,6 +1091,7 @@
       chartSvg.classList.add("spot"); mapSvg.classList.add("spot");
       mds.pts[k].classList.add("xfocus");
       geo.pts[k].classList.add("xfocus");
+      mds.labels[k].classList.add("show");  // keep the pinned name visible on mobile
     }
 
     // ---------- tooltips ----------
@@ -1396,100 +1439,119 @@
     }
 
     // ---------- clustered similarity heatmap ----------
+    // Layout, left to right: dendrogram | city name | 124 cells. Leaves = rows,
+    // ordered by the clustering. Rendered 1:1 at device resolution (sharp), the
+    // static base cached offscreen and re-blitted only when the hovered cell
+    // changes.
     const cmc = document.getElementById("cmheat");
     if (cmc && DATA.cluster) {
       const cl = DATA.cluster, ord = cl.order;
-      const CELLC = 5, STRIP = 8, GAPC = 2, DH = 64;
-      const ox = STRIP + GAPC, oy = DH + GAPC + STRIP + GAPC;
-      cmc.width = ox + n * CELLC;
-      cmc.height = oy + n * CELLC;
+      const DW = 60, LW = 96, TS = 9, RH = 10, CW = 7;   // CSS px
+      const ox = DW + LW, oy = TS + 3;
+      const cssW = ox + n * CW, cssH = oy + n * RH;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      cmc.style.width = cssW + "px"; cmc.style.height = cssH + "px";
+      cmc.width = Math.round(cssW * dpr); cmc.height = Math.round(cssH * dpr);
       const cssVar = v => getComputedStyle(document.documentElement)
         .getPropertyValue(v).trim();
-      const cmBase = document.createElement("canvas");
-      cmBase.width = cmc.width; cmBase.height = cmc.height;
-      const blit = () => {
-        const g = cmc.getContext("2d");
-        g.clearRect(0, 0, cmc.width, cmc.height);
-        g.drawImage(cmBase, 0, 0);
-      };
+      const rowY = a => oy + a * RH + RH / 2;
+      const base = document.createElement("canvas");
+      base.width = cmc.width; base.height = cmc.height;
 
-      function drawCmBase() {
-        const g = cmBase.getContext("2d");
-        g.clearRect(0, 0, cmBase.width, cmBase.height);
-        // dendrogram: icoord in 10k+5 leaf units, dcoord in d = 1-cos units
-        g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 1; g.globalAlpha = 0.75;
-        const dxu = u => ox + ((u - 5) / 10) * CELLC + CELLC / 2;
-        const dyu = d => DH - (d / cl.dmax) * (DH - 4);
+      function drawBase() {
+        const g = base.getContext("2d");
+        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+        g.clearRect(0, 0, cssW, cssH);
+        g.textBaseline = "middle";
+        g.font = "8.5px ui-monospace, Menlo, monospace";
+        // dendrogram at left: leaf position -> row Y, merge height -> X
+        g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 0.75; g.globalAlpha = 0.8;
+        const dX = d => DW - 3 - (d / cl.dmax) * (DW - 7);
+        const dY = u => oy + ((u - 5) / 10) * RH + RH / 2;
         cl.icoord.forEach((seg, si) => {
           g.beginPath();
           seg.forEach((u, k) => {
-            const x = dxu(u), y = dyu(cl.dcoord[si][k]);
+            const x = dX(cl.dcoord[si][k]), y = dY(u);
             k ? g.lineTo(x, y) : g.moveTo(x, y);
           });
           g.stroke();
         });
         g.globalAlpha = 1;
-        // region strips along top and left edges
+        // top region strip (columns) + per-row swatch and name (rows)
         ord.forEach((ci, k) => {
-          g.fillStyle = cssVar(st(C[ci].r).c);
-          g.fillRect(ox + k * CELLC, DH + GAPC, CELLC, STRIP);
-          g.fillRect(0, oy + k * CELLC, STRIP, CELLC);
+          const col = cssVar(st(C[ci].r).c);
+          g.fillStyle = col;
+          g.fillRect(ox + k * CW, 0, CW, TS);
+          g.fillRect(DW + 2, oy + k * RH + 1.5, 6, RH - 3);
+          g.fillStyle = cssVar("--ink-1");
+          const nm = C[ci].n;
+          const label = nm.length > 15 ? nm.slice(0, 14) + "…" : nm;
+          g.fillText(label, DW + 12, rowY(k));
         });
-        // similarity cells
+        // cells
         for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) {
           const s = S(ord[a], ord[b]);
           g.fillStyle = s >= 0
             ? `rgba(227,73,72,${Math.min(1, s).toFixed(3)})`
             : `rgba(42,120,214,${Math.min(1, -s).toFixed(3)})`;
-          g.fillRect(ox + b * CELLC, oy + a * CELLC, CELLC, CELLC);
+          g.fillRect(ox + b * CW, oy + a * RH, CW, RH);
         }
-        blit();
       }
-      drawCmBase();
-      // strip/dendrogram colours are computed from the theme — redraw on change
+      const g = cmc.getContext("2d");
+      const blit = () => {
+        g.setTransform(1, 0, 0, 1, 0, 0);
+        g.clearRect(0, 0, cmc.width, cmc.height);
+        g.drawImage(base, 0, 0);
+      };
+      drawBase(); blit();
       if (matchMedia("(prefers-color-scheme: dark)").addEventListener)
         matchMedia("(prefers-color-scheme: dark)")
-          .addEventListener("change", drawCmBase);
-      new MutationObserver(drawCmBase).observe(document.documentElement,
-        { attributes: true, attributeFilter: ["data-theme"] });
+          .addEventListener("change", () => { drawBase(); blit(); });
+      new MutationObserver(() => { drawBase(); blit(); }).observe(
+        document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
       const tip3 = document.getElementById("tip3");
-      const cmPanel = cmc.parentElement;
+      const cmPanel = cmc.closest(".panel");
       const cmCell = ev => {
         const r = cmc.getBoundingClientRect();
-        const sc = cmc.width / r.width;
-        const x = (ev.clientX - r.left) * sc, y = (ev.clientY - r.top) * sc;
-        const b = Math.floor((x - ox) / CELLC), a = Math.floor((y - oy) / CELLC);
+        const x = ev.clientX - r.left, y = ev.clientY - r.top;  // CSS px, 1:1
+        const b = Math.floor((x - ox) / CW), a = Math.floor((y - oy) / RH);
         return (a >= 0 && a < n && b >= 0 && b < n) ? [a, b] : null;
       };
+      let lastCell = null;
       cmc.addEventListener("pointermove", ev => {
-        blit();
         const cell = cmCell(ev);
+        const key = cell ? cell[0] * n + cell[1] : -1;
+        if (key !== lastCell) {
+          lastCell = key;
+          blit();
+          if (cell) {
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const [a, b] = cell;
+            g.fillStyle = "rgba(127,127,127,0.22)";
+            g.fillRect(ox, oy + a * RH, n * CW, RH);
+            g.fillRect(ox + b * CW, oy, CW, n * RH);
+            g.strokeStyle = cssVar("--ink-1"); g.lineWidth = 1;
+            g.strokeRect(ox + b * CW - 0.5, oy + a * RH - 0.5, CW + 1, RH + 1);
+          }
+        }
         if (!cell) { tip3.style.display = "none"; return; }
         const [a, b] = cell, i = ord[a], j = ord[b];
-        const g = cmc.getContext("2d");
-        g.fillStyle = "rgba(127,127,127,0.18)";
-        g.fillRect(ox, oy + a * CELLC, n * CELLC, CELLC);
-        g.fillRect(ox + b * CELLC, oy, CELLC, n * CELLC);
-        g.strokeStyle = cssVar("--ink-1"); g.lineWidth = 1.5;
-        g.strokeRect(ox + b * CELLC - 0.5, oy + a * CELLC - 0.5,
-          CELLC + 1, CELLC + 1);
         tip3.innerHTML =
           `<div class="t-row">${glyph(C[i].r, 12)}<span class="nm">${C[i].n}</span></div>` +
           `<div class="t-row">${glyph(C[j].r, 12)}<span class="nm">${C[j].n}</span></div>` +
           `<div class="t-meta" style="margin:4px 0 0">cos = ${i === j ? "1" : fmt2(S(i, j))}</div>`;
         tip3.style.display = "block";
         const pr = cmPanel.getBoundingClientRect();
-        let tx = (ev.clientX - pr.left) + 14, ty = (ev.clientY - pr.top) + 14;
+        let tx = (ev.clientX - pr.left) + 16, ty = (ev.clientY - pr.top) + 16;
         const tw = tip3.offsetWidth, th = tip3.offsetHeight;
-        if (tx + tw > pr.width - 8) tx = (ev.clientX - pr.left) - tw - 14;
-        if (ty + th > pr.height - 8) ty = (ev.clientY - pr.top) - th - 14;
+        if (tx + tw > pr.width - 8) tx = (ev.clientX - pr.left) - tw - 16;
+        if (ty + th > pr.height - 8) ty = (ev.clientY - pr.top) - th - 16;
         tip3.style.left = Math.max(6, tx).toFixed(0) + "px";
         tip3.style.top = Math.max(6, ty).toFixed(0) + "px";
       });
       cmc.addEventListener("pointerleave", () => {
-        tip3.style.display = "none";
-        blit();
+        tip3.style.display = "none"; lastCell = null; blit();
       });
       cmc.addEventListener("click", ev => {
         const cell = cmCell(ev);

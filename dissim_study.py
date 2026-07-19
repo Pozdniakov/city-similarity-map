@@ -74,17 +74,24 @@ def main():
                 if name != "raw   1-cos" else 0.0)
         print(f"{name:<22} {stress1:7.4f} {r5:6.3f} {r10:7.3f} {rho:8.3f} {disp:7.4f}")
 
-    # triangle-inequality violations of the raw transform
-    rng = np.random.default_rng(0)
-    viol = total = 0
+    # triangle-inequality check for the raw transform: enumerate ALL C(n,3)
+    # triples and test the binding case (largest side vs sum of the other two)
     Draw = 1.0 - S
-    for _ in range(200_000):
-        i, j, k = rng.choice(n, 3, replace=False)
-        total += 1
-        if Draw[i, j] > Draw[i, k] + Draw[k, j] + 1e-12:
-            viol += 1
-    print(f"\ntriangle-inequality violations in 1-cos: {viol}/{total} "
-          f"({100*viol/total:.2f}% of sampled triples)")
+    viol = total = 0
+    worst = -np.inf
+    for i in range(n):
+        for j in range(i + 1, n):
+            dij = Draw[i, j]
+            for k in range(j + 1, n):
+                total += 1
+                a, b, c = dij, Draw[i, k], Draw[j, k]
+                slack = 2 * max(a, b, c) - (a + b + c)  # >0 means violation
+                if slack > 1e-12:
+                    viol += 1
+                if slack > worst:
+                    worst = slack
+    print(f"\ntriangle-inequality violations in 1-cos: {viol}/{total} triples "
+          f"(all C({n},3) enumerated); worst slack = {worst:+.3f}")
 
 
 if __name__ == "__main__":

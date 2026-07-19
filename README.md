@@ -56,7 +56,8 @@ similarity→dissimilarity transforms (see below).
    from the [gensim-data release](https://github.com/RaRe-Technologies/gensim-data/releases/tag/word2vec-google-news-300)
    to `data/word2vec-google-news-300.bin.gz` (1.74 GB, not committed). Under
    the distributional hypothesis, cities mentioned in similar news contexts
-   get similar vectors — no geographic information enters the pipeline.
+   get similar vectors. No geography enters the similarity computation or the
+   layout — it is used only for the final rigid orientation (step 8).
 2. **City list.** 124 cities curated by hand (metro population roughly >1M plus
    global prominence), balanced across 9 regions. Region labels are only used
    to color the plot; they play no role in the computation.
@@ -79,14 +80,14 @@ similarity→dissimilarity transforms (see below).
    | `√(2(1−cos))` (chord, metric) | 0.392 | 0.505 | 0.687 | 0.005 |
    | `arccos(cos)` (angle, metric) | 0.384 | 0.511 | 0.692 | 0.003 |
 
-   The textbook objection — `1 − cos` is only a semi-metric — is empirically
-   empty here: **0 triangle-inequality violations in 200,000 sampled triples**
-   (similarities top out at 0.86, far from the violation regime). It also fits
-   its target best, preserves the cosine ranking best, and all three layouts
-   are nearly identical anyway (Procrustes disparity ≤ 0.005). The chord would
-   be the safer default for datasets with near-duplicates; here the simplest
-   transform wins. (Being monotone in each other, all three would give an
-   *identical* nonmetric MDS.)
+   The textbook objection — `1 − cos` is only a semi-metric — is nearly moot
+   here: enumerating **all C(124,3) = 310,124 triples**, exactly **2** violate
+   the triangle inequality, by a largest excess of .023 (negligible for SMACOF).
+   `1 − cos` also fits its target best, preserves the cosine ranking best, and
+   all three layouts are nearly identical anyway (Procrustes disparity ≤ 0.005).
+   The chord would be the safer default for datasets with near-duplicates; here
+   the simplest transform wins. (Being monotone in each other, all three would
+   give an *identical* nonmetric MDS.)
 6. **MDS.** Metric MDS via SMACOF (sklearn 1.9), precomputed dissimilarities,
    2 components, classical-MDS (Torgerson) init + stress-majorization
    iterations (max 3000, eps 1e-9) — deterministic. Minimizes raw stress
@@ -103,19 +104,22 @@ similarity→dissimilarity transforms (see below).
    best mapping the embedding onto each city's true (longitude, latitude), with
    the two geographic axes standardized so E–W and N–S weigh equally. It is a
    rigid transform — every pairwise distance and the stress are preserved
-   exactly; only "which way is up" changes. Result: `→` east, `↑` north, with
-   E–W correspondence to longitude rising from an arbitrary r = 0.48 to **0.70**
-   and N–S flipping right-side-up (r −0.21 → **+0.17**). Latitude stays weak —
-   even the best possible rotation cannot exceed r ≈ 0.21, because the semantic
-   structure barely encodes north–south (it encodes region/language, which is
-   mostly an E–W distinction).
-9. **Layout alternatives (UMAP, t-SNE).** Computed on the same vectors with
-   cosine distance ([make_layouts.py](make_layouts.py)), geo-aligned by the
-   same Procrustes step, switchable on the page. They answer a different
-   question: neighbourhood preservation recall@10 rises from 0.52 (MDS) to
-   0.70 (UMAP, n_neighbors 15) / 0.71 (t-SNE, perplexity 20), but distances
-   *between* clusters stop meaning anything — so MDS, the only
-   distance-faithful method, stays the default view.
+   exactly; only "which way is up" changes. Afterwards E–W correlates with
+   longitude at r = .70 and N–S with latitude at only r = .17. **These axis
+   correlations are measured after an alignment that itself uses the real
+   coordinates**, so they describe residual correspondence, not unsupervised
+   recovery — for an alignment-free measure, see geo-fidelity below.
+9. **Layout alternatives + geographic fidelity.** Four layouts on the same
+   vectors/cosine distance ([make_layouts.py](make_layouts.py)), each
+   geo-aligned by the same rigid Procrustes step, switchable on the page: **PCA**
+   (linear baseline, recall@10 .41), **MDS** (only method optimizing all
+   pairwise distances; default), **t-SNE** and **UMAP** (nonlinear, local
+   neighbourhoods; recall@10 .71 / .70). To compare them *as maps of the world*,
+   score each by **geo-fidelity** — the alignment-free rank correlation between
+   on-screen distances and real great-circle distances. Result:
+   **UMAP .67 > t-SNE .64 > PCA .60 > MDS .57** — the neighbourhood methods
+   recover geography better than the distance-faithful one, because
+   geographically near cities are one another's semantic neighbours.
 10. **Beyond word2vec.** Kept deliberately as the canonical teaching model
     with ready phrase tokens and instructive quirks. Cleaner alternatives:
     **Wikipedia2Vec** (entity vectors — solves name collisions like
@@ -123,12 +127,10 @@ similarity→dissimilarity transforms (see below).
     **GloVe** (global co-occurrence counts), modern **sentence/LLM
     embeddings** of city descriptions. Swapping the embedding changes step 1
     only; the rest of the pipeline is unchanged.
-11. **Limitations.** 2013-era corpus (coverage of that period); a token
-    conflates every sense of its string (Treaty-of-Lisbon vs Lisbon;
-    `Santiago` and `Hyderabad` name several cities); news salience, not
-    geography, drives similarity; Mexico City is a two-token composition
-    rather than a native token; map links are straight lines, not
-    great-circle arcs, and equirectangular inflates high latitudes.
+11. **Clustered similarity matrix.** The full 124×124 matrix rendered on the
+    page with rows/columns reordered by average-linkage hierarchical clustering
+    (optimal leaf ordering), dendrogram and region-coloured names down the left
+    edge — the complete, seriated version of the card-4 mini-matrix.
 
 ## Vocabulary resolution notes
 
@@ -151,7 +153,7 @@ Verified against the full 3M-token vocabulary:
 
 ```bash
 uv venv --python 3.11 .venv
-uv pip install --python .venv/bin/python numpy scipy scikit-learn matplotlib pandas adjustText
+uv pip install --python .venv/bin/python -r requirements.txt
 curl -L -o data/word2vec-google-news-300.bin.gz \
   https://github.com/RaRe-Technologies/gensim-data/releases/download/word2vec-google-news-300/word2vec-google-news-300.gz
 curl -L -o data/ne_110m_land.geojson \

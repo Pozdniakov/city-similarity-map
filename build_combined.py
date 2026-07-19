@@ -97,9 +97,29 @@ def main():
     assert "__DATA__" in tpl and tpl.count("<script>") == 1
     page = tpl.replace("__DATA__", payload)
 
+    # Standalone / GitHub Pages build gets a proper <head> (lang, description,
+    # Open Graph) that the artifact runtime supplies on its own. The scratch
+    # copy stays a bare fragment, since the artifact platform wraps it.
+    head = (
+        '<!doctype html>\n<html lang="en">\n<head>\n'
+        '<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '<title>Semantic City Map — 124 world cities by word2vec similarity</title>\n'
+        '<meta name="description" content="A teaching demo: 124 world cities '
+        'embedded by word2vec, compared by cosine similarity, and laid out with '
+        'MDS / PCA / t-SNE / UMAP — a semantic map, a geographic link network, '
+        'and a clustered similarity matrix.">\n'
+        '<meta property="og:type" content="website">\n'
+        '<meta property="og:title" content="124 world cities by word2vec similarity">\n'
+        '<meta property="og:description" content="Can a computer sketch a map of '
+        'the world from the news alone? An interactive teaching demo of embeddings, '
+        'cosine similarity and dimensionality reduction.">\n'
+        '<meta property="og:url" content="https://pozdniakov.github.io/city-similarity-map/">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+        '</head>\n<body>\n')
+    standalone = head + page + "\n</body>\n</html>"
     os.makedirs("output", exist_ok=True)
     os.makedirs("docs", exist_ok=True)
-    standalone = "<!doctype html>\n<html>\n" + page + "\n</html>"
     with open("output/similarity_maps.html", "w") as f:
         f.write(standalone)
     with open("docs/index.html", "w") as f:  # GitHub Pages

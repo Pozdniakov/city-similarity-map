@@ -17,11 +17,23 @@ import pandas as pd
 from adjustText import adjust_text
 from scipy.linalg import orthogonal_procrustes
 from scipy.spatial.distance import pdist, squareform
+from scipy.stats import spearmanr
 from sklearn.manifold import TSNE
 
 from cities import CITY_LATLON
 
 RS = 42
+
+
+def great_circle(names):
+    """Pairwise great-circle distances (radians) between the cities."""
+    lat = np.radians([CITY_LATLON[c][0] for c in names])
+    lon = np.radians([CITY_LATLON[c][1] for c in names])
+    dlat = lat[:, None] - lat[None, :]
+    dlon = lon[:, None] - lon[None, :]
+    a = (np.sin(dlat / 2) ** 2
+         + np.cos(lat[:, None]) * np.cos(lat[None, :]) * np.sin(dlon / 2) ** 2)
+    return 2 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
 
 
 def knn_recall(S, X, k=10):
@@ -70,6 +82,7 @@ def main():
     D = 1.0 - S
     np.fill_diagonal(D, 0.0)
     iu = np.triu_indices(len(S), k=1)
+    gc = great_circle(names)[iu]  # true geographic distances
 
     layouts = {}
 
@@ -97,6 +110,10 @@ def main():
         d_emb = squareform(pdist(X))
         m = {
             "recall10": round(knn_recall(S, X, 10), 3),
+            # alignment-free: how well on-screen distances track great-circle
+            # distances (Procrustes rotation/scale leaves pairwise distances
+            # unchanged, so this measures recovered geography, not the fit)
+            "geofid": round(float(spearmanr(d_emb[iu], gc).statistic), 2),
             "ew": round(float(np.corrcoef(X[:, 0], geo[:, 0])[0, 1]), 2),
             "ns": round(float(np.corrcoef(X[:, 1], geo[:, 1])[0, 1]), 2),
         }
