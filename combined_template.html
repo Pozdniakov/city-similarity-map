@@ -73,9 +73,24 @@
     border-bottom: 1px solid var(--grid); height: 4px; margin: 26px 0 20px;
     background: none; }
 
-  .explain { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    margin: 20px 0 2px; }
+  .explain { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin: 20px 0 2px; }
   @media (max-width: 840px) { .explain { grid-template-columns: 1fr; } }
+  .ctx { font: 12px var(--font-mono); color: var(--ink-3); margin: 5px 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cchip { border: 1.5px solid; border-radius: 5px; padding: 0 4px;
+    color: var(--ink-1); font-weight: 500; }
+  .vrow { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .vrow .vl { font: 11px var(--font-mono); color: var(--ink-2); width: 58px;
+    flex: none; display: flex; align-items: center; gap: 5px; }
+  .vrow .vl i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .vrow canvas { flex: 1; height: 15px; border-radius: 2px; min-width: 0; }
+  .mini-row { display: flex; align-items: center; gap: 4px; margin: 8px 0;
+    font: 11px var(--font-mono); color: var(--ink-2); flex-wrap: wrap; }
+  .mini-row .msq { width: 30px; height: 22px; border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 8.5px var(--font-mono); color: var(--ink-1);
+    border: 1px solid var(--hairline); }
   .ex-card { background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 10px; padding: 14px 16px 10px; font-size: 15.5px;
     color: var(--ink-2); line-height: 1.45; }
@@ -273,89 +288,76 @@
   <header>
     <h1>124 world cities by word2vec similarity</h1>
     <p class="byline">a teaching demo by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
-    <p class="method">Two views of the same 124&times;124 cosine-similarity matrix
-      (word2vec, Google News 300d). <b>Geographic network:</b> cities at their real
-      coordinates, links join pairs above the similarity cutoff.
-      <b>Semantic map:</b> position itself encodes similarity — the layout is
-      computed from the matrix alone. Hover a city for its top-5 neighbours in
-      both views; <b>click</b> to pin it and see the full ranked list.</p>
+    <p class="method">Every city name is turned into an <b>embedding</b> — a
+      vector of 300 numbers learned by word2vec from the contexts the name
+      appears in, so that similar usage means similar numbers (how: cards 1&ndash;4
+      below). Comparing all vectors gives a 124&times;124 similarity matrix, shown
+      in two views. <b>Geographic network:</b> cities at their real coordinates,
+      links join pairs above the similarity cutoff. <b>Semantic map:</b> position
+      itself encodes similarity — the layout is computed from the matrix alone.
+      Hover a city for its top-5 neighbours; <b>click</b> to pin it and see the
+      full ranked list.</p>
     <p class="stats stat">124 cities &middot; 9 regions &middot; 7,626 pairs &middot;
       cosine range &minus;.06 to .86 &middot; MDS Stress-1 = .347</p>
   </header>
 
   <div class="explain">
     <div class="ex-card">
-      <h3><span class="n">1</span>word2vec: a name becomes a vector</h3>
-      Trained on ~100&nbsp;billion words of Google News, 2013
-      <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>. Each city
-      name becomes a list of 300 numbers — a point in 300-dimensional space,
-      learned purely from the words around it, so names used in similar news
-      contexts get similar vectors. No coordinates, no atlas: only text.
-      <svg class="diagram" viewBox="0 0 200 72" width="200" height="72" aria-hidden="true">
-        <rect x="6" y="26" width="54" height="22" rx="6" fill="none" stroke="var(--ink-3)"/>
-        <text x="33" y="41" text-anchor="middle" font-size="12" fill="var(--ink-1)">Paris</text>
-        <line x1="66" y1="37" x2="98" y2="37" stroke="var(--ink-3)"/>
-        <polygon points="98,33 106,37 98,41" fill="var(--ink-3)"/>
-        <rect x="116" y="8"  width="12" height="10" fill="#e34948" opacity="0.9"/>
-        <rect x="116" y="20" width="12" height="10" fill="#2a78d6" opacity="0.4"/>
-        <rect x="116" y="32" width="12" height="10" fill="#e34948" opacity="0.65"/>
-        <rect x="116" y="44" width="12" height="10" fill="#2a78d6" opacity="0.15"/>
-        <rect x="116" y="56" width="12" height="10" fill="#e34948" opacity="0.5"/>
-        <text x="136" y="34" font-size="10" fill="var(--ink-3)">300</text>
-        <text x="136" y="46" font-size="10" fill="var(--ink-3)">numbers</text>
-      </svg>
-      Each square is one of those numbers; colour encodes its value. Here is the
-      <b>actual vector of Paris</b>, all 300 numbers side by side:
-      <canvas id="vecheat" width="600" height="26" aria-label="Heatmap of the real 300-dimensional Paris vector"></canvas>
+      <h3><span class="n">1</span>word2vec: meaning from context</h3>
+      An <b>embedding</b> represents a word as numbers, chosen so that similar
+      usage gives similar numbers. word2vec learns them by reading
+      ~100&nbsp;billion words of Google News (2013) and training a small neural
+      network to predict each word from the words around it
+      <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>.
+      Names that occur in interchangeable contexts end up with nearly the same
+      numbers:
+      <div class="ctx">&hellip;a summit in <span class="cchip d0">Paris</span> with EU leaders&hellip;</div>
+      <div class="ctx">&hellip;a summit in <span class="cchip d1">London</span> with EU leaders&hellip;</div>
+      <div class="ctx">&hellip;power cuts hit <span class="cchip d2">Lagos</span> as demand grows&hellip;</div>
+      Shared contexts &rarr; similar vectors; different contexts &rarr; different
+      vectors. No atlas, no coordinates — the model never sees geography, only
+      text.
+    </div>
+    <div class="ex-card">
+      <h3><span class="n">2</span>a name becomes 300 numbers</h3>
+      Each name's learned vector is a list of 300 numbers — here are the first
+      five of Paris's, colour encoding the value:
+      <div class="mini-row"><span class="cchip d0">Paris</span> &rarr;
+        <span id="minirow"></span> <span>&hellip; &times;300</span></div>
+      And the <b>actual vectors</b> of all three cities, 300 numbers side by side:
+      <div id="vrows"></div>
       <div class="heatcap"><i style="background:#2a78d6"></i> negative
         <i style="background:transparent;border:1px solid var(--grid)"></i> &approx;&nbsp;0
         <i style="background:#e34948"></i> positive
         <span style="margin-left:auto">dimensions 1&hellip;300</span></div>
+      Scan a few columns: London's stripes match Paris's far more often than
+      Lagos's do — that shared pattern <i>is</i> the similarity.
     </div>
     <div class="ex-card">
-      <h3><span class="n">2</span>cosine: the angle is the similarity</h3>
-      A column of 300 numbers can equally be drawn as an <b>arrow</b> — one axis
-      per number (two of the 300 shown here). Similar usage &rarr; arrows point
-      the same way. The angle &theta; between two arrows measures similarity:
+      <h3><span class="n">3</span>cosine: the angle between vectors</h3>
+      The same list of numbers can be drawn as an <b>arrow</b>: 300 numbers = an
+      arrow in a 300-axis space (two axes shown). Similar vectors point the same
+      way, and the angle &theta; between two arrows measures it:
       <span class="math" data-tex="\cos\theta \to 1">cos&nbsp;&theta; &rarr; 1</span>
-      for names used alike, <span class="math" data-tex="\to 0">&rarr; 0</span>
-      for unrelated ones. Below — <b>real angles from this data</b>, measured
-      between the actual vectors:
-      <svg id="angdemo" class="diagram" viewBox="0 0 200 108" width="200" height="108"
-        aria-label="Real angles between the Paris, Rome and Beijing vectors"></svg>
+      when names are used alike,
+      <span class="math" data-tex="\to 0">&rarr; 0</span> when unrelated.
+      Real angles, measured between the actual vectors on the left:
+      <svg id="angdemo" class="diagram" viewBox="0 0 230 132" width="230" height="132"
+        aria-label="Real angles between the Paris, London and Lagos vectors in a coordinate plane"></svg>
     </div>
     <div class="ex-card">
-      <h3><span class="n">3</span>MDS: the matrix becomes a map</h3>
-      Multidimensional scaling <a class="cite" href="#ref-kruskal">(Kruskal,
-      1964)</a> converts similarity to distance,
+      <h3><span class="n">4</span>MDS: a map from distances alone</h3>
+      From a table of road distances between cities you could redraw the map of a
+      country. MDS <a class="cite" href="#ref-kruskal">(Kruskal, 1964)</a> does
+      exactly that — but the distances are <b>semantic</b>,
       <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>,
-      and searches for the 2-D layout whose point-to-point distances reproduce
-      those dissimilarities as faithfully as possible (SMACOF; fit quality:
-      Stress-1&nbsp;=&nbsp;.347).
-      <svg class="diagram" viewBox="0 0 200 72" width="200" height="72" aria-hidden="true">
-        <g>
-          <rect x="10" y="12" width="11" height="11" fill="var(--accent)" opacity="1"/>
-          <rect x="22" y="12" width="11" height="11" fill="var(--accent)" opacity="0.45"/>
-          <rect x="34" y="12" width="11" height="11" fill="var(--accent)" opacity="0.2"/>
-          <rect x="10" y="24" width="11" height="11" fill="var(--accent)" opacity="0.45"/>
-          <rect x="22" y="24" width="11" height="11" fill="var(--accent)" opacity="1"/>
-          <rect x="34" y="24" width="11" height="11" fill="var(--accent)" opacity="0.6"/>
-          <rect x="10" y="36" width="11" height="11" fill="var(--accent)" opacity="0.2"/>
-          <rect x="22" y="36" width="11" height="11" fill="var(--accent)" opacity="0.6"/>
-          <rect x="34" y="36" width="11" height="11" fill="var(--accent)" opacity="1"/>
-        </g>
-        <text x="28" y="62" text-anchor="middle" font-size="10" fill="var(--ink-3)">124&times;124</text>
-        <line x1="56" y1="30" x2="86" y2="30" stroke="var(--ink-3)"/>
-        <polygon points="86,26 94,30 86,34" fill="var(--ink-3)"/>
-        <line x1="120" y1="22" x2="152" y2="16" stroke="var(--ink-3)" stroke-dasharray="3 2" opacity="0.7"/>
-        <line x1="120" y1="22" x2="136" y2="52" stroke="var(--ink-3)" stroke-dasharray="3 2" opacity="0.7"/>
-        <line x1="152" y1="16" x2="136" y2="52" stroke="var(--ink-3)" stroke-dasharray="3 2" opacity="0.7"/>
-        <line x1="152" y1="16" x2="172" y2="44" stroke="var(--ink-3)" stroke-dasharray="3 2" opacity="0.7"/>
-        <circle cx="120" cy="22" r="4.5" fill="var(--c1)"/>
-        <circle cx="152" cy="16" r="4.5" fill="var(--c6)"/>
-        <circle cx="136" cy="52" r="4.5" fill="var(--c3)"/>
-        <circle cx="172" cy="44" r="4.5" fill="var(--c2)"/>
-      </svg>
+      not physical: it finds the 2-D points whose mutual distances best reproduce
+      the whole 124&times;124 table (fit: Stress-1&nbsp;=&nbsp;.347).
+      <svg id="mdsdemo" class="diagram" viewBox="0 0 230 108" width="230" height="108"
+        aria-label="The three-city similarity matrix becoming points on a map"></svg>
+      UMAP and t-SNE (switcher below) answer the same question differently —
+      they skip the global distance table and build the map straight from each
+      vector's nearest neighbours.
     </div>
   </div>
 
@@ -1127,63 +1129,156 @@
       });
     }
 
-    // real Paris vector as a horizontal heatmap (blue = negative, red = positive)
-    const heat = document.getElementById("vecheat");
-    if (heat && DATA.demo) {
-      const v = DATA.demo.vec, ctx = heat.getContext("2d");
-      const vmax = Math.max(...v.map(Math.abs));
-      const w = heat.width / v.length;
-      v.forEach((x, i) => {
-        ctx.fillStyle = x >= 0
-          ? `rgba(227,73,72,${(Math.abs(x) / vmax).toFixed(3)})`
-          : `rgba(42,120,214,${(Math.abs(x) / vmax).toFixed(3)})`;
-        ctx.fillRect(i * w, 0, Math.ceil(w), heat.height);
-      });
-    }
+    // ---- through-line demo: Paris / London / Lagos in every card ----
+    const demo = DATA.demo;
+    const DCOL = ["var(--accent)", "var(--c3)", "var(--c5)"];
+    const fmt2 = x => (x < 0 ? "−" : "") + Math.abs(x).toFixed(2).replace("0.", ".");
+    const svgPut = (root, tag, attrs, text) => {
+      const el = document.createElementNS(NS, tag);
+      for (const [k, val] of Object.entries(attrs)) el.setAttribute(k, val);
+      if (text) el.textContent = text;
+      root.append(el);
+      return el;
+    };
+    const heatColor = x => x >= 0
+      ? `rgba(227,73,72,${Math.min(1, Math.abs(x) / 0.3).toFixed(3)})`
+      : `rgba(42,120,214,${Math.min(1, Math.abs(x) / 0.3).toFixed(3)})`;
 
-    // real angles between city vectors (arccos of the actual cosines)
-    const ang = document.getElementById("angdemo");
-    if (ang && DATA.demo) {
-      const O = [16, 96], LEN = 86;
-      const ink3 = "var(--ink-3)", colors = ["var(--accent)", "var(--c3)", "var(--c7)"];
-      const items = [[DATA.demo.name, 1], ...DATA.demo.pairs];
-      const put = (tag, attrs, text) => {
-        const el = document.createElementNS(NS, tag);
-        for (const [k, val] of Object.entries(attrs)) el.setAttribute(k, val);
-        if (text) el.textContent = text;
-        ang.append(el);
-        return el;
-      };
-      items.forEach(([nm, cos], idx) => {
-        const th = Math.acos(Math.min(1, cos));
+    if (demo) {
+      // colour the city chips (cards 1-2) with the through-line colours
+      demo.cities.forEach((nm, i) => {
+        document.querySelectorAll(`.cchip.d${i}`).forEach(el => {
+          el.style.borderColor = DCOL[i];
+        });
+      });
+
+      // card 2: first five real numbers of Paris, values inside the squares
+      const mini = document.getElementById("minirow");
+      demo.vecs[0].slice(0, 5).forEach(x => {
+        const sq = document.createElement("span");
+        sq.className = "msq";
+        sq.style.background = heatColor(x);
+        sq.textContent = fmt2(x);
+        mini.append(sq);
+      });
+
+      // card 2: three real 300-d vectors as heatmap rows
+      const rows = document.getElementById("vrows");
+      demo.cities.forEach((nm, i) => {
+        const row = document.createElement("div");
+        row.className = "vrow";
+        row.innerHTML = `<span class="vl"><i style="background:${DCOL[i]}"></i>${nm}</span>`;
+        const cv = document.createElement("canvas");
+        cv.width = 600; cv.height = 15;
+        row.append(cv);
+        rows.append(row);
+        const ctx = cv.getContext("2d");
+        const w = cv.width / 300;
+        demo.vecs[i].forEach((x, k) => {
+          ctx.fillStyle = heatColor(x);
+          ctx.fillRect(k * w, 0, Math.ceil(w), cv.height);
+        });
+      });
+
+      // card 3: arrows in a coordinate plane, angles = arccos of real cosines
+      const ang = document.getElementById("angdemo");
+      const O = [34, 112], LEN = 88, BASE = 8 * Math.PI / 180;
+      // axes
+      svgPut(ang, "line", { x1: O[0], y1: O[1], x2: 218, y2: O[1],
+        stroke: "var(--grid)", "stroke-width": 1.2 });
+      svgPut(ang, "polygon", { points: `224,${O[1]} 216,${O[1]-3} 216,${O[1]+3}`,
+        fill: "var(--grid)" });
+      svgPut(ang, "line", { x1: O[0], y1: O[1], x2: O[0], y2: 12,
+        stroke: "var(--grid)", "stroke-width": 1.2 });
+      svgPut(ang, "polygon", { points: `${O[0]},6 ${O[0]-3},14 ${O[0]+3},14`,
+        fill: "var(--grid)" });
+      svgPut(ang, "text", { x: 220, y: O[1] + 12, "font-size": 8.5,
+        fill: "var(--ink-3)", "text-anchor": "end" }, "dimension 1");
+      svgPut(ang, "text", { x: O[0] - 8, y: 60, "font-size": 8.5,
+        fill: "var(--ink-3)", "text-anchor": "middle",
+        transform: `rotate(-90 ${O[0] - 8} 60)` }, "dimension 2");
+      const angles = demo.cities.map((nm, i) =>
+        BASE + Math.acos(Math.min(1, demo.sims[0][i])));
+      demo.cities.forEach((nm, i) => {
+        const th = angles[i];
         const dir = [Math.cos(th), -Math.sin(th)];
         const tip = [O[0] + LEN * dir[0], O[1] + LEN * dir[1]];
         const base = [tip[0] - 8 * dir[0], tip[1] - 8 * dir[1]];
         const perp = [-dir[1] * 3, dir[0] * 3];
-        put("line", { x1: O[0], y1: O[1], x2: base[0].toFixed(1), y2: base[1].toFixed(1),
-          stroke: colors[idx], "stroke-width": 2 });
-        put("polygon", { points:
+        svgPut(ang, "line", { x1: O[0], y1: O[1],
+          x2: base[0].toFixed(1), y2: base[1].toFixed(1),
+          stroke: DCOL[i], "stroke-width": 2.2 });
+        svgPut(ang, "polygon", { points:
           `${tip[0].toFixed(1)},${tip[1].toFixed(1)} ` +
           `${(base[0] + perp[0]).toFixed(1)},${(base[1] + perp[1]).toFixed(1)} ` +
           `${(base[0] - perp[0]).toFixed(1)},${(base[1] - perp[1]).toFixed(1)}`,
-          fill: colors[idx] });
-        const t = put("text", {
-          x: (tip[0] + 6).toFixed(1),
-          y: Math.max(tip[1] + 3, 10).toFixed(1),
-          "font-size": 9.5, fill: "var(--ink-2)", "text-anchor": "start" });
-        t.textContent = idx === 0 ? nm
-          : `${nm} · cos = ${cos.toFixed(2).replace("0.", ".")}`;
-        if (idx > 0) {
-          const r = 30 + idx * 14;
-          const p1 = [O[0] + r, O[1]];
-          const p2 = [O[0] + r * Math.cos(th), O[1] - r * Math.sin(th)];
-          put("path", { d: `M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} ` +
-            `A ${r} ${r} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`,
-            fill: "none", stroke: ink3, "stroke-dasharray": idx === 2 ? "3 2" : "none" });
+          fill: DCOL[i] });
+        const ly = i === 2 ? tip[1] - 6 : i === 1 ? tip[1] + 11 : tip[1] + 3;
+        svgPut(ang, "text", { x: (tip[0] + 5).toFixed(1),
+          y: Math.max(ly, 10).toFixed(1),
+          "font-size": 9.5, fill: "var(--ink-2)" },
+          i === 0 ? nm : `${nm} · cos = ${fmt2(demo.sims[0][i])}`);
+        if (i > 0) {
+          const r = 26 + i * 15;
+          svgPut(ang, "path", { d:
+            `M ${(O[0] + r * Math.cos(angles[0])).toFixed(1)} ${(O[1] - r * Math.sin(angles[0])).toFixed(1)} ` +
+            `A ${r} ${r} 0 0 0 ${(O[0] + r * Math.cos(th)).toFixed(1)} ${(O[1] - r * Math.sin(th)).toFixed(1)}`,
+            fill: "none", stroke: "var(--ink-3)",
+            "stroke-dasharray": i === 2 ? "3 2" : "none" });
         }
       });
-      put("text", { x: 6, y: 106, "font-size": 8.5, fill: "var(--ink-3)",
-        "text-anchor": "start" }, "angles to scale");
+      svgPut(ang, "text", { x: O[0], y: 129, "font-size": 8.5,
+        fill: "var(--ink-3)" }, "angles to scale");
+
+      // card 4: the trio's similarity sub-matrix -> points on a mini map
+      const md = document.getElementById("mdsdemo");
+      const CS = 17, MX = 30, MY = 22;
+      demo.cities.forEach((nm, i) => {
+        svgPut(md, "circle", { cx: MX - 10, cy: MY + i * CS + CS / 2, r: 3.5,
+          fill: DCOL[i] });
+        svgPut(md, "circle", { cx: MX + i * CS + CS / 2, cy: MY - 10, r: 3.5,
+          fill: DCOL[i] });
+        demo.cities.forEach((_, j) => {
+          const s = demo.sims[i][j];
+          svgPut(md, "rect", { x: MX + j * CS, y: MY + i * CS,
+            width: CS - 1.5, height: CS - 1.5, rx: 2,
+            fill: "var(--accent)", "fill-opacity": (0.08 + 0.8 * s).toFixed(2) });
+          svgPut(md, "text", { x: MX + j * CS + (CS - 1.5) / 2,
+            y: MY + i * CS + CS / 2 + 2.5, "font-size": 7,
+            fill: s > 0.6 ? "var(--plane)" : "var(--ink-2)",
+            "text-anchor": "middle" }, i === j ? "1" : fmt2(s));
+        });
+      });
+      svgPut(md, "text", { x: MX + 1.5 * CS, y: MY + 3 * CS + 14,
+        "font-size": 8.5, fill: "var(--ink-3)", "text-anchor": "middle" },
+        "cosine matrix");
+      svgPut(md, "line", { x1: 96, y1: 50, x2: 122, y2: 50,
+        stroke: "var(--ink-3)" });
+      svgPut(md, "polygon", { points: "122,46 130,50 122,54",
+        fill: "var(--ink-3)" });
+      // exact 3-point placement from d = 1 - cos (trilateration, to scale)
+      const dPL = 1 - demo.sims[0][1], dPG = 1 - demo.sims[0][2],
+            dLG = 1 - demo.sims[1][2];
+      const bx = (dPL * dPL + dPG * dPG - dLG * dLG) / (2 * dPL);
+      const by = Math.sqrt(Math.max(0, dPG * dPG - bx * bx));
+      const SC = 62, PX = 148, PY = 34;
+      const pts = [[PX, PY], [PX + dPL * SC, PY], [PX + bx * SC, PY + by * SC]];
+      [[0, 1], [0, 2], [1, 2]].forEach(([a, b]) => {
+        svgPut(md, "line", { x1: pts[a][0].toFixed(1), y1: pts[a][1].toFixed(1),
+          x2: pts[b][0].toFixed(1), y2: pts[b][1].toFixed(1),
+          stroke: "var(--ink-3)", "stroke-dasharray": "3 2", opacity: 0.7 });
+      });
+      demo.cities.forEach((nm, i) => {
+        svgPut(md, "circle", { cx: pts[i][0].toFixed(1), cy: pts[i][1].toFixed(1),
+          r: 4.5, fill: DCOL[i] });
+        const lx = i === 0 ? pts[i][0] - 7 : pts[i][0] + 7;
+        const lyy = i === 2 ? pts[i][1] + 3 : pts[i][1] + 3;
+        svgPut(md, "text", { x: lx.toFixed(1), y: lyy.toFixed(1), "font-size": 9,
+          fill: "var(--ink-2)", "text-anchor": i === 0 ? "end" : "start" }, nm);
+      });
+      svgPut(md, "text", { x: 168, y: 104, "font-size": 8.5,
+        fill: "var(--ink-3)", "text-anchor": "middle" },
+        "distances ∝ 1 − cos");
     }
 
     applyThreshold();

@@ -51,17 +51,18 @@ def main():
     layouts = json.load(open("output/layouts.json"))
     assert all(len(layouts[k]["xy"]) == n for k in layouts)
 
-    # teaching demo: the real Paris vector (raw values) + real angles to two
-    # reference cities for the cosine card
+    # teaching demo: three through-line cities (a close pair + a distant one)
+    # with their real vectors and real pairwise cosines, reused by every card
     vecs = np.load("data/city_vectors.npy")
-    i_par = names.index("Paris")
+    trio = ["Paris", "London", "Lagos"]
+    ti = [names.index(c) for c in trio]
     demo = {
-        "name": "Paris",
-        "vec": [round(float(v), 3) for v in vecs[i_par]],
-        "pairs": [[c, round(float(S[i_par, names.index(c)]), 2)]
-                  for c in ("Rome", "Beijing")],
+        "cities": trio,
+        "vecs": [[round(float(v), 3) for v in vecs[i]] for i in ti],
+        "sims": [[round(float(S[a, b]), 2) for b in ti] for a in ti],
     }
-    print("demo cosines:", demo["pairs"])
+    print("demo sims:", {f"{trio[a]}-{trio[b]}": demo["sims"][a][b]
+                         for a in range(3) for b in range(a + 1, 3)})
 
     data = {
         "cities": cities,
