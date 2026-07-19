@@ -19,7 +19,11 @@ Europe, Lisbon is pulled away from Iberia by Treaty-of-Lisbon coverage).
 | 3. Similarity + MDS | [run_mds.py](run_mds.py) | `data/similarity_matrix.csv`, `data/dissimilarity_matrix.csv`, `data/mds_coordinates.csv` |
 | 4. Plot (MDS map) | [plot_map.py](plot_map.py) | `output/city_map.png`, `output/city_map.html`, `output/artifact_data.json` |
 | 5. Plot (geo network) | [plot_geo_network.py](plot_geo_network.py) | `output/geo_network.png`, `output/geo_network.html`, `output/geo_network_data.json` |
-| 6. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html` — both views, shared cutoff slider, click-to-pin city drawer |
+| 6. Layout variants | [make_layouts.py](make_layouts.py) | `output/layouts.json` — MDS + UMAP + t-SNE, geo-aligned, with metrics |
+| 7. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html`, `docs/index.html` — both views, layout switcher, shared cutoff slider, click-to-pin city drawer |
+
+Supporting study: [dissim_study.py](dissim_study.py) — empirical comparison of
+similarity→dissimilarity transforms (see below).
 
 ## Two views
 
@@ -66,8 +70,23 @@ Europe, Lisbon is pulled away from Iberia by Treaty-of-Lisbon coverage).
 4. **Similarity.** Vectors L2-normalized; full 124×124 cosine-similarity
    matrix (7,626 unique pairs). Observed range −0.06 (Houston–Lisbon) to 0.86
    (Sydney–Melbourne), mean 0.30.
-5. **Dissimilarity.** `d = 1 − cos`, zero diagonal, symmetrized. Not
-   guaranteed metric (triangle inequality), which SMACOF does not require.
+5. **Dissimilarity: why `d = 1 − cos`.** Three monotone transforms were
+   compared empirically with identical SMACOF runs ([dissim_study.py](dissim_study.py)):
+
+   | transform | stress-1 | recall@10 | Spearman r | layout Δ vs 1−cos |
+   |---|---|---|---|---|
+   | `1 − cos` | **0.347** | **0.515** | **0.709** | — |
+   | `√(2(1−cos))` (chord, metric) | 0.392 | 0.505 | 0.687 | 0.005 |
+   | `arccos(cos)` (angle, metric) | 0.384 | 0.511 | 0.692 | 0.003 |
+
+   The textbook objection — `1 − cos` is only a semi-metric — is empirically
+   empty here: **0 triangle-inequality violations in 200,000 sampled triples**
+   (similarities top out at 0.86, far from the violation regime). It also fits
+   its target best, preserves the cosine ranking best, and all three layouts
+   are nearly identical anyway (Procrustes disparity ≤ 0.005). The chord would
+   be the safer default for datasets with near-duplicates; here the simplest
+   transform wins. (Being monotone in each other, all three would give an
+   *identical* nonmetric MDS.)
 6. **MDS.** Metric MDS via SMACOF (sklearn 1.9), precomputed dissimilarities,
    2 components, classical-MDS (Torgerson) init + stress-majorization
    iterations (max 3000, eps 1e-9) — deterministic. Minimizes raw stress
@@ -90,11 +109,26 @@ Europe, Lisbon is pulled away from Iberia by Treaty-of-Lisbon coverage).
    even the best possible rotation cannot exceed r ≈ 0.21, because the semantic
    structure barely encodes north–south (it encodes region/language, which is
    mostly an E–W distinction).
-9. **Limitations.** 2013-era corpus (coverage of that period); a token
-   conflates every sense of its string (Treaty-of-Lisbon vs Lisbon; `Santiago`
-   and `Hyderabad` name several cities); news salience, not geography, drives
-   similarity; Mexico City is a two-token composition rather than a native
-   token.
+9. **Layout alternatives (UMAP, t-SNE).** Computed on the same vectors with
+   cosine distance ([make_layouts.py](make_layouts.py)), geo-aligned by the
+   same Procrustes step, switchable on the page. They answer a different
+   question: neighbourhood preservation recall@10 rises from 0.52 (MDS) to
+   0.70 (UMAP, n_neighbors 15) / 0.71 (t-SNE, perplexity 20), but distances
+   *between* clusters stop meaning anything — so MDS, the only
+   distance-faithful method, stays the default view.
+10. **Beyond word2vec.** Kept deliberately as the canonical teaching model
+    with ready phrase tokens and instructive quirks. Cleaner alternatives:
+    **Wikipedia2Vec** (entity vectors — solves name collisions like
+    Santiago/Hyderabad outright), **fastText** (subword information),
+    **GloVe** (global co-occurrence counts), modern **sentence/LLM
+    embeddings** of city descriptions. Swapping the embedding changes step 1
+    only; the rest of the pipeline is unchanged.
+11. **Limitations.** 2013-era corpus (coverage of that period); a token
+    conflates every sense of its string (Treaty-of-Lisbon vs Lisbon;
+    `Santiago` and `Hyderabad` name several cities); news salience, not
+    geography, drives similarity; Mexico City is a two-token composition
+    rather than a native token; map links are straight lines, not
+    great-circle arcs, and equirectangular inflates high latitudes.
 
 ## Vocabulary resolution notes
 
@@ -126,5 +160,6 @@ curl -L -o data/ne_110m_land.geojson \
 .venv/bin/python run_mds.py
 .venv/bin/python plot_map.py           # semantic (MDS) map
 .venv/bin/python plot_geo_network.py   # geographic similarity network
-.venv/bin/python build_combined.py     # combined interactive page
+.venv/bin/python make_layouts.py       # MDS/UMAP/t-SNE layouts + metrics
+.venv/bin/python build_combined.py     # combined interactive page (docs/)
 ```

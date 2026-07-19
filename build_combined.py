@@ -1,11 +1,14 @@
-"""Assemble the combined interactive page: semantic (MDS) map + geographic
-similarity network with a shared cutoff slider, selection drawer and search.
+"""Assemble the combined interactive page: geographic similarity network +
+semantic chart with switchable layouts (MDS / UMAP / t-SNE), shared cutoff
+slider, selection drawer and search.
 
-Inputs:  output/artifact_data.json      (MDS coords, adjusted labels, tokens)
+Inputs:  output/layouts.json            (from make_layouts.py)
+         data/city_index.csv            (city, region, token)
          data/similarity_matrix.csv     (full 124x124 cosine similarities)
          data/ne_110m_land.geojson      (world outline)
          cities.CITY_LATLON             (true coordinates)
 Outputs: output/similarity_maps.html    (standalone, with doctype wrapper)
+         docs/index.html                (GitHub Pages)
          <scratchpad>/semantic-city-map.html  (artifact copy, no wrapper)
 """
 
@@ -27,17 +30,16 @@ SLIDER_DEFAULT = 0.50
 
 
 def main():
-    art = json.load(open("output/artifact_data.json"))
+    idx = pd.read_csv("data/city_index.csv")
     Sdf = pd.read_csv("data/similarity_matrix.csv", index_col=0)
     names = list(Sdf.index)
-    assert [c["n"] for c in art["cities"]] == names, "city order mismatch"
+    assert idx["city"].tolist() == names, "city order mismatch"
 
     cities = []
-    for c in art["cities"]:
-        lat, lon = CITY_LATLON[c["n"]]
+    for _, row in idx.iterrows():
+        lat, lon = CITY_LATLON[row["city"]]
         cities.append({
-            "n": c["n"], "r": c["r"], "t": c["t"],
-            "x": c["x"], "y": c["y"], "lx": c["lx"], "ly": c["ly"],
+            "n": row["city"], "r": row["region"], "t": row["token"],
             "lat": round(lat, 3), "lon": round(lon, 3),
         })
 
@@ -45,9 +47,13 @@ def main():
     n = len(names)
     sims = [round(float(S[i, j]), 3) for i in range(n) for j in range(i + 1, n)]
 
+    layouts = json.load(open("output/layouts.json"))
+    assert all(len(layouts[k]["xy"]) == n for k in layouts)
+
     data = {
         "cities": cities,
         "sims": sims,
+        "layouts": layouts,
         "land": load_land("data/ne_110m_land.geojson"),
         "geometa": {"lon0": LON0, "lon1": LON1, "lat0": LAT0, "lat1": LAT1},
         "meta": {"min": SLIDER_MIN, "max": SLIDER_MAX, "default": SLIDER_DEFAULT},
@@ -67,7 +73,8 @@ def main():
         f.write(standalone)
     with open(SCRATCH, "w") as f:
         f.write(page)
-    print(f"cities {n}, sims {len(sims)}, payload {len(payload)/1024:.0f} KB")
+    print(f"cities {n}, sims {len(sims)}, layouts {list(layouts)}, "
+          f"payload {len(payload)/1024:.0f} KB")
     print("Saved output/similarity_maps.html, docs/index.html and artifact copy")
 
 
