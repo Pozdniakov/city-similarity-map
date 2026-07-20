@@ -106,7 +106,7 @@
 
   .explain { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px; margin: 20px 0 2px; }
-  @media (max-width: 840px) { .explain { grid-template-columns: 1fr; } }
+  @media (max-width: 840px) { .explain { grid-template-columns: minmax(0, 1fr); } }
   .ctx { font: 12px var(--font-mono); color: var(--ink-3); margin: 5px 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cchip { border: 1.5px solid; border-radius: 5px; padding: 0 4px;
@@ -147,6 +147,14 @@
     justify-content: center; font: 500 11px var(--font-mono); flex: none; }
   .ex-card svg.diagram { display: block; margin: 10px auto 2px; max-width: 100%; }
   .diagram text { font-family: var(--font-mono); }
+  .minichart { display: block; margin: 10px 0 2px; max-width: 100%; height: auto; }
+  .minichart .mc-grid { stroke: var(--grid); stroke-width: 0.5; }
+  .minichart .mc-axis { stroke: var(--ink-3); stroke-width: 1; }
+  .minichart .mc-line { fill: none; stroke: var(--accent); stroke-width: 2;
+    stroke-linejoin: round; }
+  .minichart .mc-def { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
+  .minichart .mc-defdot { fill: var(--accent); stroke: var(--surface); stroke-width: 1; }
+  .minichart .mc-lab { font: 8.5px var(--font-mono); fill: var(--ink-3); }
 
   .callout { margin: 0 0 12px; padding: 10px 16px;
     border-left: 3px solid var(--accent); background: var(--callout-bg);
@@ -308,7 +316,8 @@
   .notes .tok { font-family: var(--font-mono); font-size: 12px;
     background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 5px; padding: 0 5px; }
-  .notes table.cmp { border-collapse: collapse; margin: 8px 0; font: 11.5px var(--font-mono);
+  .cmp-wrap { overflow-x: auto; margin: 8px 0; max-width: 100%; }
+  .notes table.cmp { border-collapse: collapse; font: 11.5px var(--font-mono);
     font-variant-numeric: tabular-nums; }
   .notes table.cmp th, .notes table.cmp td { border: 1px solid var(--grid);
     padding: 4px 10px; text-align: right; }
@@ -353,8 +362,8 @@
 <div class="wrap">
   <header>
     <h1>Could language reconstruct a map of the world?</h1>
-    <p class="subtitle">124 world cities arranged by word2vec similarity &mdash; a
-      teaching demo by <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
+    <p class="subtitle">124 world cities arranged by word2vec similarity &middot;
+      <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
     <p class="method"><b>Short answer: partly, yes.</b> <b>word2vec</b> — a model
       that turns each word into a vector of numbers from the company it keeps —
       never saw coordinates. It learned each of these 124 city names only from how
@@ -506,8 +515,8 @@
       neighbours (by cosine, in 300-d), how many stay among its 10 nearest on
       this 2-D screen (local faithfulness) &middot; <b>geo-fidelity</b> — rank
       correlation between on-screen distances and real great-circle distances;
-      alignment-free, so it is a genuine measure of how much geography the layout
-      recovers on its own &middot; <b>Stress-1</b> — how far on-screen distances
+      alignment-free (the raw 300-d embedding scores &rho;&nbsp;&asymp;&nbsp;.50, so
+      every layout here beats it) &middot; <b>Stress-1</b> — how far on-screen distances
       deviate from the target dissimilarities (0 = perfect; only MDS optimizes it)
       &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> — axis correlation with
       longitude / latitude, measured <i>after</i> the geographic alignment, so
@@ -663,12 +672,12 @@
         Three monotone transforms were compared empirically on this data with
         identical SMACOF runs (monotone &rArr; a nonmetric MDS would not
         distinguish them at all):
-        <table class="cmp">
+        <div class="cmp-wrap"><table class="cmp">
           <tr><th>transform</th><th>Stress-1</th><th>recall@10</th><th>Spearman <i>r</i></th><th>layout &Delta; vs 1&minus;cos</th></tr>
           <tr><td><span class="math" data-tex="1-\cos\theta">1 &minus; cos</span></td><td>.347</td><td>.515</td><td>.709</td><td>&mdash;</td></tr>
           <tr><td><span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span></td><td>.392</td><td>.505</td><td>.687</td><td>.005</td></tr>
           <tr><td><span class="math" data-tex="\arccos(\cos\theta)">arccos(cos)</span></td><td>.384</td><td>.511</td><td>.692</td><td>.003</td></tr>
-        </table>
+        </table></div>
         The textbook objection to 1&nbsp;&minus;&nbsp;cos is that it is only a
         semi-metric: it can violate the triangle inequality, while the chord
         <span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span>
@@ -724,24 +733,31 @@
         min_dist&nbsp;0.3): they preserve local structure far better
         (recall@10 = .71 / .70) at the price that distances <i>between</i>
         clusters stop being comparable.
-        <b>A surprise on the geography question</b> (your "which map looks most
-        like the world?"): scoring each layout by the alignment-free geo-fidelity
-        &rho; — rank correlation of on-screen distances with real great-circle
-        distances — ranks them <b>UMAP .67 &gt; t-SNE .64 &gt; PCA .60 &gt; MDS
-        .57</b>. The neighbourhood methods recover geography <i>better</i> than
-        the distance-faithful one, because geographically near cities really are
-        one another's semantic neighbours, and that is exactly what t-SNE/UMAP
-        lock onto. All four are aligned to geography by the same rigid Procrustes
-        step (which cannot change these distance-based scores), so the
-        east&ndash;west reading survives switching; metric definitions sit under
-        the switcher.</li>
+        <b>On the geography question</b> (which map looks most like the world?),
+        the alignment-free geo-fidelity &rho; — rank correlation of on-screen
+        distances with real great-circle distances — has a natural reference: the
+        <b>raw 300-d cosine distances</b>, before any projection, score only
+        &rho;&nbsp;&asymp;&nbsp;<b>.50</b>. Every 2-D layout beats that ceiling
+        (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64, UMAP&nbsp;.67 for the
+        configurations shown): the reductions <i>concentrate</i> the geographic
+        signal by discarding noise dimensions, most so the neighbourhood methods —
+        geographically near cities really are one another's semantic neighbours,
+        which is what t-SNE/UMAP lock onto. The exact ordering between t-SNE and
+        UMAP is <i>not</i> stable, though — across perplexity/seed t-SNE spans
+        &asymp;&nbsp;.63&ndash;.73 and UMAP &asymp;&nbsp;.51&ndash;.67 — so read it
+        as <b>neighbourhood&nbsp;&ge;&nbsp;linear&nbsp;&ge;&nbsp;raw</b>, not as a
+        fixed leaderboard. All four share the same rigid Procrustes alignment,
+        which cannot change these distance-based scores.</li>
       <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
         only up to rotation, reflection and translation, so the raw axes are
         meaningless. Instead of an arbitrary convention, the configuration is
-        aligned to real geography by <b>orthogonal Procrustes</b>: the rotation +
-        reflection that best maps the embedding onto each city's true (longitude,
-        latitude), with the two geographic axes standardized so east&ndash;west
-        and north&ndash;south count equally. This is a rigid transform — it
+        aligned to real geography by <b><a href="https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem">orthogonal
+        Procrustes</a></b> — the single rotation (plus reflection) that best
+        superimposes one set of points on another, solved in closed form from an
+        SVD <a class="cite" href="#ref-schonemann">(Schönemann, 1966)</a>. Here it
+        best maps the embedding onto each city's true (longitude, latitude), with
+        the two geographic axes standardized so east&ndash;west and north&ndash;south
+        count equally. This is a rigid transform — it
         preserves every pairwise distance and the stress exactly, and only
         decides which way is up. Afterwards east&ndash;west correlates with
         longitude at <i>r</i> = .70 and north&ndash;south with latitude at only
@@ -761,10 +777,25 @@
         equirectangular projection, with a simplified Natural Earth 110m land
         outline embedded in the page (no external tiles). A link joins every pair
         with cosine &ge; the cutoff; width and opacity grow with similarity. The
-        slider spans 0.30&ndash;0.86; the default 0.50 keeps &approx;450 of 7,626 pairs
-        (edge count vs cutoff: 0.45&nbsp;&rarr;&nbsp;740, 0.50&nbsp;&rarr;&nbsp;451,
-        0.55&nbsp;&rarr;&nbsp;265, 0.60&nbsp;&rarr;&nbsp;164,
-        0.70&nbsp;&rarr;&nbsp;64).</li>
+        slider spans 0.30&ndash;0.86; the default 0.50 keeps &approx;450 of the
+        7,626 pairs. The link count falls off sharply with the cutoff (log scale):
+        <svg class="minichart" viewBox="0 0 344 122" width="344" height="122"
+          role="img" aria-label="Number of links versus similarity cutoff, log scale, falling from 3403 at 0.30 to 10 at 0.80, 451 at the default 0.50">
+          <line x1="42" y1="16.2" x2="330" y2="16.2" class="mc-grid"/>
+          <line x1="42" y1="32.4" x2="330" y2="32.4" class="mc-grid"/>
+          <line x1="42" y1="66.2" x2="330" y2="66.2" class="mc-grid"/>
+          <line x1="42" y1="100" x2="330" y2="100" class="mc-axis"/>
+          <text x="38" y="19" class="mc-lab" text-anchor="end">3000</text>
+          <text x="38" y="35" class="mc-lab" text-anchor="end">1000</text>
+          <text x="38" y="69" class="mc-lab" text-anchor="end">100</text>
+          <text x="38" y="103" class="mc-lab" text-anchor="end">10</text>
+          <polyline points="42.0,14.4 70.8,21.5 99.6,29.2 128.4,36.8 157.2,44.1 186.0,51.9 214.8,58.9 243.6,65.2 272.4,72.7 301.2,83.4 330.0,100.0" class="mc-line"/>
+          <line x1="157.2" y1="14" x2="157.2" y2="106" class="mc-def"/>
+          <circle cx="157.2" cy="44.1" r="3.4" class="mc-defdot"/>
+          <text x="157.2" y="118" class="mc-lab" text-anchor="middle">default 0.50 → 451</text>
+          <text x="42" y="118" class="mc-lab" text-anchor="start">0.30</text>
+          <text x="330" y="118" class="mc-lab" text-anchor="end">cutoff 0.80</text>
+        </svg></li>
       <li><b>Clustered similarity matrix.</b> The heatmap reorders the full
         124&times;124 matrix by <b>agglomerative hierarchical clustering</b> with
         <b>average linkage</b> (UPGMA). Concretely,
@@ -800,54 +831,62 @@
         whole city description, trading the elegant "meaning from raw
         co-occurrence" story for quality.</li>
     </ol>
-    <h3 class="meth-sub">Reproducibility</h3>
-    <p>Every stochastic step is seeded (<b>seed 42</b>): MDS runs from a
-      deterministic classical-MDS initialisation and a single SMACOF restart; PCA
-      is deterministic; UMAP and t-SNE take the seed directly. All embeddings are
-      L2-normalised before cosine similarity, and every dimensionality reduction
-      runs on the same 124&times;300 matrix. Hyperparameters are stated in full at
-      each step above; library versions are pinned in
-      <a href="https://github.com/Pozdniakov/city-similarity-map/blob/main/requirements.txt">requirements.txt</a>
-      (scikit-learn&nbsp;1.9.0, SciPy&nbsp;1.17.1, umap-learn&nbsp;0.5.12, NumPy,
-      pandas). The full pipeline — the streaming vocabulary scan, token-resolution
-      tests, layout and metric scripts, and this page's build — is in the
-      <a href="https://github.com/Pozdniakov/city-similarity-map">repository</a>;
-      the geographic-fidelity, triangle-inequality and dissimilarity-transform
-      analyses each ship as a runnable script. The exact vocabulary token chosen
-      for every city is in
-      <a href="https://github.com/Pozdniakov/city-similarity-map/blob/main/data/city_index.csv">data/city_index.csv</a>.</p>
+    <h3 class="meth-sub">Software</h3>
+    <p>Built in Python with the GoogleNews-vectors-negative300 word2vec model,
+      scikit-learn&nbsp;1.9.0 (MDS, PCA, t-SNE), umap-learn&nbsp;0.5.12,
+      SciPy&nbsp;1.17.1, NumPy, pandas and matplotlib; the base map is Natural
+      Earth&nbsp;110m. Source, data and build scripts are in the
+      <a href="https://github.com/Pozdniakov/city-similarity-map">GitHub
+      repository</a>.</p>
   </section>
 
   <section class="notes" id="related">
-    <h2 class="group-h">Related work &amp; novelty</h2>
-    <p><b>This is a demonstration, not a discovery.</b> That text-only
-      co-occurrence reconstructs a recognizable map is among the more robust
-      results in distributional semantics. Louwerse &amp; Zwaan
-      <a class="cite" href="#ref-louwerse">(2009)</a> first recovered US-city
-      latitude and longitude by running MDS on newspaper-text similarities, tying
-      it to Tobler's law; Konkol et al.
-      <a class="cite" href="#ref-konkol">(2017)</a> fit word-embedding city
-      vectors to real coordinates as a benchmark; Liétard et al.
-      <a class="cite" href="#ref-lietard">(2021)</a> probed the global geometry of
-      city representations; and for modern LLMs Gurnee &amp; Tegmark
-      <a class="cite" href="#ref-gurnee">(2024)</a> and Godey et al.
-      <a class="cite" href="#ref-godey">(2024)</a> found hidden states linearly
-      encode coordinates — improving with scale, but staying geographically
-      unequal (Oceania, South Asia and South America worst — the same asymmetry as
-      this map's weak north&ndash;south axis). Barenholtz
-      <a class="cite" href="#ref-barenholtz">(2026)</a> showed plain
-      word2vec/GloVe carry the same signal, and that it rides on lexical
-      directions (country names, climate words), so the map is <i>inherited</i>
-      from how places are described, not built as a spatial model.</p>
-    <p><b>Where this project adds value is pedagogical and methodological, not as
-      a new finding:</b> a step-by-step, interactive build; fully transparent
-      token resolution; and an alignment-free geo-fidelity metric that ranks the
-      unsupervised 2-D layouts. It also makes a gap visible that the literature
-      predicts — a <i>supervised</i> probe recovers coordinates far better
-      (<i>R</i>&sup2; &asymp; .8) than the <i>unsupervised</i> MDS layout shown
-      here (&rho; &asymp; .57). What you see is the harder, unsupervised version:
-      as every study above concludes, a map of <i>discourse</i> rather than of the
-      Earth.</p>
+    <h2 class="group-h">Related work</h2>
+    <p>Recovering geography from text alone has a long pedigree.
+      <b>Louwerse &amp; Zwaan <a class="cite" href="#ref-louwerse">(2009)</a></b>
+      applied MDS to newspaper-text similarities for the 50 largest US cities and
+      recovered their latitude and longitude, connecting it to Tobler's first law;
+      the effect is robust across corpora and parameters
+      <a class="cite" href="#ref-recchia">(Recchia &amp; Louwerse, 2014)</a> and
+      even reconstructs an <i>invented</i> world — the cities of Middle-earth from
+      the co-occurrences in Tolkien
+      <a class="cite" href="#ref-benesh">(Louwerse &amp; Benesh, 2012)</a>. The
+      closest precedent to this page is
+      <b>Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a></b>, who fit
+      city vectors from 17 embedding models to real coordinates as a benchmark —
+      with a more rigorous setup (a spherical 3-D target, error reported in
+      kilometres, noise-robustness and cross-validation) and exactly the failure
+      mode this map shows: the worst errors come from a name overlapping a more
+      famous entity (their Kobe&nbsp;&rarr;&nbsp;the basketball player,
+      Bismarck&nbsp;&rarr;&nbsp;the chancellor; here Lisbon, St&nbsp;Petersburg,
+      Santiago). For contemporary language models the same signal appears in
+      hidden states, linearly decodable and improving with scale but
+      geographically unequal — worst for Oceania, South Asia and South America,
+      the same asymmetry as this map's weak north&ndash;south axis
+      <a class="cite" href="#ref-gurnee">(Gurnee &amp; Tegmark, 2024)</a>;
+      <a class="cite" href="#ref-godey">(Godey et&nbsp;al., 2024)</a> — and
+      Barenholtz <a class="cite" href="#ref-barenholtz">(2026)</a> showed plain
+      word2vec/GloVe already carry it, riding on lexical directions (country and
+      climate words) rather than on any built-in coordinate.</p>
+    <p><b>What this page adds is small and specific.</b> The central finding is
+      not new, and Konkol et al. established it more rigorously; the contribution
+      here is an interactive, fully-documented re-examination, plus three minor
+      empirical points I did not find in that literature. <b>(1)</b> The map is
+      compared <i>across projections</i> rather than across embeddings, and all
+      four 2-D layouts reproduce geography <i>better</i> than the raw 300-d cosine
+      distances they come from (geo-fidelity &rho;&nbsp;&asymp;&nbsp;.57&ndash;.67
+      vs a raw-space ceiling of &rho;&nbsp;&asymp;&nbsp;.50) — the reductions
+      concentrate the geographic signal by discarding noise. <b>(2)</b> The
+      semi-metric objection to <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
+      is checked exhaustively (all 310,124 triples; 2 violations, max&nbsp;excess
+      .023) rather than assumed. <b>(3)</b> The dateline-token artifact —
+      <span class="tok">MEXICO_CITY</span> sitting among other agency datelines,
+      so its cosines to ordinary words run uniformly low — is a concrete,
+      checkable fact about the GoogleNews vectors. A caveat the literature
+      predicts and this page inherits: a <i>supervised</i> probe recovers
+      coordinates far better (<i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8) than these
+      <i>unsupervised</i> layouts (&rho;&nbsp;&asymp;&nbsp;.5&ndash;.7) — what you
+      see is a map of <i>discourse</i> more than of the Earth.</p>
   </section>
 
   <section class="notes refs" id="refs">
@@ -891,6 +930,10 @@
       language models know the way to Rome? In <i>Proceedings of the Fourth
       BlackboxNLP Workshop</i> (pp. 510&ndash;517).
       <a href="https://aclanthology.org/2021.blackboxnlp-1.40/">https://aclanthology.org/2021.blackboxnlp-1.40/</a></p>
+    <p id="ref-benesh">Louwerse, M. M., &amp; Benesh, N. (2012). Representing
+      spatial structure through maps and language: Lord of the Rings encodes the
+      spatial structure of Middle Earth. <i>Cognitive Science, 36</i>(8),
+      1556&ndash;1569. <a href="https://pubmed.ncbi.nlm.nih.gov/23033971/">https://pubmed.ncbi.nlm.nih.gov/23033971/</a></p>
     <p id="ref-louwerse">Louwerse, M. M., &amp; Zwaan, R. A. (2009). Language
       encodes geographical information. <i>Cognitive Science, 33</i>(1),
       51&ndash;73. <a href="https://doi.org/10.1111/j.1551-6709.2008.01003.x">https://doi.org/10.1111/j.1551-6709.2008.01003.x</a></p>
@@ -909,6 +952,14 @@
       GloVe: Global vectors for word representation. In <i>Proceedings of the 2014
       Conference on Empirical Methods in Natural Language Processing</i>
       (pp. 1532&ndash;1543). <a href="https://doi.org/10.3115/v1/D14-1162">https://doi.org/10.3115/v1/D14-1162</a></p>
+    <p id="ref-recchia">Recchia, G., &amp; Louwerse, M. M. (2014). Grounding the
+      ungrounded: Estimating locations of unknown place names from linguistic
+      associations and grounded representations. In <i>Proceedings of the 36th
+      Annual Conference of the Cognitive Science Society</i> (pp. 1270&ndash;1275).
+      <a href="https://escholarship.org/uc/item/2g6976kg">https://escholarship.org/uc/item/2g6976kg</a></p>
+    <p id="ref-schonemann">Schönemann, P. H. (1966). A generalized solution of the
+      orthogonal Procrustes problem. <i>Psychometrika, 31</i>(1), 1&ndash;10.
+      <a href="https://doi.org/10.1007/BF02289451">https://doi.org/10.1007/BF02289451</a></p>
     <p id="ref-tobler">Tobler, W. R. (1970). A computer movie simulating urban
       growth in the Detroit region. <i>Economic Geography, 46</i>(Suppl.),
       234&ndash;240. <a href="https://doi.org/10.2307/143141">https://doi.org/10.2307/143141</a></p>

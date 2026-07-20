@@ -88,6 +88,12 @@ def main():
     iu = np.triu_indices(len(S), k=1)
     gc = great_circle(names)[iu]  # true geographic distances
 
+    # geo-fidelity ceiling: how well the RAW 300-d cosine distances track
+    # geography, before any 2-D projection (reference for the layout scores)
+    ceiling = float(spearmanr(D[iu], gc).statistic)
+    print(f"geo-fidelity ceiling (raw 300-d cosine dist vs great-circle): "
+          f"rho = {ceiling:.3f}")
+
     layouts = {}
 
     # MDS: reuse the pipeline's coordinates (already geo-aligned, stress 0.347)
