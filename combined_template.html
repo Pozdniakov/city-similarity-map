@@ -149,6 +149,9 @@
   .ex-card .mini-row { margin: 12px 0; }
   .ex-card #vrows { margin: 8px 0 6px; }
   .ex-card .heatcap { margin: 8px 0 16px; }
+  .ex-note { font-size: 13.5px; color: var(--ink-3); margin: 10px 0 0;
+    border-left: 2px solid var(--grid); padding-left: 10px; }
+  .ex-note i { color: var(--ink-2); }
   .diagram text { font-family: var(--font-mono); }
   .minichart { display: block; margin: 10px 0 2px; max-width: 100%; height: auto; }
   .minichart .mc-grid { stroke: var(--grid); stroke-width: 0.5; }
@@ -461,11 +464,18 @@
       <span class="math" data-tex="\cos 0^{\circ} = 1">cos 0&deg; = 1</span> for
       identical directions,
       <span class="math" data-tex="\cos 90^{\circ} = 0">cos 90&deg; = 0</span>
-      when they share no direction in this representation. Below, the arrows of
-      the three vectors from card&nbsp;2, at their <b>real, measured angles</b>:
+      when they share no direction in this representation. Below, each arrow is drawn
+      at its <b>real, measured angle to Sydney</b>, the reference:
       <svg id="angdemo" class="diagram" viewBox="0 0 230 148" width="230" height="148"
-        aria-label="Real angles between the Sydney, Melbourne and New York vectors in a coordinate plane"></svg>
+        aria-label="Sydney, Melbourne and New York vectors drawn at their real measured angles to Sydney"></svg>
       <div id="angcap"></div>
+      <p class="ex-note">One caveat that previews the whole problem: the gap you
+        <i>see</i> between Melbourne and New York (&asymp;&nbsp;41&deg;) is not their
+        real angle. In the full 300-d space those two are the <i>least</i> alike of
+        the three (cos&nbsp;.26, &theta;&nbsp;&asymp;&nbsp;75&deg;) — three 300-d
+        arrows simply cannot be flattened onto a plane without distorting some angle.
+        That is the very compression MDS negotiates across all 124 cities in
+        card&nbsp;4.</p>
     </div>
     <div class="ex-card">
       <h3><span class="n">4</span>MDS: a map from distances alone</h3>
@@ -635,7 +645,7 @@
       fits every pairwise distance; PCA, the linear variance projection), and both
       beat the raw space. <b>Why has only UMAP got a whisker?</b> Because the other
       three are <i>deterministic</i> — PCA and classical-init MDS have no random step,
-      and t-SNE, initialised from PCA rather than a random layout, also lands on the
+      and t-SNE, initialized from PCA rather than a random layout, also lands on the
       same result every run (its geo-fidelity was .644 on all 12 seeds we tried, so
       there is nothing to show). UMAP is the one stochastic method here. Re-running it
       under 12 random seeds gave a <b>min of .60 and a max of .68</b> (mean&nbsp;.65,
@@ -807,7 +817,7 @@
         identical SMACOF runs (monotone &rArr; a nonmetric MDS would not
         distinguish them at all):
         <div class="cmp-wrap"><table class="cmp">
-          <tr><th>transform</th><th>Stress-1</th><th>recall@10</th><th>Spearman <i>r</i></th><th>layout &Delta; vs 1&minus;cos</th></tr>
+          <tr><th>transform</th><th>Stress-1</th><th>recall@10</th><th>Spearman &rho;</th><th>layout &Delta; vs 1&minus;cos</th></tr>
           <tr><td><span class="math" data-tex="1-\cos\theta">1 &minus; cos</span></td><td>.347</td><td>.515</td><td>.709</td><td>&mdash;</td></tr>
           <tr><td><span class="math" data-tex="\sqrt{2(1-\cos\theta)}">&radic;(2(1&minus;cos))</span></td><td>.392</td><td>.505</td><td>.687</td><td>.005</td></tr>
           <tr><td><span class="math" data-tex="\arccos(\cos\theta)">arccos(cos)</span></td><td>.384</td><td>.511</td><td>.692</td><td>.003</td></tr>
@@ -845,7 +855,7 @@
         <span class="math disp" data-tex="\text{Stress-1}=\sqrt{\frac{\sum_{i<j}\bigl(\hat d_{ij}-d_{ij}\bigr)^{2}}{\sum_{i<j} d_{ij}^{2}}}=.347,">Stress-1 = &radic;(&Sigma;(d&#770; &minus; d)&sup2; / &Sigma; d&sup2;) = .347</span>
         with Pearson correlation between input dissimilarities and 2-D distances
         <i>r</i> = .71 (Spearman &rho; = .71). By Kruskal's rule of thumb
-        (&lt;.05 excellent, &gt;.20 poor) this is a heavily compressed fit —
+        (&lt;.025 excellent, &lt;.05 good, &gt;.20 poor) this is a heavily compressed fit —
         unavoidable when flattening the high-rank similarity structure of 300-d
         embeddings into a plane. Read the map accordingly: broad groupings are
         informative, but exact nearest neighbours should be taken from the pinned

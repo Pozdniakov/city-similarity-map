@@ -190,3 +190,26 @@ Data: ran compute_intervals.py — 12-seed sweep. Corrected the seed story:
 - [x] Explained why t-SNE has no whisker: it is deterministic (PCA-init t-SNE gave .644
       on all 12 seeds; PCA and classical-init MDS have no random step). Only UMAP is
       stochastic here.
+
+## Academic peer-review panel — Round 1 (Opus + Sonnet + Haiku, independent, parallel)
+wf_e1b23162. All three: submission rigorous; every checkable statistic matches the data.
+- [x] HIGH (Sonnet, truth): card-3 angle diagram (#angdemo) drew each arrow at its
+      angle to Sydney, so the VISIBLE Melbourne–New York angle was just the difference
+      (~41 deg, cos .76) — but the real Mel–NY cosine is .264 (74.7 deg), the LEAST
+      similar pair. The diagram inverted the ranking it teaches. Verified from data.
+      Fix (kept the Sydney-anchored construction, which is pedagogically correct):
+      reworded the lead-in to "each arrow at its real, measured angle to Sydney", and
+      added an .ex-note caveat giving the true Mel–NY value (cos .26, ~75 deg) and
+      framing the visible gap as a flattening artefact — an honest preview of the MDS
+      compression theme.
+- [x] MED/LOW (Opus + Sonnet, statistics): Kruskal Stress-1 bands mis-stated
+      "(<.05 excellent, >.20 poor)". Kruskal's five-band scale: .025 excellent, .05 good,
+      .10 fair, .20 poor. Fixed to "(<.025 excellent, <.05 good, >.20 poor)".
+- [x] LOW (Opus, notation): dissimilarity-study table header "Spearman r" -> "Spearman ρ"
+      (bare italic r reads as Pearson; ρ used everywhere else).
+- [x] LOW (Opus, grammar): "initialised" (lone -ise outlier) -> "initialized". The page
+      convention is Oxford British (-ize + -our: colour, neighbour, optimizes, recognizes),
+      so -ize is correct and consistent.
+- [~] REJECTED (Haiku, grammar): flagged recognizes/prioritize/prioritizes as "American".
+      Not applied — the page is consistently Oxford -ize (only "surprising" is -ise, which
+      has no -ize form). Changing them would BREAK consistency. Haiku misread the convention.
