@@ -306,3 +306,9 @@ in README.md — a file the page-only panel never reviewed. All fixed:
       in the README) and reframed Related work as lit review + "what this adds"; flagged
       the R²-vs-ρ comparison as different metrics; table header "Spearman r" -> "fit ρ
       (d ↔ 2-D)"; corrected the Dubai claim and the page-structure line.
+
+## README verification (Haiku-only; Opus/Sonnet weekly-limited)
+wf_806dbe0b. One MED, fixed:
+- [x] MED: "Tobler's law" mentioned without an in-text cite while Tobler (1970) is in
+      References -> "(linking it to Tobler's law; Tobler, 1970)".
+All numbers, spelling, reference formatting and grammar otherwise verified correct.

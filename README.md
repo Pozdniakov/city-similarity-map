@@ -58,7 +58,7 @@ pins it and opens a side drawer ranking all 123 others. Ships the full
 
 Recovering a recognisable map from text-only co-occurrence is a robust,
 long-established result. Louwerse and Zwaan (2009) recovered US-city coordinates
-via LSA + MDS (linking it to Tobler's law); Konkol et al. (2017) fit
+via LSA + MDS (linking it to Tobler's law; Tobler, 1970); Konkol et al. (2017) fit
 word-embedding city vectors to real coordinates as a benchmark; Liétard et al.
 (2021), and for LLMs Gurnee and Tegmark (2024) and Godey et al. (2024), found
 hidden states linearly encode coordinates (improving with scale but staying
