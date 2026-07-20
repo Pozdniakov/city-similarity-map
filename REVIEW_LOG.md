@@ -138,3 +138,12 @@ by discarding noise" stated as fact while the geo-fidelity sections now hedge it
 - [x] Card fixes: angle diagram (card 3) label overlap fixed ("angles from Sydney" caption
       moved to its own line, viewBox 132->148); added spacing under the visuals on cards 2,3,4
       (ex-card padding-bottom 10->16, diagram margin ->12/12, heatcap margin-bottom 10).
+
+## Round 5 (wf_981265c5) — facts+citations clean; 2 copy fixes in the new text
+- [x] MED: Software para "the two maps, the network, ..." double-counted the network
+      (the network IS one of the two maps). Dropped "the network,".
+- [x] LOW: gf-chart aria-label said "raw .50 ... all above the raw baseline" (raw IS
+      the baseline). Reworded to "raw 300-d baseline .50; ... every 2-D projection
+      above the raw baseline".
+Loop converged: facts/citations/grammar clean across two consecutive rounds bar these
+two self-introduced nits, now fixed.

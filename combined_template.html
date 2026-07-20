@@ -548,7 +548,7 @@
       the Procrustes alignment — which merely rotates the finished map — leaves the
       score untouched.</p>
     <svg class="gfchart" viewBox="0 0 372 130" width="372" height="130"
-      role="img" aria-label="Geographic fidelity by layout: raw 300-d embedding .50, MDS .57, PCA .60, t-SNE .64, UMAP .67 — all above the raw baseline">
+      role="img" aria-label="Geographic fidelity by layout: raw 300-d baseline .50; MDS .57, PCA .60, t-SNE .64, UMAP .67 — every 2-D projection above the raw baseline">
       <line x1="165.1" y1="12" x2="165.1" y2="114" class="gf-grid"/>
       <line x1="210.7" y1="12" x2="210.7" y2="114" class="gf-grid"/>
       <line x1="256.2" y1="12" x2="256.2" y2="114" class="gf-grid"/>
@@ -915,7 +915,7 @@
       and umap-learn&nbsp;0.5.12, and the pairwise distances, hierarchical clustering
       and orthogonal-Procrustes alignment use SciPy&nbsp;1.17.1.</p>
     <p>The figures are drawn in the browser with no charting library: the two maps,
-      the network, the geo-fidelity dot-plot and the clustered matrix are
+      the geo-fidelity dot-plot and the clustered matrix are
       hand-written inline SVG and HTML <span class="tok">&lt;canvas&gt;</span>, and
       the formulae are typeset with KaTeX&nbsp;0.16. The non-overlapping city labels
       were pre-computed offline with matplotlib&nbsp;3.11 and adjustText&nbsp;1.4,
