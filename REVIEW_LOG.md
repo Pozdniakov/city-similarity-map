@@ -213,3 +213,12 @@ wf_e1b23162. All three: submission rigorous; every checkable statistic matches t
 - [~] REJECTED (Haiku, grammar): flagged recognizes/prioritize/prioritizes as "American".
       Not applied — the page is consistently Oxford -ize (only "surprising" is -ise, which
       has no -ize form). Changing them would BREAK consistency. Haiku misread the convention.
+
+## User revision round 5 (matrix must fit within the page, not break out)
+- [x] Dropped the viewport breakout. Instead widened the page frame: wrap 800 -> 920,
+      and capped the reading column (.wrap > *:not(.matrix)) at the text measure (746),
+      centred. The matrix section (.sect.matrix) alone takes the fuller 880 width so the
+      square 6x6 canvas (858) sits WITHIN the page (never past its edge), centred and
+      aligned with the reading column. Verified: all block centres align on the page
+      centre; no page h-scroll desktop or mobile; matrix does not internally scroll on
+      desktop. Matrix heading + callout kept at reading width.
