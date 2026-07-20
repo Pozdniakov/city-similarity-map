@@ -234,3 +234,12 @@ wf_26339401. Haiku: clean. Two findings:
       the unsupervised layouts' ρ ≈ .5–.7 as "far better" — different metrics/scales
       (variance-explained vs rank correlation). Added an explicit note that they are
       different metrics ("a direction, not a subtraction"); attributed R² to Barenholtz (2026).
+
+## Academic peer-review panel — Round 3 (Opus + Sonnet + Haiku) — CONVERGED
+wf_3c75f5fa. All three reviewers returned EMPTY findings.
+  Opus: "no genuine defects found."
+  Sonnet: "sound as-is."
+  Haiku: "No defects detected."
+Loop complete: three independent models, three rounds; each earlier round caught a real
+issue (R1 misleading angle diagram + Kruskal bands; R2 skip-gram/CBOW error), and the
+final round is unanimously clean.
