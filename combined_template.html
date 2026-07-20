@@ -427,7 +427,8 @@
       An <b>embedding</b> represents a word as numbers, chosen so that similar
       usage gives similar numbers. word2vec learns them by reading
       ~100&nbsp;billion words of Google News (2013) and training a small neural
-      network to predict each word from the words around it
+      network to predict the words that appear <i>around</i> each word
+      (the skip-gram objective)
       <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>.
       Names that occur in interchangeable contexts end up with nearly the same
       numbers:
@@ -1059,10 +1060,14 @@
       <span class="tok">MEXICO_CITY</span> sitting among other agency datelines,
       so its cosines to ordinary words run uniformly low — is a concrete,
       checkable fact about the GoogleNews vectors. A caveat the literature
-      predicts and this page inherits: a <i>supervised</i> probe recovers
-      coordinates far better (<i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8) than these
-      <i>unsupervised</i> layouts (&rho;&nbsp;&asymp;&nbsp;.5&ndash;.7) — what you
-      see is a map of <i>discourse</i> more than of the Earth.</p>
+      predicts and this page inherits: a <i>supervised</i> probe trained to regress
+      coordinates recovers geography far better (reported <i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8
+      by Barenholtz, <a class="cite" href="#ref-barenholtz">2026</a>) than these
+      <i>unsupervised</i> layouts do
+      (geo-fidelity&nbsp;&rho;&nbsp;&asymp;&nbsp;.5&ndash;.7) — the two figures are
+      different metrics on different scales (variance-explained vs rank correlation),
+      so read them as a direction, not a subtraction. Either way, what you see is a
+      map of <i>discourse</i> more than of the Earth.</p>
   </section>
 
   <section class="notes refs" id="refs">

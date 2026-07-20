@@ -222,3 +222,15 @@ wf_e1b23162. All three: submission rigorous; every checkable statistic matches t
       aligned with the reading column. Verified: all block centres align on the page
       centre; no page h-scroll desktop or mobile; matrix does not internally scroll on
       desktop. Matrix heading + callout kept at reading width.
+
+## Academic peer-review panel — Round 2 (Opus + Sonnet + Haiku)
+wf_26339401. Haiku: clean. Two findings:
+- [x] HIGH (Sonnet, truth): Card 1 described word2vec's objective as "predict each word
+      from the words around it" = CBOW, contradicting the Methodology's own (correct)
+      "skip-gram with negative sampling". GoogleNews-vectors-negative300 are skip-gram
+      (word -> context). Fixed Card 1 to "predict the words that appear around each word
+      (the skip-gram objective)".
+- [x] LOW (Opus, statistics): Related-work compared a supervised probe's R² ≈ .8 against
+      the unsupervised layouts' ρ ≈ .5–.7 as "far better" — different metrics/scales
+      (variance-explained vs rank correlation). Added an explicit note that they are
+      different metrics ("a direction, not a subtraction"); attributed R² to Barenholtz (2026).
