@@ -285,3 +285,24 @@ wf_758393b7. Opus clean, Haiku clean. One MED finding, fixed:
       now GENERATED at build time (build_combined.make_minichart) from the same sims the
       slider uses, so its polyline, marker, labels and aria-label can never drift again.
       Verified live counter (454) == chart label (454) at the default cutoff.
+
+## Academic peer-review panel — Round 7 (DEGRADED) + README validation
+wf_906eee7f: Haiku ran and returned CLEAN; Opus and Sonnet both FAILED with
+"You've hit your weekly limit (resets 10pm Europe/Berlin)" — so the full 3-model
+panel cannot run again until the weekly limit resets.
+
+User reported a separate read-only validation (per README) that surfaced real defects
+in README.md — a file the page-only panel never reviewed. All fixed:
+- [x] HIGH: "UMAP/t-SNE take the seed" (Reproducibility) was misleading — t-SNE is
+      deterministic under PCA init; only UMAP varies. Rewritten: PCA, classical-init MDS
+      and PCA-init t-SNE deterministic; only UMAP seed-dependent (ρ .60–.68).
+- [x] MED: hard order "UMAP .67 > t-SNE .64 > ..." with no seed caveat -> reordered to
+      "t-SNE .64 ≈ UMAP .67 > PCA .60 > MDS .57 > raw .50" + the determinism/seed note.
+- [x] MED: American spellings amid British — color->colour, neighbors->neighbours,
+      toward->towards.
+- [x] MED: six citations with no References section -> added a References section
+      (8 entries, APA, alphabetical) pulled from the vetted page reference list.
+- [x] Also: dropped "demonstration, not a discovery" (a framing the user disliked, still
+      in the README) and reframed Related work as lit review + "what this adds"; flagged
+      the R²-vs-ρ comparison as different metrics; table header "Spearman r" -> "fit ρ
+      (d ↔ 2-D)"; corrected the Dubai claim and the page-structure line.

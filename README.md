@@ -8,8 +8,9 @@ A word2vec-based "map" of 124 major world cities: pairwise cosine similarity
 between city name vectors is converted to dissimilarity and projected to 2-D
 with metric multidimensional scaling. Cities cluster by the company they keep
 in news text — which largely reconstructs geography, with informative
-exceptions (Dubai leans toward South Asia, London sits between the US and
-Europe, Lisbon is pulled away from Iberia by Treaty-of-Lisbon coverage).
+exceptions (Dubai's ties reach from the Gulf into South Asia, London sits
+between the US and Europe, Lisbon is pulled away from Iberia by
+Treaty-of-Lisbon coverage).
 
 ## Pipeline
 
@@ -48,27 +49,33 @@ selection):
 
 The page ([build_combined.py](build_combined.py) → `output/similarity_maps.html`,
 `docs/index.html`) is structured as **question → How it works (4 cards) →
-Explore (the three views) → Methodology → Data → References**, with anchor
-navigation. Hovering a city previews its top-5 neighbours on both maps; clicking
+Explore (the three views) → What to notice → Methodology → Related work →
+References**, with anchor navigation. Hovering a city previews its top-5 neighbours on both maps; clicking
 pins it and opens a side drawer ranking all 123 others. Ships the full
 7 626-pair similarity array inline, so every list is computed live.
 
-## Related work & novelty
+## Related work
 
-This is a **demonstration, not a discovery**. That text-only co-occurrence
-reconstructs a recognizable map is a robust, long-established result: Louwerse &
-Zwaan (2009) recovered US-city coordinates via LSA + MDS (linking it to Tobler's
-law); Konkol et al. (2017) fit word-embedding city vectors to real coordinates;
-Liétard et al. (2021), and for LLMs Gurnee & Tegmark (2024) and Godey et al.
-(2024), found hidden states linearly encode coordinates (improving with scale
-but staying geographically unequal); Barenholtz (2026) showed plain
-word2vec/GloVe carry the same signal, riding on lexical directions (country/
-climate words) — the map is *inherited* from how places are described. This
-project's value is **pedagogical and methodological**: a transparent interactive
-build, honest token resolution, and an alignment-free geo-fidelity metric. It
-also shows the gap the literature predicts — a *supervised* probe recovers
-coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
-(ρ ≈ .57): a map of *discourse*, not of the Earth.
+Recovering a recognisable map from text-only co-occurrence is a robust,
+long-established result. Louwerse and Zwaan (2009) recovered US-city coordinates
+via LSA + MDS (linking it to Tobler's law); Konkol et al. (2017) fit
+word-embedding city vectors to real coordinates as a benchmark; Liétard et al.
+(2021), and for LLMs Gurnee and Tegmark (2024) and Godey et al. (2024), found
+hidden states linearly encode coordinates (improving with scale but staying
+geographically unequal); Barenholtz (2026) showed plain word2vec/GloVe carry the
+same signal, riding on lexical directions (country/climate words) — the map is
+*inherited* from how places are described.
+
+What this adds is small and specific: a transparent, interactive build with
+fully disclosed token-resolution calls, an exhaustive triangle-inequality audit
+of `1 − cos` (all 310,124 triples), and an alignment-free geo-fidelity metric
+compared *across projections* rather than across embeddings. It also shows the
+gap the literature predicts: a *supervised* probe that regresses coordinates
+recovers geography far better (R² ≈ .8; Barenholtz, 2026) than these
+*unsupervised* layouts do (geo-fidelity ρ ≈ .57–.67). Those two figures are
+different metrics on different scales (variance-explained vs rank correlation),
+so read the gap as a direction, not a subtraction — either way, the result is a
+map of *discourse* more than of the Earth.
 
 ## Method
 
@@ -83,7 +90,7 @@ coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
    layout — it is used only for the final rigid orientation (step 8).
 2. **City list.** 124 cities curated by hand (metro population roughly >1M plus
    global prominence), balanced across 9 regions. Region labels are only used
-   to color the plot; they play no role in the computation.
+   to colour the plot; they play no role in the computation.
 3. **Token resolution.** Per city, an ordered candidate list (explicit
    overrides, then the underscored display name and a diacritics-stripped
    variant). `extract_vectors.py` stream-parses the gzipped binary in one pass
@@ -97,7 +104,7 @@ coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
 5. **Dissimilarity: why `d = 1 − cos`.** Three monotone transforms were
    compared empirically with identical SMACOF runs ([dissim_study.py](dissim_study.py)):
 
-   | transform | stress-1 | recall@10 | Spearman r | layout Δ vs 1−cos |
+   | transform | stress-1 | recall@10 | fit ρ (d ↔ 2-D) | layout Δ vs 1−cos |
    |---|---|---|---|---|
    | `1 − cos` | **0.347** | **0.515** | **0.709** | — |
    | `√(2(1−cos))` (chord, metric) | 0.392 | 0.505 | 0.687 | 0.005 |
@@ -140,9 +147,13 @@ coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
    neighbourhoods; recall@10 .71 / .70). To compare them *as maps of the world*,
    score each by **geo-fidelity** — the alignment-free rank correlation between
    on-screen distances and real great-circle distances. Result:
-   **UMAP .67 > t-SNE .64 > PCA .60 > MDS .57** — the neighbourhood methods
-   recover geography better than the distance-faithful one, because
-   geographically near cities are one another's semantic neighbours.
+   **t-SNE .64 ≈ UMAP .67 > PCA .60 > MDS .57 > raw 300-d .50** — the
+   neighbourhood methods (t-SNE, UMAP) recover geography better than the global
+   ones (PCA, MDS), which in turn beat the un-projected 300-d cosine distances,
+   because geographically near cities tend to be one another's semantic
+   neighbours. Only UMAP is seed-dependent (ρ .60–.68 over 12 seeds, mean .65);
+   PCA, classical-init MDS and PCA-init t-SNE are deterministic, so the
+   t-SNE/UMAP gap sits within that seed noise.
 10. **Beyond word2vec.** Kept deliberately as the canonical teaching model
     with ready phrase tokens and instructive quirks. Cleaner alternatives:
     **Wikipedia2Vec** (entity vectors — solves name collisions like
@@ -157,9 +168,12 @@ coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
     **optimal leaf ordering** (Bar-Joseph et al., 2001) refines the leaf order,
     and a dendrogram + region-coloured names run down the left edge.
 
-**Reproducibility.** Every stochastic step is seeded (seed 42): MDS uses a
-deterministic classical-MDS init + single SMACOF restart, PCA is deterministic,
-UMAP/t-SNE take the seed. Hyperparameters are in the scripts; versions are pinned
+**Reproducibility.** Stochastic steps are seeded (seed 42). PCA is
+deterministic; MDS uses a deterministic classical-MDS init + single SMACOF
+restart; t-SNE is initialised from PCA rather than a random layout, which makes
+it deterministic too (identical geo-fidelity on all 12 seeds tried). Only UMAP
+genuinely varies with the seed (geo-fidelity ρ .60–.68). Hyperparameters are in
+the scripts; versions are pinned
 in [requirements.txt](requirements.txt) (scikit-learn 1.9.0, SciPy 1.17.1,
 umap-learn 0.5.12). Supporting analyses ship as runnable scripts:
 [dissim_study.py](dissim_study.py) (transform comparison + full triangle
@@ -173,7 +187,7 @@ Verified against the full 3M-token vocabulary:
   exist as tokens. New York → `New_York`, Delhi → `Delhi`,
   Ho Chi Minh City → `Saigon`; Mexico City uses the `mean(Mexico, City)`
   composition (`COMPOSE_FALLBACK` in cities.py). The all-caps dateline token
-  `MEXICO_CITY` exists and ranks its neighbors more cleanly, but dateline-
+  `MEXICO_CITY` exists and ranks its neighbours more cleanly, but dateline-
   register cosines are uniformly depressed (max 0.44), which makes metric MDS
   exile the city to the periphery; the composition places it correctly beside
   Monterrey and Guadalajara.
@@ -198,3 +212,31 @@ curl -L -o data/ne_110m_land.geojson \
 .venv/bin/python make_layouts.py       # MDS/UMAP/t-SNE layouts + metrics
 .venv/bin/python build_combined.py     # combined interactive page (docs/)
 ```
+
+## References
+
+- Barenholtz, E. (2026). *World properties without world models: Recovering
+  spatial and temporal structure from co-occurrence statistics in static word
+  embeddings*. arXiv. https://arxiv.org/abs/2603.04317
+- Bar-Joseph, Z., Gifford, D. K., & Jaakkola, T. S. (2001). Fast optimal leaf
+  ordering for hierarchical clustering. *Bioinformatics, 17*(Suppl. 1),
+  S22–S29. https://doi.org/10.1093/bioinformatics/17.suppl_1.S22
+- Godey, N., de la Clergerie, É., & Sagot, B. (2024). *On the scaling laws of
+  geographical representation in language models*. arXiv.
+  https://arxiv.org/abs/2402.19406
+- Gurnee, W., & Tegmark, M. (2024). Language models represent space and time.
+  In *International Conference on Learning Representations*.
+  https://arxiv.org/abs/2310.02207
+- Konkol, M., Brychcín, T., Nykl, M., & Hercig, T. (2017). Geographical
+  evaluation of word embeddings. In *Proceedings of the Eighth International
+  Joint Conference on Natural Language Processing* (pp. 224–232).
+  https://aclanthology.org/I17-1023/
+- Liétard, B., Abdou, M., & Søgaard, A. (2021). Do language models know the way
+  to Rome? In *Proceedings of the Fourth BlackboxNLP Workshop* (pp. 510–517).
+  https://aclanthology.org/2021.blackboxnlp-1.40/
+- Louwerse, M. M., & Zwaan, R. A. (2009). Language encodes geographical
+  information. *Cognitive Science, 33*(1), 51–73.
+  https://doi.org/10.1111/j.1551-6709.2008.01003.x
+- Tobler, W. R. (1970). A computer movie simulating urban growth in the Detroit
+  region. *Economic Geography, 46*(Suppl.), 234–240.
+  https://doi.org/10.2307/143141
