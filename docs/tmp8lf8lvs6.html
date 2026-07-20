@@ -2104,5 +2104,23 @@
 })();
 </script>
 
+
+<script>
+(function(){
+  function byText(t){
+    return [...document.querySelectorAll('button')].find(function(e){
+      return e.textContent.trim() === t; });
+  }
+  function apply(){
+    var L = null, C = null, P = null;
+    if (L){ var b = byText(L); if (b) b.click(); }
+    if (C != null){ var s = document.getElementById('thr');
+      if (s){ s.value = C; s.dispatchEvent(new Event('input',{bubbles:true})); } }
+    if (P){ var pb = byText(P); if (pb) pb.click(); }
+  }
+  if (document.readyState !== 'loading') apply();
+  else document.addEventListener('DOMContentLoaded', apply);
+})();
+</script>
 </body>
 </html>

@@ -268,3 +268,11 @@ wf_2c129996. Haiku: clean. Two LOW findings, both fixed:
 - [x] LOW (Sonnet, statistics): "SD .02" was non-italic; APA italicises SD/M/N/r.
       Wrapped it: "<i>SD</i> .02" (matches the page's italic r, M elsewhere).
 The hero teaser map and section rail added no content issues.
+
+## Academic peer-review panel — Round 5 (Opus + Sonnet + Haiku)
+wf_8a0101df. Haiku: clean. Two LOW findings, both fixed:
+- [x] LOW (Opus, truth): Software section still called the geo-fidelity figure a
+      "dot-plot" — stale after it was redesigned into a bar chart. Changed to "bar chart".
+- [x] LOW (Sonnet, citations): References list had Bar-Joseph (2001) before
+      Barenholtz (2026); APA letter-by-letter (hyphen ignored) puts "Bare..." before
+      "Barj...". Swapped the two entries.
