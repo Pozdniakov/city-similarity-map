@@ -378,7 +378,7 @@
       explored in <b>three linked views</b> below; select any city to light up its
       neighbours in all of them.</p>
     <nav class="anchornav" aria-label="Sections">
-      <a href="#how">How it works</a><a href="#explore">Explore</a><a href="#notice">What to notice</a><a href="#methodology">Methodology</a><a href="#data">Data</a>
+      <a href="#how">How it works</a><a href="#explore">Explore</a><a href="#notice">What to notice</a><a href="#methodology">Methodology</a>
     </nav>
   </header>
 
@@ -610,58 +610,59 @@
         directly from the training data: what drives similarity is <i>news
         salience</i>, not geography (a shared war, league or stock exchange pulls
         cities together as surely as a shared border), and the corpus is frozen
-        in ~2013 — prominence and usage reflect that period's coverage (Kyiv
-        already resolves to its own token, but from pre-2014 usage).</li>
-      <li><b>City list.</b> 124 cities curated by hand: metro population roughly
-        &gt;1&nbsp;million and global prominence, deliberately <i>balanced</i>
-        across 9 regions rather than ranked by population — a strict top-N by
-        population would be dominated by Chinese and South-Asian metros, and the
-        map would lose most of the regions a general reader recognizes. Region
-        labels are used only for coloring — they play no role in the
-        computation.</li>
-      <li class="stat"><b>Token resolution.</b> word2vec has no notion of
-        "city" — only of tokens, so each city must be mapped to the vocabulary
-        entry that best carries its meaning. Multiword names are the tricky part:
-        GoogleNews merged word pairs into single tokens <i>automatically</i>,
-        keeping only combinations that co-occur unusually often, so coverage is
-        arbitrary — <span class="tok">New_York</span> and
-        <span class="tok">Buenos_Aires</span> exist, while
+        in ~2013, so prominence and usage reflect that period's coverage.
+        That geography can be recovered from text at all is a long-known effect:
+        Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a> ran
+        essentially this analysis — LSA then MDS on the 50 largest US cities — and
+        recovered their latitude and longitude, and linear probes recover city
+        coordinates from word2vec/GloVe at
+        <i>R</i>&sup2;&nbsp;&asymp;&nbsp;.66&ndash;.87 — longitude better than
+        latitude, the same asymmetry this map shows
+        <a class="cite" href="#ref-barenholtz">(Barenholtz, 2026)</a>. The signal
+        rides on how cities are <i>described</i> — country names, climate words —
+        never on coordinates.</li>
+      <li><b>City list.</b> 124 cities curated by hand: metropolitan-area
+        population roughly &gt;1&nbsp;million and global prominence, deliberately
+        <i>balanced</i> across 9 regions rather than ranked by population — a
+        strict top-N by population would be dominated by Chinese and South-Asian
+        metros, and the map would lose most of the regions a general reader
+        recognizes. Region labels are used only for coloring — they play no role
+        in the computation.</li>
+      <li class="stat"><b>Token resolution.</b> word2vec knows only tokens, not
+        "cities", so each city is mapped to the vocabulary entry that best carries
+        its meaning. Multiword names are the hard part: GoogleNews merged word
+        pairs into single tokens only where they co-occur unusually often, so
+        coverage is arbitrary — <span class="tok">New_York</span> and
+        <span class="tok">Buenos_Aires</span> exist, but
         <span class="tok">Mexico_City</span>, <span class="tok">New_York_City</span>,
         <span class="tok">New_Delhi</span> and <span class="tok">Ho_Chi_Minh_City</span>
-        genuinely do not (verified by scanning all 3M entries; the resolver tries
-        an ordered candidate list and takes the first hit).
-        <details><summary>The four judgment calls (Mexico City, Ho Chi Minh City,
-          St&nbsp;Petersburg, …)</summary>
+        do not (verified against all 3M entries). The resolver walks an ordered
+        candidate list and takes the first hit; the non-obvious choices:
         <ul>
-          <li><b>Mexico City</b> has no usable token at all, so its vector is the
-            average of <span class="tok">Mexico</span> and
-            <span class="tok">City</span> — the standard fallback for a missing
-            phrase. An alternative existed: <span class="tok">MEXICO_CITY</span>,
-            an all-caps token born from agency datelines ("MEXICO CITY (Reuters)
-            &mdash;&hellip;"). It was tested and rejected: dateline tokens live
-            among other datelines, so their cosines to ordinary words run
-            uniformly low, and the city was exiled to the edge of every map.</li>
-          <li><b>Ho Chi Minh City</b> lost its full name to the same phrase
-            lottery (only fragments like <span class="tok">Minh_City</span>
-            survive), but 2013 news text overwhelmingly calls the city
-            <span class="tok">Saigon</span> — a well-trained single token with
-            the right meaning, so it is used instead.</li>
-          <li><b>St&nbsp;Petersburg</b> is an ambiguity case: the frequent
-            <span class="tok">St._Petersburg</span> is dominated by
-            St.&nbsp;Petersburg, <i>Florida</i> (cos to Tampa = .68 vs
-            Moscow = .60), so the map uses
-            <span class="tok">Saint_Petersburg</span>, which is cleanly
-            Russian.</li>
-          <li><b>New York</b> and <b>Delhi</b> simply fall back to
-            <span class="tok">New_York</span> and <span class="tok">Delhi</span>;
-            <b>Kyiv</b> resolves to its own token even in this era.</li>
+          <li><b>Mexico City</b> &rarr; mean of <span class="tok">Mexico</span>
+            + <span class="tok">City</span>, as no phrase token exists. The
+            all-caps <span class="tok">MEXICO_CITY</span> (from agency datelines,
+            "MEXICO CITY (Reuters)&nbsp;&mdash;&hellip;") was tested and rejected:
+            dateline tokens keep company with other datelines, so their cosines
+            run uniformly low and pushed the city to the map's edge.</li>
+          <li><b>Ho Chi Minh City</b> &rarr; <span class="tok">Saigon</span>: the
+            full name fragmented, but 2013 news overwhelmingly used "Saigon", a
+            well-trained token with the right meaning.</li>
+          <li><b>St&nbsp;Petersburg</b> &rarr; <span class="tok">Saint_Petersburg</span>,
+            not the commoner <span class="tok">St._Petersburg</span> — which is
+            dominated by St.&nbsp;Petersburg, <i>Florida</i> (cos to Tampa .68 vs
+            Moscow .60).</li>
+          <li><b>Kyiv</b> &rarr; <span class="tok">Kyiv</span>: this spelling
+            already had its own token in the 2013 corpus, years before it became
+            the standard English form after 2014. <b>New York</b> and
+            <b>Delhi</b> fall back to <span class="tok">New_York</span> and
+            <span class="tok">Delhi</span>.</li>
         </ul>
-        </details>
-        The unavoidable residue: a token fuses <i>every</i> sense of its string.
-        Treaty-of-Lisbon coverage drags Lisbon away from Iberia,
+        Every token still fuses <i>all</i> senses of its string — Treaty-of-Lisbon
+        coverage drags Lisbon off Iberia, and
         <span class="tok">Santiago</span> and <span class="tok">Hyderabad</span>
-        each name several cities, and no resolver can untangle that — entity-level
-        embeddings can (step&nbsp;12).</li>
+        each name several cities. No resolver can untangle that; entity-level
+        embeddings could (Beyond word2vec, below).</li>
     </ol>
     <h3 class="meth-sub">Similarity</h3>
     <ol start="4">
@@ -797,15 +798,11 @@
         seriated — diagonal blocks = regions, off-block warm bands = cross-region
         bridges (find the Gulf&nbsp;&harr;&nbsp;South Asia patch), pale rows =
         cities similar to nothing in particular.</li>
-      <li><b>Beyond word2vec.</b> The 2013 model is kept deliberately — it is the
+      <li><b>Beyond word2vec.</b> The 2013 model is kept deliberately: it is the
         canonical teaching model, ships ready-made phrase tokens, and its quirks
-        (Lisbon, St&nbsp;Petersburg) are instructive. Swapping the embedding layer
-        changes step 1 only — the rest of the pipeline (cosine &rarr; dissimilarity
-        &rarr; layout) is unchanged.
-        <details><summary>Cleaner embeddings that would fix the quirks</summary>
-        Better representations exist: <b>Wikipedia2Vec</b> embeds Wikipedia
-        <i>entities</i>, so
-        "Santiago (Chile)" and "Santiago de Cuba" stop sharing one vector — the
+        (Lisbon, St&nbsp;Petersburg) are instructive. Cleaner representations would
+        fix those quirks. <b>Wikipedia2Vec</b> embeds Wikipedia <i>entities</i>,
+        so "Santiago (Chile)" and "Santiago de Cuba" stop sharing one vector — the
         cleanest fix for name collisions
         <a class="cite" href="#ref-yamada">(Yamada et&nbsp;al., 2020)</a>;
         <b>fastText</b> adds subword information and handles unseen spellings
@@ -813,9 +810,9 @@
         Mikolov, 2017)</a>; <b>GloVe</b> is a close word2vec alternative trained
         on global co-occurrence counts
         <a class="cite" href="#ref-pennington">(Pennington, Socher, &amp;
-        Manning, 2014)</a>; modern <b>sentence/LLM embeddings</b> could encode a
+        Manning, 2014)</a>; modern <b>sentence or LLM embeddings</b> could encode a
         whole city description, trading the elegant "meaning from raw
-        co-occurrence" story for quality.</details></li>
+        co-occurrence" story for quality.</li>
     </ol>
     <h3 class="meth-sub">Reproducibility</h3>
     <p>Every stochastic step is seeded (<b>seed 42</b>): MDS runs from a
@@ -830,19 +827,42 @@
       tests, layout and metric scripts, and this page's build — is in the
       <a href="https://github.com/Pozdniakov/city-similarity-map">repository</a>;
       the geographic-fidelity, triangle-inequality and dissimilarity-transform
-      analyses each ship as a runnable script.</p>
+      analyses each ship as a runnable script. The exact vocabulary token chosen
+      for every city is in
+      <a href="https://github.com/Pozdniakov/city-similarity-map/blob/main/data/city_index.csv">data/city_index.csv</a>.</p>
   </section>
 
-  <details id="data" style="scroll-margin-top:12px">
-    <summary>View data for all 124 cities</summary>
-    <p class="summary-note">City · region · vocabulary token · nearest neighbour ·
-      cosine similarity. The full matrix is browsable in the heatmap above.</p>
-    <div class="tblwrap"><table class="data" id="tbl">
-      <thead><tr><th>City</th><th>Region</th><th>Vocabulary token</th>
-        <th>Nearest neighbour</th><th>cos</th></tr></thead>
-      <tbody></tbody>
-    </table></div>
-  </details>
+  <section class="notes" id="related">
+    <h2 class="group-h">Related work &amp; novelty</h2>
+    <p><b>This is a demonstration, not a discovery.</b> That text-only
+      co-occurrence reconstructs a recognizable map is among the more robust
+      results in distributional semantics. Louwerse &amp; Zwaan
+      <a class="cite" href="#ref-louwerse">(2009)</a> first recovered US-city
+      latitude and longitude by running MDS on newspaper-text similarities, tying
+      it to Tobler's law; Konkol et al.
+      <a class="cite" href="#ref-konkol">(2017)</a> fit word-embedding city
+      vectors to real coordinates as a benchmark; Liétard et al.
+      <a class="cite" href="#ref-lietard">(2021)</a> probed the global geometry of
+      city representations; and for modern LLMs Gurnee &amp; Tegmark
+      <a class="cite" href="#ref-gurnee">(2024)</a> and Godey et al.
+      <a class="cite" href="#ref-godey">(2024)</a> found hidden states linearly
+      encode coordinates — improving with scale, but staying geographically
+      unequal (Oceania, South Asia and South America worst — the same asymmetry as
+      this map's weak north&ndash;south axis). Barenholtz
+      <a class="cite" href="#ref-barenholtz">(2026)</a> showed plain
+      word2vec/GloVe carry the same signal, and that it rides on lexical
+      directions (country names, climate words), so the map is <i>inherited</i>
+      from how places are described, not built as a spatial model.</p>
+    <p><b>Where this project adds value is pedagogical and methodological, not as
+      a new finding:</b> a step-by-step, interactive build; fully transparent
+      token resolution; and an alignment-free geo-fidelity metric that ranks the
+      unsupervised 2-D layouts. It also makes a gap visible that the literature
+      predicts — a <i>supervised</i> probe recovers coordinates far better
+      (<i>R</i>&sup2; &asymp; .8) than the <i>unsupervised</i> MDS layout shown
+      here (&rho; &asymp; .57). What you see is the harder, unsupervised version:
+      as every study above concludes, a map of <i>discourse</i> rather than of the
+      Earth.</p>
+  </section>
 
   <section class="notes refs" id="refs">
     <h2>References</h2>
@@ -850,6 +870,10 @@
       (2001). Fast optimal leaf ordering for hierarchical clustering.
       <i>Bioinformatics, 17</i>(Suppl.&nbsp;1), S22&ndash;S29.
       <a href="https://doi.org/10.1093/bioinformatics/17.suppl_1.S22">https://doi.org/10.1093/bioinformatics/17.suppl_1.S22</a></p>
+    <p id="ref-barenholtz">Barenholtz, E. (2026). <i>World properties without
+      world models: Recovering spatial and temporal structure from co-occurrence
+      statistics in static word embeddings</i>. arXiv.
+      <a href="https://arxiv.org/abs/2603.04317">https://arxiv.org/abs/2603.04317</a></p>
     <p id="ref-bojanowski">Bojanowski, P., Grave, E., Joulin, A., &amp; Mikolov, T.
       (2017). Enriching word vectors with subword information.
       <i>Transactions of the Association for Computational Linguistics, 5</i>,
@@ -860,6 +884,12 @@
     <p id="ref-firth">Firth, J. R. (1957). A synopsis of linguistic theory
       1930&ndash;1955. In <i>Studies in linguistic analysis</i> (Special volume of
       the Philological Society, pp. 1&ndash;32). Blackwell.</p>
+    <p id="ref-godey">Godey, N., de la Clergerie, É., &amp; Sagot, B. (2024).
+      <i>On the scaling laws of geographical representation in language
+      models</i>. arXiv. <a href="https://arxiv.org/abs/2402.19406">https://arxiv.org/abs/2402.19406</a></p>
+    <p id="ref-gurnee">Gurnee, W., &amp; Tegmark, M. (2024). Language models
+      represent space and time. In <i>International Conference on Learning
+      Representations</i>. <a href="https://arxiv.org/abs/2310.02207">https://arxiv.org/abs/2310.02207</a></p>
     <p id="ref-harris">Harris, Z. S. (1954). Distributional structure.
       <i>Word, 10</i>(2&ndash;3), 146&ndash;162.
       <a href="https://doi.org/10.1080/00437956.1954.11659520">https://doi.org/10.1080/00437956.1954.11659520</a></p>
@@ -867,6 +897,17 @@
       optimizing goodness of fit to a nonmetric hypothesis.
       <i>Psychometrika, 29</i>(1), 1&ndash;27.
       <a href="https://doi.org/10.1007/BF02289565">https://doi.org/10.1007/BF02289565</a></p>
+    <p id="ref-konkol">Konkol, M., Brychcín, T., Nykl, M., &amp; Hercig, T. (2017).
+      Geographical evaluation of word embeddings. In <i>Proceedings of the Eighth
+      International Joint Conference on Natural Language Processing</i>
+      (pp. 224&ndash;232). <a href="https://aclanthology.org/I17-1023/">https://aclanthology.org/I17-1023/</a></p>
+    <p id="ref-lietard">Liétard, B., Abdou, M., &amp; Søgaard, A. (2021). Do
+      language models know the way to Rome? In <i>Proceedings of the Fourth
+      BlackboxNLP Workshop</i> (pp. 510&ndash;517).
+      <a href="https://aclanthology.org/2021.blackboxnlp-1.40/">https://aclanthology.org/2021.blackboxnlp-1.40/</a></p>
+    <p id="ref-louwerse">Louwerse, M. M., &amp; Zwaan, R. A. (2009). Language
+      encodes geographical information. <i>Cognitive Science, 33</i>(1),
+      51&ndash;73. <a href="https://doi.org/10.1111/j.1551-6709.2008.01003.x">https://doi.org/10.1111/j.1551-6709.2008.01003.x</a></p>
     <p id="ref-mcinnes">McInnes, L., Healy, J., &amp; Melville, J. (2018).
       <i>UMAP: Uniform manifold approximation and projection for dimension
       reduction</i>. arXiv. <a href="https://arxiv.org/abs/1802.03426">https://arxiv.org/abs/1802.03426</a></p>
@@ -1432,18 +1473,6 @@
       });
     });
 
-    // ---------- table ----------
-    const tb = document.querySelector("#tbl tbody");
-    [...C.keys()].sort((a, b) => C[a].r.localeCompare(C[b].r) || C[a].n.localeCompare(C[b].n))
-      .forEach(k => {
-        const c = C[k];
-        const [j, s] = ranked(k)[0];
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${c.n}</td><td>${c.r}</td><td>${c.t}</td>` +
-          `<td>${C[j].n}</td><td class="num">${s.toFixed(3)}</td>`;
-        tb.append(tr);
-      });
-
     // ---------- teaching demos ----------
     // KaTeX render (deferred CDN script runs before DOMContentLoaded; if it is
     // blocked, the plain-text fallback inside each .math span stays visible)
@@ -1554,7 +1583,7 @@
         }
       });
       svgPut(ang, "text", { x: O[0], y: 129, "font-size": 8.5,
-        fill: "var(--ink-3)" }, "angles to scale");
+        fill: "var(--ink-3)" }, "angles from Sydney, to scale");
       const degTo = i =>
         Math.round(Math.acos(Math.min(1, demo.sims[0][i])) * 180 / Math.PI);
       document.getElementById("angcap").innerHTML = [1, 2].map(i =>
@@ -1625,7 +1654,7 @@
     const cmc = document.getElementById("cmheat");
     if (cmc && DATA.cluster) {
       const cl = DATA.cluster, ord = cl.order;
-      const DW = 60, LW = 96, TS = 9, RH = 10, CW = 7;   // CSS px
+      const DW = 46, LW = 82, TS = 8, RH = 8, CW = 8;   // CSS px; square cells
       const ox = DW + LW, oy = TS + 3;
       const cssW = ox + n * CW, cssH = oy + n * RH;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1642,7 +1671,7 @@
         g.setTransform(dpr, 0, 0, dpr, 0, 0);
         g.clearRect(0, 0, cssW, cssH);
         g.textBaseline = "middle";
-        g.font = "8.5px ui-monospace, Menlo, monospace";
+        g.font = "7px ui-monospace, Menlo, monospace";
         // dendrogram at left: leaf position -> row Y, merge height -> X
         g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 0.75; g.globalAlpha = 0.8;
         const dX = d => DW - 3 - (d / cl.dmax) * (DW - 7);

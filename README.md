@@ -53,6 +53,23 @@ navigation. Hovering a city previews its top-5 neighbours on both maps; clicking
 pins it and opens a side drawer ranking all 123 others. Ships the full
 7 626-pair similarity array inline, so every list is computed live.
 
+## Related work & novelty
+
+This is a **demonstration, not a discovery**. That text-only co-occurrence
+reconstructs a recognizable map is a robust, long-established result: Louwerse &
+Zwaan (2009) recovered US-city coordinates via LSA + MDS (linking it to Tobler's
+law); Konkol et al. (2017) fit word-embedding city vectors to real coordinates;
+Liétard et al. (2021), and for LLMs Gurnee & Tegmark (2024) and Godey et al.
+(2024), found hidden states linearly encode coordinates (improving with scale
+but staying geographically unequal); Barenholtz (2026) showed plain
+word2vec/GloVe carry the same signal, riding on lexical directions (country/
+climate words) — the map is *inherited* from how places are described. This
+project's value is **pedagogical and methodological**: a transparent interactive
+build, honest token resolution, and an alignment-free geo-fidelity metric. It
+also shows the gap the literature predicts — a *supervised* probe recovers
+coordinates far better (R² ≈ .8) than the *unsupervised* MDS layout here
+(ρ ≈ .57): a map of *discourse*, not of the Earth.
+
 ## Method
 
 1. **Embedding model.** GoogleNews-vectors-negative300: word2vec (skip-gram
