@@ -155,6 +155,19 @@
   .minichart .mc-def { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
   .minichart .mc-defdot { fill: var(--accent); stroke: var(--surface); stroke-width: 1; }
   .minichart .mc-lab { font: 8.5px var(--font-mono); fill: var(--ink-3); }
+  .gf-lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 2px;
+    max-width: var(--measure); }
+  .gf-lead b { color: var(--ink-1); }
+  .gfchart { display: block; margin: 4px 0 12px; max-width: 100%; height: auto; }
+  .gfchart .gf-grid { stroke: var(--grid); stroke-width: 0.5; }
+  .gfchart .gf-ceil { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
+  .gfchart .gf-stem { stroke: var(--grid); stroke-width: 1.5; }
+  .gfchart .gf-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 1; }
+  .gfchart .gf-dot.raw { fill: var(--plane); stroke: var(--ink-3); stroke-width: 1.5; }
+  .gfchart .gf-lab { font: 9px var(--font-mono); fill: var(--ink-2); }
+  .gfchart .gf-val { font: 500 9px var(--font-mono); fill: var(--ink-1);
+    font-variant-numeric: tabular-nums; }
+  .gfchart .gf-tick { font: 8px var(--font-mono); fill: var(--ink-3); }
 
   .callout { margin: 0 0 12px; padding: 10px 16px;
     border-left: 3px solid var(--accent); background: var(--callout-bg);
@@ -521,6 +534,51 @@
       &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> — axis correlation with
       longitude / latitude, measured <i>after</i> the geographic alignment, so
       descriptive only.</p>
+    <p class="gf-lead"><b>How geographic is each layout?</b> Every 2-D projection
+      reproduces real geography <i>better</i> than the raw 300-d embedding it comes
+      from — squeezing the map into two dimensions <i>concentrates</i> the
+      geographic signal by shedding noise dimensions. The gain grows as you move
+      down the chart: <b>MDS is the least geographic</b> of the four (&rho;&nbsp;.57,
+      only just above the raw baseline), then PCA (.60) and t-SNE (.64), and
+      <b>UMAP the most</b> (&rho;&nbsp;.67). The pattern is
+      <b>neighbourhood&nbsp;&gt;&nbsp;linear&nbsp;&gt;&nbsp;raw</b>: methods that
+      preserve who-sits-next-to-whom (t-SNE, UMAP) recover the map better than ones
+      that fit all pairwise distances at once (MDS, PCA). Read it as that ordering,
+      not a fixed podium — the exact t-SNE/UMAP gap shifts with the random seed and
+      hyperparameters (t-SNE&nbsp;.63&ndash;.73, UMAP&nbsp;.51&ndash;.67 across
+      seeds).</p>
+    <svg class="gfchart" viewBox="0 0 372 130" width="372" height="130"
+      role="img" aria-label="Geographic fidelity by layout: raw 300-d embedding .50, MDS .57, PCA .60, t-SNE .64, UMAP .67 — all above the raw baseline">
+      <line x1="119.6" y1="12" x2="119.6" y2="114" class="gf-grid"/>
+      <line x1="165.1" y1="12" x2="165.1" y2="114" class="gf-grid"/>
+      <line x1="210.7" y1="12" x2="210.7" y2="114" class="gf-grid"/>
+      <line x1="256.2" y1="12" x2="256.2" y2="114" class="gf-grid"/>
+      <line x1="301.8" y1="12" x2="301.8" y2="114" class="gf-grid"/>
+      <line x1="122.3" y1="12" x2="122.3" y2="114" class="gf-ceil"/>
+      <line x1="74" y1="20" x2="122.3" y2="20" class="gf-stem"/>
+      <text x="68" y="23" class="gf-lab" text-anchor="end">raw 300-d</text>
+      <circle cx="122.3" cy="20" r="3.4" class="gf-dot raw"/>
+      <text x="130" y="23" class="gf-val">.50 baseline</text>
+      <line x1="74" y1="41" x2="187.0" y2="41" class="gf-stem"/>
+      <text x="68" y="44" class="gf-lab" text-anchor="end">MDS</text>
+      <circle cx="187.0" cy="41" r="3.8" class="gf-dot"/>
+      <text x="195" y="44" class="gf-val">.57</text>
+      <line x1="74" y1="62" x2="209.8" y2="62" class="gf-stem"/>
+      <text x="68" y="65" class="gf-lab" text-anchor="end">PCA</text>
+      <circle cx="209.8" cy="62" r="3.8" class="gf-dot"/>
+      <text x="218" y="65" class="gf-val">.60</text>
+      <line x1="74" y1="83" x2="250.8" y2="83" class="gf-stem"/>
+      <text x="68" y="86" class="gf-lab" text-anchor="end">t-SNE</text>
+      <circle cx="250.8" cy="83" r="3.8" class="gf-dot"/>
+      <text x="259" y="86" class="gf-val">.64</text>
+      <line x1="74" y1="104" x2="275.4" y2="104" class="gf-stem"/>
+      <text x="68" y="107" class="gf-lab" text-anchor="end">UMAP</text>
+      <circle cx="275.4" cy="104" r="3.8" class="gf-dot"/>
+      <text x="283" y="107" class="gf-val">.67</text>
+      <text x="119.6" y="126" class="gf-tick" text-anchor="middle">.50</text>
+      <text x="210.7" y="126" class="gf-tick" text-anchor="middle">.60</text>
+      <text x="301.8" y="126" class="gf-tick" text-anchor="middle">geo-fidelity ρ .70</text>
+    </svg>
     <div class="panel">
       <svg id="chart" class="chart" role="img"
         aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
@@ -563,11 +621,12 @@
       <button type="button" class="trycity">Sydney</button> &amp;
       <button type="button" class="trycity">Melbourne</button> (cos&nbsp;=&nbsp;.86)
       — Australian cities are nearly interchangeable in world news.</li>
-    <li><b>A bridge between worlds.</b>
-      <button type="button" class="trycity">Dubai</button> sits between the Gulf
-      and South Asia: its closest neighbours are Abu&nbsp;Dhabi and Doha, but
-      Karachi and Mumbai rank just behind, tracing the labour-migration
-      corridor.</li>
+    <li><b>A city with a wide footprint.</b>
+      <button type="button" class="trycity">Dubai</button> is a Gulf city first —
+      its nearest neighbours are Abu&nbsp;Dhabi, Jeddah, Doha and Riyadh — but its
+      top ten reaches into Southeast Asia (Singapore, Kuala&nbsp;Lumpur) and South
+      Asia (Karachi, Mumbai), the trace of its trade and labour-migration
+      links.</li>
     <li><b>Where the corpus bends the map.</b>
       <button type="button" class="trycity">Lisbon</button> drifts off Iberia —
       the <i>Treaty of Lisbon</i> pulls its vector toward EU-institution language
@@ -583,7 +642,7 @@
       resolution).</li>
     <li><b>The projections beat the raw space.</b> Every 2-D layout reproduces
       real geography better than the raw 300-d cosine distances (geo-fidelity
-      &rho;&nbsp;.57&ndash;.67 vs a ceiling of .50) — the neighbourhood methods
+      &rho;&nbsp;.57&ndash;.67 vs a baseline of .50) — the neighbourhood methods
       most, because they lock onto the local structure geography lives in. Switch
       the semantic map between MDS, PCA, t-SNE and UMAP to feel the difference
       (the exact ordering is seed-dependent; see Methodology).</li>
@@ -692,8 +751,8 @@
     <h3 class="meth-sub">Projection and evaluation</h3>
     <ol start="6">
       <li><b>MDS.</b> Metric MDS
-        (<a class="cite" href="#ref-kruskal">Kruskal, 1964</a>;
-        <a class="cite" href="#ref-borg">Borg &amp; Groenen, 2005</a>)
+        (<a class="cite" href="#ref-borg">Borg &amp; Groenen, 2005</a>;
+        <a class="cite" href="#ref-kruskal">Kruskal, 1964</a>)
         via SMACOF (scikit-learn 1.9) on the
         precomputed dissimilarities: 2 components, classical-MDS (Torgerson)
         initialization followed by stress-majorization iterations (max 3000,
@@ -734,8 +793,9 @@
         <b>On the geography question</b> (which map looks most like the world?),
         the alignment-free geo-fidelity &rho; — rank correlation of on-screen
         distances with real great-circle distances — has a natural reference: the
-        <b>raw 300-d cosine distances</b>, before any projection, score only
-        &rho;&nbsp;&asymp;&nbsp;<b>.50</b>. Every 2-D layout beats that ceiling
+        <b>raw 300-d cosine distances</b>, before any projection, which you might
+        expect to be the best a 2-D map could hope to match. They score only
+        &rho;&nbsp;&asymp;&nbsp;<b>.50</b>, and every 2-D layout beats that baseline
         (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64, UMAP&nbsp;.67 for the
         configurations shown): the reductions <i>concentrate</i> the geographic
         signal by discarding noise dimensions, most so the neighbourhood methods —
@@ -807,8 +867,8 @@
         <i>mean</i> pairwise dissimilarity, recording the entire merge tree.
         <b>No cluster count is imposed</b> — the dendrogram keeps the full
         history, and the leaf order is refined by <b>optimal leaf ordering</b>
-        <a class="cite" href="#ref-barjoseph">(Bar-Joseph, Gifford, &amp; Jaakkola,
-        2001)</a>, which flips branches to place the most similar neighbours
+        <a class="cite" href="#ref-barjoseph">(Bar-Joseph et&nbsp;al., 2001)</a>,
+        which flips branches to place the most similar neighbours
         adjacent without changing the tree. That ordering alone makes the block
         structure legible: it is the exact matrix from card&nbsp;4, complete and
         seriated — diagonal blocks = regions, off-block warm bands = cross-region
@@ -822,11 +882,11 @@
         cleanest fix for name collisions
         <a class="cite" href="#ref-yamada">(Yamada et&nbsp;al., 2020)</a>;
         <b>fastText</b> adds subword information and handles unseen spellings
-        <a class="cite" href="#ref-bojanowski">(Bojanowski, Grave, Joulin, &amp;
-        Mikolov, 2017)</a>; <b>GloVe</b> is a close word2vec alternative trained
+        <a class="cite" href="#ref-bojanowski">(Bojanowski et&nbsp;al., 2017)</a>;
+        <b>GloVe</b> is a close word2vec alternative trained
         on global co-occurrence counts
-        <a class="cite" href="#ref-pennington">(Pennington, Socher, &amp;
-        Manning, 2014)</a>; modern <b>sentence or LLM embeddings</b> could encode a
+        <a class="cite" href="#ref-pennington">(Pennington et&nbsp;al., 2014)</a>;
+        modern <b>sentence or LLM embeddings</b> could encode a
         whole city description, trading the elegant "meaning from raw
         co-occurrence" story for quality.</li>
     </ol>
@@ -876,7 +936,7 @@
       compared <i>across projections</i> rather than across embeddings, and all
       four 2-D layouts reproduce geography <i>better</i> than the raw 300-d cosine
       distances they come from (geo-fidelity &rho;&nbsp;&asymp;&nbsp;.57&ndash;.67
-      vs a raw-space ceiling of &rho;&nbsp;&asymp;&nbsp;.50) — the reductions
+      vs a raw-space baseline of &rho;&nbsp;&asymp;&nbsp;.50) — the reductions
       concentrate the geographic signal by discarding noise. <b>(2)</b> The
       semi-metric objection to <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
       is checked exhaustively (all 310,124 triples; 2 violations, max&nbsp;excess
@@ -1086,12 +1146,12 @@
         <i>between</i> clusters are largely artefacts of the optimizer, so do not
         read them as distances.`,
       umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al.,
-        2018)</a>, the most recent, also prioritizes local
-        neighbourhoods (via a 15-nearest-neighbour graph in cosine space). Curiously
-        it lands closest to the real map: its distances track great-circle distances
-        best of the four (geo-fidelity &rho; = .67) — the neighbourhood methods
-        recover geography better than the distance-faithful ones, because nearby
-        cities really do share the most news.`,
+        2018)</a>, the most recent, also prioritizes local neighbourhoods (via a
+        15-nearest-neighbour graph in cosine space). In the configuration shown its
+        distances track great-circle distances best (geo-fidelity &rho; = .67),
+        though the t-SNE/UMAP ordering is seed-dependent — the robust point is that
+        the neighbourhood methods recover geography at least as well as the
+        distance-faithful ones, because nearby cities really do share the most news.`,
     };
     const METHOD_STATS = {
       mds: `recall@10 = .52 &middot; geo-fidelity &rho; = .57 &middot; ` +

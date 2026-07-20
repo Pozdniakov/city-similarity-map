@@ -43,3 +43,33 @@ Clarity: card 4 wrongly lumped PCA with t-SNE/UMAP (fixed, split out); "What to 
 UMAP>MDS overclaim reframed to "projections beat raw .50 ceiling, ordering seed-dependent";
 Louwerse/Barenholtz duplication in methodology item 1 compressed to a pointer;
 Procrustes glossed + step-9 ref on first use in item 8.
+
+## Round 2 (grammar+consistency CLEAN; 1 fact, 4 citations, 3 clarity — all fixed)
+Facts:
+- [x] Dubai "What to notice" bullet was wrong (claimed Karachi/Mumbai "just behind",
+      Doha over Jeddah). Verified true ranks: Abu Dhabi .79, Jeddah .57, Doha .57,
+      Riyadh .53, Singapore .49, KL .48, Amman .48, Karachi(8) .44, Mumbai(10) .43.
+      Rewritten to match ("Gulf city first… top ten reaches into SE/South Asia").
+Citations (APA form):
+- [x] (Bar-Joseph, Gifford, & Jaakkola, 2001) -> (Bar-Joseph et al., 2001).
+- [x] (Bojanowski, Grave, Joulin, & Mikolov, 2017) -> (Bojanowski et al., 2017).
+- [x] (Pennington, Socher, & Manning, 2014) -> (Pennington et al., 2014).
+- [x] (Kruskal, 1964; Borg & Groenen, 2005) -> alphabetical (Borg & Groenen; Kruskal).
+Clarity / consistency:
+- [x] "ceiling" mislabel — layouts EXCEED the raw score, so it is a baseline/floor,
+      not a ceiling. Renamed all four occurrences (chart label, aria-label,
+      "What to notice", Related work) "ceiling" -> "baseline".
+- [x] UMAP JS METHOD_NOTE said "best of the four / lands closest" — contradicts the
+      seed-dependent framing. Softened to "in the configuration shown… ρ = .67,
+      though the t-SNE/UMAP ordering is seed-dependent".
+- [x] Methodology item 8 "every 2-D layout beats that ceiling" reworded with
+      "which you might expect to be the best a 2-D map could hope to match".
+
+## Geo-fidelity emphasis (user: "про geo-fidelity нужно подробнее + акцентировать
+## результат разных layouts где меньше где больше")
+- [x] Added a horizontal dot-plot SVG (.gfchart): raw 300-d .50 (hollow, on dashed
+      baseline) then MDS .57, PCA .60, t-SNE .64, UMAP .67 — ascending gradient.
+- [x] Added .gf-lead paragraph spelling out where the signal is lowest (MDS, barely
+      above raw) and highest (UMAP), with the neighbourhood > linear > raw reading
+      and the seed ranges. viewBox widened 344->372 so the "geo-fidelity ρ .70"
+      axis title is not clipped. Verified desktop + mobile, no h-scroll, no console errors.
