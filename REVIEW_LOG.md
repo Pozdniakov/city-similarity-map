@@ -73,3 +73,39 @@ Clarity / consistency:
       above raw) and highest (UMAP), with the neighbourhood > linear > raw reading
       and the seed ranges. viewBox widened 344->372 so the "geo-fidelity ρ .70"
       axis title is not clipped. Verified desktop + mobile, no h-scroll, no console errors.
+
+## Round 3 (wf_691b965d, 4 lenses) — 2 HIGH, 5 MED, 4 LOW; all fixed
+Most findings landed in the just-added geo-fidelity prose. Fixes:
+Clarity/consistency (the important ones):
+- [x] HIGH: gf-lead "UMAP the most" read as a fixed leaderboard but the seed ranges
+      it cites (t-SNE .63-.73, UMAP .51-.67) make t-SNE typically >= UMAP. Rewrote:
+      t-SNE/UMAP "effectively tied", UMAP leads only in the seed shown; across seeds
+      t-SNE generally matches or beats UMAP (which can dip below PCA).
+- [x] HIGH: tier label "linear" + "(MDS, PCA) fit all pairwise distances" was wrong
+      (MDS isn't linear; PCA doesn't fit all pairwise dists — contradicts item 8).
+      Relabelled the middle tier "global"; MDS = fits every pairwise distance, PCA =
+      linear variance projection. "neighbourhood >= linear >= raw" ->
+      "neighbourhood >= global >= raw" in BOTH gf-lead and methodology item 8.
+- [x] MED: "baseline" overloaded — PCA was "the classical linear baseline" while
+      "baseline" elsewhere = the raw .50 floor. PCA note -> "classical linear benchmark".
+- [x] MED: seed caveat scoped only to t-SNE/UMAP gap, but UMAP .51 dips below PCA/MDS
+      — noted the tier itself can swap; used >= consistently (dropped the stray ">").
+- [x] MED: MDS N-S "cannot lift latitude past r ~ .21 ... this 2-D layout" read as a
+      universal ceiling but t-SNE gets N-S r=.40. Scoped to "the MDS layout/map" and
+      added "t-SNE, for one, reaches north-south r = .40".
+- [x] LOW: "concentrates ... by shedding noise dimensions" overclaimed as a law for
+      all layouts. Softened to "a plausible reason ... the gain is not guaranteed".
+Grammar:
+- [x] MED: British spelling — "toward" x3 -> "towards" (Lisbon x2, London x1).
+- [x] LOW: "most so the neighbourhood methods" (broken) reworded in item 8.
+Citations:
+- [x] MED: narrative cites "Louwerse & Zwaan (2009)" and "Gurnee & Tegmark (2024)"
+      -> "and" (APA uses & only inside parentheticals).
+- [x] LOW: "Konkol et al. established..." (new paragraph) -> added year (2017).
+- [~] LOW: "J. R. Firth (1957)" initials — KEPT: it is an epigraph attribution,
+      where initials are conventional/acceptable (reviewer conceded this).
+Facts:
+- [x] LOW: gf-chart dots were ~3px off the tick scale (plotted at true unrounded
+      rho). Snapped all dots to x = 119.6 + (rho-.50)*911 so each dot sits exactly
+      on its labelled value; moved the dashed baseline onto the .50 gridline and
+      dropped the now-redundant solid .50 gridline.

@@ -548,46 +548,47 @@
       &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> — axis correlation with
       longitude / latitude, measured <i>after</i> the geographic alignment, so
       descriptive only.</p>
-    <p class="gf-lead"><b>How geographic is each layout?</b> Every 2-D projection
-      reproduces real geography <i>better</i> than the raw 300-d embedding it comes
-      from — squeezing the map into two dimensions <i>concentrates</i> the
-      geographic signal by shedding noise dimensions. The gain grows as you move
-      down the chart: <b>MDS is the least geographic</b> of the four (&rho;&nbsp;.57,
-      only just above the raw baseline), then PCA (.60) and t-SNE (.64), and
-      <b>UMAP the most</b> (&rho;&nbsp;.67). The pattern is
-      <b>neighbourhood&nbsp;&gt;&nbsp;linear&nbsp;&gt;&nbsp;raw</b>: methods that
-      preserve who-sits-next-to-whom (t-SNE, UMAP) recover the map better than ones
-      that fit all pairwise distances at once (MDS, PCA). Read it as that ordering,
-      not a fixed podium — the exact t-SNE/UMAP gap shifts with the random seed and
-      hyperparameters (t-SNE&nbsp;.63&ndash;.73, UMAP&nbsp;.51&ndash;.67 across
-      seeds).</p>
+    <p class="gf-lead"><b>How geographic is each layout?</b> Reading down the chart,
+      fidelity climbs: the raw 300-d embedding sits at the &rho;&nbsp;&asymp;&nbsp;.50
+      baseline, and every 2-D projection clears it. The two <b>global</b> methods —
+      MDS, which fits every pairwise distance, and PCA, the linear variance
+      projection — land just above it (&rho;&nbsp;.57 and .60), with
+      <b>MDS the least geographic</b> of the four. The two <b>neighbourhood</b>
+      methods, <b>t-SNE and UMAP, score highest</b> (.64 and .67): preserving
+      who-sits-next-to-whom tracks geography better, because a city's semantic
+      neighbours tend to be its geographic ones. Why any projection beats the raw
+      space is less certain — dropping most of the 300 dimensions plausibly sheds
+      noise directions and concentrates the signal — and the gain is not guaranteed.
+      So read it as a tendency, <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>,
+      not a leaderboard: t-SNE and UMAP are effectively tied — in the seed shown UMAP
+      leads .67 to .64, but across seeds t-SNE (&rho;&nbsp;.63&ndash;.73) generally
+      matches or beats UMAP (.51&ndash;.67), which can itself dip below PCA.</p>
     <svg class="gfchart" viewBox="0 0 372 130" width="372" height="130"
       role="img" aria-label="Geographic fidelity by layout: raw 300-d embedding .50, MDS .57, PCA .60, t-SNE .64, UMAP .67 — all above the raw baseline">
-      <line x1="119.6" y1="12" x2="119.6" y2="114" class="gf-grid"/>
       <line x1="165.1" y1="12" x2="165.1" y2="114" class="gf-grid"/>
       <line x1="210.7" y1="12" x2="210.7" y2="114" class="gf-grid"/>
       <line x1="256.2" y1="12" x2="256.2" y2="114" class="gf-grid"/>
       <line x1="301.8" y1="12" x2="301.8" y2="114" class="gf-grid"/>
-      <line x1="122.3" y1="12" x2="122.3" y2="114" class="gf-ceil"/>
-      <line x1="74" y1="20" x2="122.3" y2="20" class="gf-stem"/>
+      <line x1="119.6" y1="12" x2="119.6" y2="114" class="gf-ceil"/>
+      <line x1="74" y1="20" x2="119.6" y2="20" class="gf-stem"/>
       <text x="68" y="23" class="gf-lab" text-anchor="end">raw 300-d</text>
-      <circle cx="122.3" cy="20" r="3.4" class="gf-dot raw"/>
-      <text x="130" y="23" class="gf-val">.50 baseline</text>
-      <line x1="74" y1="41" x2="187.0" y2="41" class="gf-stem"/>
+      <circle cx="119.6" cy="20" r="3.4" class="gf-dot raw"/>
+      <text x="128" y="23" class="gf-val">.50 baseline</text>
+      <line x1="74" y1="41" x2="183.4" y2="41" class="gf-stem"/>
       <text x="68" y="44" class="gf-lab" text-anchor="end">MDS</text>
-      <circle cx="187.0" cy="41" r="3.8" class="gf-dot"/>
-      <text x="195" y="44" class="gf-val">.57</text>
-      <line x1="74" y1="62" x2="209.8" y2="62" class="gf-stem"/>
+      <circle cx="183.4" cy="41" r="3.8" class="gf-dot"/>
+      <text x="191" y="44" class="gf-val">.57</text>
+      <line x1="74" y1="62" x2="210.7" y2="62" class="gf-stem"/>
       <text x="68" y="65" class="gf-lab" text-anchor="end">PCA</text>
-      <circle cx="209.8" cy="62" r="3.8" class="gf-dot"/>
-      <text x="218" y="65" class="gf-val">.60</text>
-      <line x1="74" y1="83" x2="250.8" y2="83" class="gf-stem"/>
+      <circle cx="210.7" cy="62" r="3.8" class="gf-dot"/>
+      <text x="219" y="65" class="gf-val">.60</text>
+      <line x1="74" y1="83" x2="247.1" y2="83" class="gf-stem"/>
       <text x="68" y="86" class="gf-lab" text-anchor="end">t-SNE</text>
-      <circle cx="250.8" cy="83" r="3.8" class="gf-dot"/>
-      <text x="259" y="86" class="gf-val">.64</text>
-      <line x1="74" y1="104" x2="275.4" y2="104" class="gf-stem"/>
+      <circle cx="247.1" cy="83" r="3.8" class="gf-dot"/>
+      <text x="255" y="86" class="gf-val">.64</text>
+      <line x1="74" y1="104" x2="274.5" y2="104" class="gf-stem"/>
       <text x="68" y="107" class="gf-lab" text-anchor="end">UMAP</text>
-      <circle cx="275.4" cy="104" r="3.8" class="gf-dot"/>
+      <circle cx="274.5" cy="104" r="3.8" class="gf-dot"/>
       <text x="283" y="107" class="gf-val">.67</text>
       <text x="119.6" y="126" class="gf-tick" text-anchor="middle">.50</text>
       <text x="210.7" y="126" class="gf-tick" text-anchor="middle">.60</text>
@@ -643,11 +644,11 @@
       links.</li>
     <li><b>Where the corpus bends the map.</b>
       <button type="button" class="trycity">Lisbon</button> drifts off Iberia —
-      the <i>Treaty of Lisbon</i> pulls its vector toward EU-institution language
-      rather than toward Madrid or Barcelona.</li>
+      the <i>Treaty of Lisbon</i> pulls its vector towards EU-institution language
+      rather than towards Madrid or Barcelona.</li>
     <li><b>The transatlantic hinge.</b>
       <button type="button" class="trycity">London</button> is the European city
-      that leans hardest toward the United States — a hub both news spheres
+      that leans hardest towards the United States — a hub both news spheres
       share.</li>
     <li><b>A data-quality near-miss.</b>
       <button type="button" class="trycity">St Petersburg</button> would have
@@ -811,14 +812,16 @@
         expect to be the best a 2-D map could hope to match. They score only
         &rho;&nbsp;&asymp;&nbsp;<b>.50</b>, and every 2-D layout beats that baseline
         (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64, UMAP&nbsp;.67 for the
-        configurations shown): the reductions <i>concentrate</i> the geographic
-        signal by discarding noise dimensions, most so the neighbourhood methods —
+        configurations shown): a plausible reason is that discarding most of the 300
+        dimensions sheds noise directions and <i>concentrates</i> what geographic
+        signal remains. The two neighbourhood methods (t-SNE, UMAP) score highest —
         geographically near cities really are one another's semantic neighbours,
-        which is what t-SNE/UMAP lock onto. The exact ordering between t-SNE and
-        UMAP is <i>not</i> stable, though — across perplexity/seed t-SNE spans
-        &asymp;&nbsp;.63&ndash;.73 and UMAP &asymp;&nbsp;.51&ndash;.67 — so read it
-        as <b>neighbourhood&nbsp;&ge;&nbsp;linear&nbsp;&ge;&nbsp;raw</b>, not as a
-        fixed leaderboard. All four share the same rigid Procrustes
+        which is what they lock onto — while the two global methods (MDS, PCA) sit
+        lower. The exact ordering is <i>not</i> stable, though — across
+        perplexity/seed t-SNE spans &asymp;&nbsp;.63&ndash;.73 and UMAP
+        &asymp;&nbsp;.51&ndash;.67, so UMAP can even dip below PCA — so read it as a
+        tendency, <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>, not
+        a fixed leaderboard. All four share the same rigid Procrustes
         (rotation/reflection) alignment to geography (step&nbsp;9),
         which cannot change these distance-based scores.</li>
       <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
@@ -834,10 +837,11 @@
         preserves every pairwise distance and the stress exactly, and only
         decides which way is up. Afterwards east&ndash;west correlates with
         longitude at <i>r</i> = .70 and north&ndash;south with latitude at only
-        <i>r</i> = .17; even the single best rotation cannot lift latitude past
-        <i>r</i> &asymp; .21, so <b>this 2-D layout recovers little
-        north&ndash;south structure</b> (a statement about the projection, not a
-        claim that the 300-d space contains none). These axis correlations are
+        <i>r</i> = .17; even the single best rotation cannot lift the MDS layout's
+        latitude past <i>r</i> &asymp; .21, so <b>the MDS map recovers little
+        north&ndash;south structure</b> (a statement about this projection, not a
+        claim that the 300-d space contains none — t-SNE, for one, reaches
+        north&ndash;south <i>r</i> = .40). These axis correlations are
         measured <i>after</i> an alignment that itself uses the real coordinates,
         so they describe residual correspondence rather than prove unsupervised
         recovery — for that, see the alignment-free geo-fidelity metric under the
@@ -916,7 +920,7 @@
   <section class="notes" id="related">
     <h2 class="group-h">Related work</h2>
     <p>Recovering geography from text alone has a long pedigree.
-      <b>Louwerse &amp; Zwaan <a class="cite" href="#ref-louwerse">(2009)</a></b>
+      <b>Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a></b>
       applied MDS to newspaper-text similarities for the 50 largest US cities and
       recovered their latitude and longitude, connecting it to Tobler's first law;
       the effect is robust across corpora and parameters
@@ -935,7 +939,7 @@
       Santiago). For contemporary language models the same signal appears in
       hidden states — probed early by Liétard et al.
       <a class="cite" href="#ref-lietard">(2021)</a> and mapped in detail by
-      Gurnee &amp; Tegmark <a class="cite" href="#ref-gurnee">(2024)</a> and Godey
+      Gurnee and Tegmark <a class="cite" href="#ref-gurnee">(2024)</a> and Godey
       et al. <a class="cite" href="#ref-godey">(2024)</a> — linearly decodable and
       improving with scale but geographically unequal, worst for Oceania, South
       Asia and South America, the same asymmetry as this map's weak
@@ -944,7 +948,8 @@
       word2vec/GloVe already carry it, riding on lexical directions (country and
       climate words) rather than on any built-in coordinate.</p>
     <p><b>What this page adds is small and specific.</b> The central finding is
-      not new, and Konkol et al. established it more rigorously; the contribution
+      not new, and Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a>
+      established it more rigorously; the contribution
       here is an interactive, fully documented re-examination, plus three minor
       empirical points I did not find in that literature. <b>(1)</b> The map is
       compared <i>across projections</i> rather than across embeddings, and all
@@ -1148,7 +1153,7 @@
         city's true top-10 lands elsewhere in 2-D) — read exact neighbours from
         the pinned ranking, not the pixels.`,
       pca: `<b>PCA</b> <a class="cite" href="#ref-pearson">(Pearson, 1901)</a> is
-        the classical linear baseline: it projects the 300-d cloud onto the two
+        the classical linear benchmark: it projects the 300-d cloud onto the two
         directions of greatest variance — a flat shadow. Being linear, it cannot
         bend around curved structure, so it keeps the fewest true neighbourhoods
         of the four; t-SNE and UMAP exist precisely to capture what this shadow
