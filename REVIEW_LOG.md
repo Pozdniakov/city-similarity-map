@@ -243,3 +243,17 @@ wf_3c75f5fa. All three reviewers returned EMPTY findings.
 Loop complete: three independent models, three rounds; each earlier round caught a real
 issue (R1 misleading angle diagram + Kruskal bands; R2 skip-gram/CBOW error), and the
 final round is unanimously clean.
+
+## Layout improvements (rec #1 + #2 from the design critique)
+- [x] #1 Hero teaser map: added a static faint world map (#heromap) in the header showing
+      all 124 cities at their real coordinates, colour-coded by region, with 6 anchor labels
+      (Sydney, New York, London, Tokyo, Cairo, Buenos Aires). Reuses the geographic map's
+      projection + Natural Earth land. The whole banner links to #explore ("explore the maps ↓").
+      Gives the page an immediate visual hook instead of a text-only opening.
+- [x] #2 Left-margin section rail (.railnav): fixed, vertically-centred nav in the desktop
+      whitespace (How it works / Explore / What to notice / Methodology / Related work /
+      References), with a scroll-spy that highlights the section in view (getBoundingClientRect
+      vs a 35%-viewport line). Shown only >=1161px (where the margin has room); below that the
+      inline hero anchor-nav is used instead (the two no longer double up). Verified: rail clears
+      the reading column, scrollspy tracks correctly, no page h-scroll at desktop/tablet/mobile,
+      no console errors, theme-aware.

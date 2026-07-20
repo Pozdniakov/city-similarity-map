@@ -92,6 +92,30 @@
   .byline a:hover, header .subtitle a:hover { color: var(--accent); }
   header .method { color: var(--ink-2); font-size: 17px; margin: 0; max-width: var(--measure); }
   header .method b { color: var(--ink-1); }
+  .heromap-wrap { display: block; margin: 20px 0 2px; text-decoration: none;
+    max-width: var(--measure); }
+  #heromap { display: block; width: 100%; height: auto; border-radius: 10px;
+    background: var(--ocean); border: 1px solid var(--hairline); }
+  #heromap .hm-land { fill: var(--land); stroke: var(--land-edge); stroke-width: 0.5; }
+  #heromap .hm-dot { stroke: var(--ocean); stroke-width: 0.6; }
+  #heromap .hm-lbl { font: 8.5px var(--font-mono); fill: var(--ink-1);
+    paint-order: stroke; stroke: var(--ocean); stroke-width: 2.2px;
+    stroke-linejoin: round; }
+  .heromap-cap { display: flex; justify-content: space-between; gap: 10px;
+    font: 10.5px var(--font-mono); color: var(--ink-3); margin: 6px 2px 0; }
+  .heromap-wrap:hover .heromap-cap { color: var(--accent); }
+  /* left-margin section rail (desktop only) — fills the whitespace and gives
+     wayfinding on a long page; highlights the section in view. */
+  .railnav { position: fixed; top: 50%; transform: translateY(-50%); z-index: 15;
+    left: calc((100vw - var(--measure)) / 2 - 168px); width: 150px;
+    display: flex; flex-direction: column; gap: 10px; }
+  .railnav a { font: 500 11px var(--font-mono); letter-spacing: .03em;
+    text-transform: uppercase; color: var(--ink-3); text-decoration: none;
+    padding: 1px 0 1px 12px; border-left: 2px solid var(--grid); line-height: 1.25;
+    transition: color .15s, border-color .15s; }
+  .railnav a:hover { color: var(--ink-1); }
+  .railnav a.on { color: var(--accent); border-left-color: var(--accent); }
+  @media (max-width: 1160px) { .railnav { display: none; } }
   header .stats { font-family: var(--font-mono); color: var(--ink-3); font-size: 11.5px;
     margin: 10px 0 0; font-variant-numeric: tabular-nums; }
   .anchornav { display: flex; flex-wrap: wrap; align-items: baseline;
@@ -100,6 +124,8 @@
   .anchornav a:hover { text-decoration: underline; }
   .anchornav a:not(:last-child)::after { content: "·"; color: var(--ink-3);
     padding: 0 9px; text-decoration: none; display: inline-block; }
+  /* the persistent left rail replaces the inline nav on wide screens */
+  @media (min-width: 1161px) { .anchornav { display: none; } }
   .group-h, .notes h2.group-h { font: 600 17px var(--font-mono); letter-spacing: .07em;
     text-transform: uppercase; color: var(--ink-1); margin: 48px 0 8px;
     padding-top: 15px; border-top: 2px solid var(--accent); scroll-margin-top: 12px; }
@@ -416,6 +442,14 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
+<nav class="railnav" aria-label="On this page">
+  <a href="#how">How it works</a>
+  <a href="#explore">Explore</a>
+  <a href="#notice">What to notice</a>
+  <a href="#methodology">Methodology</a>
+  <a href="#related">Related work</a>
+  <a href="#refs">References</a>
+</nav>
 <div class="wrap">
   <header>
     <h1>Could language reconstruct a map of the world?</h1>
@@ -429,6 +463,12 @@
       shared institutions bend the map in revealing ways. The similarities are
       explored in <b>three linked views</b> below; select any city to light up its
       neighbours in all of them.</p>
+    <a class="heromap-wrap" href="#explore" aria-label="Skip to the interactive maps">
+      <svg id="heromap" role="img"
+        aria-label="The 124 cities at their real coordinates on a faint world map, coloured by region"></svg>
+      <span class="heromap-cap"><span>124 world cities at their real coordinates</span>
+        <span>explore the maps&nbsp;&darr;</span></span>
+    </a>
     <nav class="anchornav" aria-label="Sections">
       <a href="#how">How it works</a><a href="#explore">Explore</a><a href="#notice">What to notice</a><a href="#methodology">Methodology</a>
     </nav>
@@ -1386,6 +1426,57 @@
       path.setAttribute("fill-rule", "evenodd");
       geo.gBack.prepend(path);
     }
+
+    // ---------- hero teaser: the cities on a faint world map (static) ----------
+    const hm = document.getElementById("heromap");
+    if (hm) {
+      const HW = 1000, HH = Math.round(HW * (gm.lat1 - gm.lat0) / (gm.lon1 - gm.lon0));
+      hm.setAttribute("viewBox", `0 0 ${HW} ${HH}`);
+      const hp = (lon, lat) => [(lon - gm.lon0) / (gm.lon1 - gm.lon0) * HW,
+                                (gm.lat1 - lat) / (gm.lat1 - gm.lat0) * HH];
+      for (const poly of DATA.land) {
+        let d = "";
+        for (const ring of poly)
+          d += "M" + ring.map(p => hp(p[0], p[1]).map(v => v.toFixed(1)).join(",")).join("L") + "Z";
+        const path = document.createElementNS(NS, "path");
+        path.setAttribute("d", d); path.setAttribute("class", "hm-land");
+        path.setAttribute("fill-rule", "evenodd"); hm.append(path);
+      }
+      C.forEach(c => {
+        const [x, y] = hp(c.lon, c.lat);
+        const dot = document.createElementNS(NS, "circle");
+        dot.setAttribute("cx", x.toFixed(1)); dot.setAttribute("cy", y.toFixed(1));
+        dot.setAttribute("r", 4.5); dot.setAttribute("class", "hm-dot");
+        dot.setAttribute("fill", `var(${st(c.r).c})`);
+        hm.append(dot);
+      });
+      new Set(["Sydney", "New York", "London", "Tokyo", "Cairo", "Buenos Aires"]).forEach(nm => {
+        const c = C.find(x => x.n === nm);
+        if (!c) return;
+        const [x, y] = hp(c.lon, c.lat);
+        const t = document.createElementNS(NS, "text");
+        t.setAttribute("x", (x + 8).toFixed(1)); t.setAttribute("y", (y + 3).toFixed(1));
+        t.setAttribute("class", "hm-lbl"); t.textContent = c.n;
+        hm.append(t);
+      });
+    }
+
+    // ---------- section rail scrollspy (desktop) ----------
+    (function () {
+      const links = [...document.querySelectorAll(".railnav a")];
+      if (!links.length) return;
+      const items = links.map(a => ({ a, el: document.querySelector(a.getAttribute("href")) }))
+        .filter(t => t.el);
+      const update = () => {
+        const line = window.innerHeight * 0.35;
+        let cur = items[0];
+        for (const t of items) if (t.el.getBoundingClientRect().top <= line) cur = t;
+        links.forEach(a => a.classList.toggle("on", a === cur.a));
+      };
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+    })();
 
     // ---------- ambient edges on both charts ----------
     const meta = DATA.meta;
