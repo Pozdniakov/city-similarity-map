@@ -1,0 +1,110 @@
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+  warnings.warn(
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/sklearn/manifold/_mds.py:752: FutureWarning: The `dissimilarity` parameter is deprecated and will be removed in 1.10. Use `metric` instead.
+  warnings.warn(
+seed 42: tsne 0.644  umap 0.671  mds 0.563
+seed  0: tsne 0.644  umap 0.651  mds 0.560
+seed  1: tsne 0.644  umap 0.659  mds 0.534
+seed  2: tsne 0.644  umap 0.653  mds 0.537
+seed  3: tsne 0.644  umap 0.657  mds 0.560
+seed  4: tsne 0.644  umap 0.637  mds 0.578
+seed  5: tsne 0.644  umap 0.629  mds 0.574
+seed  6: tsne 0.644  umap 0.661  mds 0.578
+seed  7: tsne 0.644  umap 0.663  mds 0.528
+seed  8: tsne 0.644  umap 0.627  mds 0.544
+seed  9: tsne 0.644  umap 0.603  mds 0.564
+seed 10: tsne 0.644  umap 0.675  mds 0.496
+{
+  "n_seeds": 12,
+  "raw": 0.503,
+  "pca": 0.599,
+  "tsne": {
+    "min": 0.644,
+    "max": 0.644,
+    "mean": 0.644,
+    "sd": 0.0,
+    "seed42": 0.644
+  },
+  "umap": {
+    "min": 0.603,
+    "max": 0.675,
+    "mean": 0.649,
+    "sd": 0.021,
+    "seed42": 0.671
+  },
+  "mds": {
+    "min": 0.496,
+    "max": 0.578,
+    "mean": 0.551,
+    "sd": 0.024,
+    "seed42": 0.563
+  }
+}

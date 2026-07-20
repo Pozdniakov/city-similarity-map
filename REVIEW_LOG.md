@@ -147,3 +147,32 @@ by discarding noise" stated as fact while the geo-fidelity sections now hedge it
       above the raw baseline".
 Loop converged: facts/citations/grammar clean across two consecutive rounds bar these
 two self-introduced nits, now fixed.
+
+## User revision round 3 (design + methodology deep-dive)
+Data: ran compute_intervals.py — 12-seed sweep. Corrected the seed story:
+  raw .503 · PCA .599 (det.) · MDS .57 (classical init, det.) · t-SNE .644 (PCA-init,
+  DETERMINISTIC, sd=0) · UMAP .60–.68 mean .65 sd .02 (shown seed .671). Earlier
+  hand-stated ranges (t-SNE .63–.73, UMAP .51–.67, "dip below PCA") were WRONG — removed.
+- [x] Figures still too wide: narrowed wrap 940→800; figures now 742 ≈ text 746 (aligned).
+      Matrix cells 6→5px to fit (canvas 734 < 742 client), no desktop h-scroll.
+- [x] Card 2 spacing: mini-row 12px, #vrows 8/6, heatcap 8/16 margins.
+- [x] Removed "(fit: Stress-1 = .347)" from card 4.
+- [x] Close-×/slider overlap: root cause was the slider growing full-width (under the
+      fixed right panel) once the readout wrapped. Capped .slider flex 1 1 180px,
+      max 320px → slider stays left, clears the panel at every desktop width (verified).
+- [x] Map labels too far: tightened adjustText (force_pull .4→.9, less repulsion) and
+      regenerated layouts — max label displacement now 3.2% of map width (was larger);
+      leader-line threshold retuned (24→21) so the ~30 displaced labels get a connector
+      (was 108 at threshold 14), opacity .42→.6, width .5→.6.
+- [x] Baseline clarity: state it is MEASURED (ρ = .503, hence ≈ .50), not theoretical.
+      Rebuilt the dot-plot as a 0-to-1 bar chart (correlation scale) with a UMAP-only
+      seed-range whisker; axis "Spearman ρ (0 = no relation, 1 = perfect)".
+- [x] Why a projection beats raw: added a full explanation (word2vec distance mixes
+      geography with non-geographic variation across 300 axes; a 2-D projection drops
+      the noise directions and geography — a large, intrinsically 2-D slice — survives).
+- [x] Rewrote the confusing "tendency… tied… dip below PCA" paragraph with the corrected,
+      clean story (ordering stable; only UMAP stochastic; t-SNE .64 / UMAP .67 within noise).
+      Updated the same numbers in methodology item 8, the "What to notice" finding, and the
+      UMAP JS method-note.
+- [x] Illustrated geo-fidelity with three real pairs (Madrid–Barcelona 505 km/cos .73 agree;
+      Tokyo–Lisbon 11,140 km/cos .23 agree; Lisbon–Madrid 503 km/cos .49 disagree).

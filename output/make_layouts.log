@@ -1,0 +1,8 @@
+/Users/ivan/projects/map_similarity_claude/.venv/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+geo-fidelity ceiling (raw 300-d cosine dist vs great-circle): rho = 0.503
+  mds: {'recall10': 0.515, 'geofid': 0.57, 'ew': 0.7, 'ns': 0.17, 'stress1': 0.347}
+  pca: {'recall10': 0.412, 'geofid': 0.6, 'ew': 0.8, 'ns': 0.1}
+ umap: {'recall10': 0.703, 'geofid': 0.67, 'ew': 0.85, 'ns': 0.21}
+ tsne: {'recall10': 0.706, 'geofid': 0.64, 'ew': 0.9, 'ns': 0.4}
+Saved output/layouts.json

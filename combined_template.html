@@ -61,7 +61,7 @@
   a { color: var(--accent); text-decoration-color: var(--grid); }
   a:hover { text-decoration-color: var(--accent); }
   .mono { font-family: var(--font-mono); }
-  .wrap { max-width: 940px; margin: 0 auto; padding: 30px 20px 40px; }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 30px 20px 40px; }
   header h1 { font-size: 34px; font-weight: 600; margin: 0 0 2px; text-wrap: balance;
     letter-spacing: .01em; }
   header h1 { font-size: 38px; line-height: 1.08; }
@@ -146,7 +146,9 @@
     height: 19px; border-radius: 50%; display: inline-flex; align-items: center;
     justify-content: center; font: 500 11px var(--font-mono); flex: none; }
   .ex-card svg.diagram { display: block; margin: 12px auto 12px; max-width: 100%; }
-  .ex-card .heatcap { margin-bottom: 10px; }
+  .ex-card .mini-row { margin: 12px 0; }
+  .ex-card #vrows { margin: 8px 0 6px; }
+  .ex-card .heatcap { margin: 8px 0 16px; }
   .diagram text { font-family: var(--font-mono); }
   .minichart { display: block; margin: 10px 0 2px; max-width: 100%; height: auto; }
   .minichart .mc-grid { stroke: var(--grid); stroke-width: 0.5; }
@@ -156,19 +158,35 @@
   .minichart .mc-def { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
   .minichart .mc-defdot { fill: var(--accent); stroke: var(--surface); stroke-width: 1; }
   .minichart .mc-lab { font: 8.5px var(--font-mono); fill: var(--ink-3); }
-  .gf-lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 2px;
+  .gf-lead { font-size: 15px; color: var(--ink-2); margin: 10px 0 2px;
     max-width: var(--measure); }
   .gf-lead b { color: var(--ink-1); }
-  .gfchart { display: block; margin: 4px 0 12px; max-width: 100%; height: auto; }
+  .gfchart { display: block; margin: 6px 0 14px; max-width: 100%; height: auto; }
   .gfchart .gf-grid { stroke: var(--grid); stroke-width: 0.5; }
-  .gfchart .gf-ceil { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
-  .gfchart .gf-stem { stroke: var(--grid); stroke-width: 1.5; }
-  .gfchart .gf-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 1; }
-  .gfchart .gf-dot.raw { fill: var(--plane); stroke: var(--ink-3); stroke-width: 1.5; }
+  .gfchart .gf-base { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 2; }
+  .gfchart .gf-bar { fill: var(--accent); }
+  .gfchart .gf-bar.raw { fill: none; stroke: var(--ink-3); stroke-width: 1.2; }
+  .gfchart .gf-whisk { stroke: var(--ink-1); stroke-width: 1.3; }
   .gfchart .gf-lab { font: 9px var(--font-mono); fill: var(--ink-2); }
-  .gfchart .gf-val { font: 500 9px var(--font-mono); fill: var(--ink-1);
+  .gfchart .gf-val { font: 600 9px var(--font-mono); fill: var(--ink-1);
     font-variant-numeric: tabular-nums; }
   .gfchart .gf-tick { font: 8px var(--font-mono); fill: var(--ink-3); }
+  .gfchart .gf-axt { font: 8px var(--font-mono); fill: var(--ink-3); }
+  .gf-cap { font-size: 14px; color: var(--ink-2); margin: 12px 0 6px;
+    max-width: var(--measure); }
+  .gf-cap b { color: var(--ink-1); }
+  .gfpairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px; margin: 0 0 4px; max-width: var(--measure); }
+  @media (max-width: 560px) { .gfpairs { grid-template-columns: minmax(0, 1fr); } }
+  .gfpair { border: 1px solid var(--hairline); border-left-width: 3px;
+    border-radius: 8px; padding: 8px 11px; background: var(--surface); }
+  .gfpair.ok { border-left-color: var(--c2); }
+  .gfpair.bad { border-left-color: var(--c6); }
+  .gfp-c { display: block; font: 600 13.5px var(--font-body); color: var(--ink-1); }
+  .gfp-n { display: block; font: 11px var(--font-mono); color: var(--ink-2);
+    margin: 3px 0 2px; font-variant-numeric: tabular-nums; }
+  .gfp-v { display: block; font-size: 12.5px; color: var(--ink-2); }
+  .gfp-v b { color: var(--ink-1); }
 
   .callout { margin: 0 0 12px; padding: 10px 16px;
     border-left: 3px solid var(--accent); background: var(--callout-bg);
@@ -187,7 +205,8 @@
   summary:focus-visible, #side .close:focus-visible, .seg button:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
-  .slider { display: flex; align-items: center; gap: 12px; flex: 1 1 300px; min-width: 240px; }
+  .slider { display: flex; align-items: center; gap: 12px; flex: 1 1 180px;
+    min-width: 170px; max-width: 320px; }
   .slider label { font: 500 10.5px var(--font-mono); letter-spacing: .07em;
     text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
   .slider input[type="range"] { flex: 1; accent-color: var(--accent); height: 22px;
@@ -237,7 +256,7 @@
   #map text.lbl { stroke: var(--ocean); }
   svg.chart .pt { cursor: pointer; stroke: var(--surface); stroke-width: 1.2; }
   #map .pt { stroke-width: 0.9; }
-  svg.chart .leader { stroke: var(--ink-3); stroke-width: 0.5; opacity: .42;
+  svg.chart .leader { stroke: var(--ink-3); stroke-width: 0.6; opacity: .6;
     pointer-events: none; }
   svg.chart.spot .leader { opacity: .12; }
   svg.chart .pt.dim, svg.chart text.dim { opacity: .13; }
@@ -451,7 +470,7 @@
       exactly that — but the distances are <b>semantic</b>,
       <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>,
       not physical: it finds the 2-D points whose mutual distances best reproduce
-      the whole 124&times;124 table (fit: Stress-1&nbsp;=&nbsp;.347).
+      the whole 124&times;124 table.
       <svg id="mdsdemo" class="diagram" viewBox="0 0 230 118" width="230" height="118"
         aria-label="The three-city similarity matrix becoming points on a map"></svg>
       PCA, t-SNE and UMAP (switcher below) offer alternative 2-D views: PCA is a
@@ -540,63 +559,101 @@
       <div class="tip" id="tip1"></div>
     </div>
     <p class="gf-lead"><b>How geographic is each layout?</b> Each map is scored by
-      <b>geo-fidelity</b> — the Spearman rank correlation, taken over all 7,626 city
-      pairs, between the distance separating a pair on screen and the real
-      great-circle distance between the two cities. &rho;&nbsp;=&nbsp;1 would mean the
-      layout ranks every pair's distance exactly as geography does;
-      &rho;&nbsp;=&nbsp;0 means no relationship at all. It looks at distances only, so
-      the Procrustes alignment — which merely rotates the finished map — leaves the
-      score untouched.</p>
-    <svg class="gfchart" viewBox="0 0 372 130" width="372" height="130"
-      role="img" aria-label="Geographic fidelity by layout: raw 300-d baseline .50; MDS .57, PCA .60, t-SNE .64, UMAP .67 — every 2-D projection above the raw baseline">
-      <line x1="165.1" y1="12" x2="165.1" y2="114" class="gf-grid"/>
-      <line x1="210.7" y1="12" x2="210.7" y2="114" class="gf-grid"/>
-      <line x1="256.2" y1="12" x2="256.2" y2="114" class="gf-grid"/>
-      <line x1="301.8" y1="12" x2="301.8" y2="114" class="gf-grid"/>
-      <line x1="119.6" y1="12" x2="119.6" y2="114" class="gf-ceil"/>
-      <line x1="74" y1="20" x2="119.6" y2="20" class="gf-stem"/>
-      <text x="68" y="23" class="gf-lab" text-anchor="end">raw 300-d</text>
-      <circle cx="119.6" cy="20" r="3.4" class="gf-dot raw"/>
-      <text x="128" y="23" class="gf-val">.50 baseline</text>
-      <line x1="74" y1="41" x2="183.4" y2="41" class="gf-stem"/>
-      <text x="68" y="44" class="gf-lab" text-anchor="end">MDS</text>
-      <circle cx="183.4" cy="41" r="3.8" class="gf-dot"/>
-      <text x="191" y="44" class="gf-val">.57</text>
-      <line x1="74" y1="62" x2="210.7" y2="62" class="gf-stem"/>
-      <text x="68" y="65" class="gf-lab" text-anchor="end">PCA</text>
-      <circle cx="210.7" cy="62" r="3.8" class="gf-dot"/>
-      <text x="219" y="65" class="gf-val">.60</text>
-      <line x1="74" y1="83" x2="247.1" y2="83" class="gf-stem"/>
-      <text x="68" y="86" class="gf-lab" text-anchor="end">t-SNE</text>
-      <circle cx="247.1" cy="83" r="3.8" class="gf-dot"/>
-      <text x="255" y="86" class="gf-val">.64</text>
-      <line x1="74" y1="104" x2="274.5" y2="104" class="gf-stem"/>
-      <text x="68" y="107" class="gf-lab" text-anchor="end">UMAP</text>
-      <circle cx="274.5" cy="104" r="3.8" class="gf-dot"/>
-      <text x="283" y="107" class="gf-val">.67</text>
-      <text x="119.6" y="126" class="gf-tick" text-anchor="middle">.50</text>
-      <text x="210.7" y="126" class="gf-tick" text-anchor="middle">.60</text>
-      <text x="301.8" y="126" class="gf-tick" text-anchor="middle">geo-fidelity ρ .70</text>
+      <b>geo-fidelity</b> — the Spearman rank correlation, computed over all 7,626
+      city pairs, between the distance separating a pair <i>on screen</i> and the real
+      <i>great-circle</i> distance between the two cities. Like any correlation it
+      runs from &minus;1 to +1: <b>+1</b> would mean the layout ranks every pair's
+      distance exactly as geography does, <b>0</b> means no relationship, a negative
+      value would mean it inverts geography. It is a <i>measured</i> quantity, not a
+      target: for the raw 300-d embedding it works out to ρ&nbsp;=&nbsp;.50 (more
+      precisely&nbsp;.503), and because it reads distances only, the Procrustes
+      alignment — which merely rotates the finished map — leaves it unchanged.</p>
+    <p class="gf-cap"><b>What the score counts</b> — three real pairs, each comparing
+      distance on Earth with word2vec cosine similarity:</p>
+    <div class="gfpairs">
+      <div class="gfpair ok">
+        <span class="gfp-c">Madrid &harr; Barcelona</span>
+        <span class="gfp-n">505&nbsp;km apart &middot; cos&nbsp;.73</span>
+        <span class="gfp-v">near on both — <b>agrees</b></span></div>
+      <div class="gfpair ok">
+        <span class="gfp-c">Tokyo &harr; Lisbon</span>
+        <span class="gfp-n">11,140&nbsp;km &middot; cos&nbsp;.23</span>
+        <span class="gfp-v">far on both — <b>agrees</b></span></div>
+      <div class="gfpair bad">
+        <span class="gfp-c">Lisbon &harr; Madrid</span>
+        <span class="gfp-n">503&nbsp;km &middot; cos&nbsp;.49</span>
+        <span class="gfp-v">near on Earth, distant in text — <b>disagrees</b></span></div>
+    </div>
+    <p class="gf-cap">Agreements push the correlation up, disagreements pull it down.
+      The third pair is the telling one: Lisbon and Madrid are as close as Madrid and
+      Barcelona (&asymp;&nbsp;500&nbsp;km), yet word2vec rates them far less similar
+      (.49 vs&nbsp;.73) — Lisbon's vector leans towards EU-institution language. Enough
+      such misses, summed over all 7,626 pairs, hold even the best layout near
+      ρ&nbsp;.67 rather than 1.</p>
+    <svg class="gfchart" viewBox="0 0 372 150" width="372" height="150"
+      role="img" aria-label="Geo-fidelity by layout on a 0-to-1 correlation scale: raw 300-d .50 baseline, MDS .57, PCA .60, t-SNE .64, UMAP .67 with UMAP varying .60 to .68 across seeds; every projection above the raw baseline">
+      <line x1="88" y1="12" x2="88" y2="122" class="gf-grid"/>
+      <line x1="152.5" y1="12" x2="152.5" y2="122" class="gf-grid"/>
+      <line x1="217" y1="12" x2="217" y2="122" class="gf-grid"/>
+      <line x1="281.5" y1="12" x2="281.5" y2="122" class="gf-grid"/>
+      <line x1="346" y1="12" x2="346" y2="122" class="gf-grid"/>
+      <line x1="218" y1="15" x2="218" y2="119" class="gf-base"/>
+      <text x="80" y="25" class="gf-lab" text-anchor="end">raw 300-d</text>
+      <rect x="88" y="17" width="130" height="10" rx="1.5" class="gf-bar raw"/>
+      <text x="223" y="25" class="gf-val">.50 baseline</text>
+      <text x="80" y="47" class="gf-lab" text-anchor="end">MDS</text>
+      <rect x="88" y="39" width="147" height="10" rx="1.5" class="gf-bar"/>
+      <text x="240" y="47" class="gf-val">.57</text>
+      <text x="80" y="69" class="gf-lab" text-anchor="end">PCA</text>
+      <rect x="88" y="61" width="155" height="10" rx="1.5" class="gf-bar"/>
+      <text x="248" y="69" class="gf-val">.60</text>
+      <text x="80" y="91" class="gf-lab" text-anchor="end">t-SNE</text>
+      <rect x="88" y="83" width="165" height="10" rx="1.5" class="gf-bar"/>
+      <text x="258" y="91" class="gf-val">.64</text>
+      <text x="80" y="113" class="gf-lab" text-anchor="end">UMAP</text>
+      <rect x="88" y="105" width="173" height="10" rx="1.5" class="gf-bar"/>
+      <line x1="243" y1="110" x2="263" y2="110" class="gf-whisk"/>
+      <line x1="243" y1="106.5" x2="243" y2="113.5" class="gf-whisk"/>
+      <line x1="263" y1="106.5" x2="263" y2="113.5" class="gf-whisk"/>
+      <text x="268" y="113" class="gf-val">.67</text>
+      <text x="88" y="134" class="gf-tick" text-anchor="middle">0</text>
+      <text x="152.5" y="134" class="gf-tick" text-anchor="middle">.25</text>
+      <text x="217" y="134" class="gf-tick" text-anchor="middle">.5</text>
+      <text x="281.5" y="134" class="gf-tick" text-anchor="middle">.75</text>
+      <text x="346" y="134" class="gf-tick" text-anchor="middle">1</text>
+      <text x="217" y="146" class="gf-axt" text-anchor="middle">geo-fidelity — Spearman ρ (0 = no relation, 1 = perfect)</text>
     </svg>
-    <p class="gf-lead">Reading down the chart, fidelity climbs. The raw 300-d
-      embedding sits at the <b>&rho;&nbsp;&asymp;&nbsp;.50 baseline</b> — only a
-      moderate correlation, because word2vec distance reflects much more than
-      geography (a city's size, the language and news sphere it is discussed in,
-      name collisions), so its ranking of pairs only partly follows the map — and
-      every 2-D projection clears it. The two
-      <b>global</b> methods — MDS, which fits every pairwise distance, and PCA, the
-      linear variance projection — land just above the baseline (&rho;&nbsp;.57 and
-      .60), with <b>MDS the least geographic</b> of the four. The two
-      <b>neighbourhood</b> methods, <b>t-SNE and UMAP, score highest</b> (.64 and
-      .67): preserving who-sits-next-to-whom tracks geography better, because a
-      city's semantic neighbours tend to be its geographic ones. Why any projection
-      beats the raw space is less certain — dropping most of the 300 dimensions
-      plausibly sheds noise directions and concentrates the signal — and the gain is
-      not guaranteed. So read it as a tendency,
-      <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>, not a
-      leaderboard: t-SNE and UMAP are effectively tied — in the seed shown UMAP leads
-      .67 to .64, but across seeds t-SNE (&rho;&nbsp;.63&ndash;.73) generally matches
-      or beats UMAP (.51&ndash;.67), which can itself dip below PCA.</p>
+    <p class="gf-lead">The order is the same every time:
+      <b>raw&nbsp;.50 &lt; MDS&nbsp;.57 &lt; PCA&nbsp;.60 &lt; t-SNE&nbsp;.64 &asymp;
+      UMAP&nbsp;.67</b>. The two <b>neighbourhood</b> methods (t-SNE, UMAP) — which
+      preserve who-sits-next-to-whom — beat the two <b>global</b> methods (MDS, which
+      fits every pairwise distance; PCA, the linear variance projection), and both
+      beat the raw space. On <b>run-to-run stability</b>: PCA, classical-init MDS, and
+      t-SNE (with PCA initialisation) are deterministic — the same number every run —
+      so only UMAP wanders. Across 12 random seeds UMAP ranges
+      <b>ρ&nbsp;.60&ndash;.68</b> (mean&nbsp;.65; the whisker on the chart), and the
+      run shown, .67, sits near the top of that band. So t-SNE (.64) and UMAP
+      (.65&nbsp;±&nbsp;.02) are effectively tied; the neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw
+      ordering holds in every run, only the t-SNE-vs-UMAP photo-finish is within
+      noise.</p>
+    <p class="gf-lead"><b>Why should squeezing 300 dimensions into 2 make the map
+      <i>more</i> geographic, not less?</b> Throwing away 298 dimensions should lose
+      information, so you would expect the 2-D distances to track geography worse than
+      the full-space ones — yet they track it better. The reason is that word2vec
+      distance blends geography with a great deal of non-geographic variation (news
+      salience, city size, language, name collisions), smeared across all 300 axes. A
+      projection keeps only a few directions — of greatest variance for PCA/MDS, or of
+      local neighbourhood structure for t-SNE/UMAP — and drops the rest. When the
+      dropped directions are mostly the non-geographic ones, the surviving 2-D
+      distances are less diluted by that noise, so they line up better with real
+      distance. Two things make geography the part that survives: it is a large,
+      coherent slice of the embedding's structure, and it is intrinsically
+      two-dimensional (cities sit on a surface), so a 2-D layout is exactly the right
+      shape to hold it while in 300-d it is spread thin. The projection cannot add
+      geography that is not there — it <i>concentrates</i> the geography that is, by
+      shedding noise. That it is not guaranteed (a projection that discarded the
+      geographic directions instead would score <i>worse</i>) is part of why the four
+      methods differ.</p>
   </section>
 
   <section class="sect">
@@ -655,10 +712,11 @@
       resolution).</li>
     <li><b>The projections beat the raw space.</b> Every 2-D layout reproduces
       real geography better than the raw 300-d cosine distances (geo-fidelity
-      &rho;&nbsp;.57&ndash;.67 vs a baseline of .50) — the neighbourhood methods
-      most, because they lock onto the local structure geography lives in. Switch
-      the semantic map between MDS, PCA, t-SNE and UMAP to feel the difference
-      (the exact ordering is seed-dependent; see Methodology).</li>
+      &rho;&nbsp;.57&ndash;.67 vs a measured baseline of .50) — the neighbourhood
+      methods most, because they lock onto the local structure geography lives in.
+      Switch the semantic map between MDS, PCA, t-SNE and UMAP to feel the difference;
+      the ordering neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw is stable,
+      only t-SNE and UMAP trade places (see Methodology).</li>
   </ul>
 
   <section class="notes">
@@ -808,18 +866,24 @@
         distances with real great-circle distances — has a natural reference: the
         <b>raw 300-d cosine distances</b>, before any projection, which you might
         expect to be the best a 2-D map could hope to match. They score only
-        &rho;&nbsp;&asymp;&nbsp;<b>.50</b>, and every 2-D layout beats that baseline
-        (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64, UMAP&nbsp;.67 for the
-        configurations shown): a plausible reason is that discarding most of the 300
-        dimensions sheds noise directions and <i>concentrates</i> what geographic
-        signal remains. The two neighbourhood methods (t-SNE, UMAP) score highest —
+        &rho;&nbsp;&asymp;&nbsp;<b>.50</b> (measured&nbsp;.503), and every 2-D layout
+        beats that baseline (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64,
+        UMAP&nbsp;.67): compressing to two dimensions can <i>raise</i> geo-fidelity
+        because word2vec distance blends geography with much non-geographic variation
+        (news salience, city size, language, name collisions) spread over all 300
+        axes; a projection keeps a few dominant or neighbourhood directions and drops
+        the rest, and when the dropped ones are mostly non-geographic the surviving
+        2-D distances are less diluted (geography, a large and intrinsically
+        two-dimensional slice of the structure, is exactly what a 2-D layout can
+        hold). The two neighbourhood methods (t-SNE, UMAP) score highest —
         geographically near cities really are one another's semantic neighbours,
         which is what they lock onto — while the two global methods (MDS, PCA) sit
-        lower. The exact ordering is <i>not</i> stable, though — across
-        perplexity/seed t-SNE spans &asymp;&nbsp;.63&ndash;.73 and UMAP
-        &asymp;&nbsp;.51&ndash;.67, so UMAP can even dip below PCA — so read it as a
-        tendency, <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>, not
-        a fixed leaderboard. All four share the same rigid Procrustes
+        lower. The tier ordering
+        <b>neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw</b> is stable across
+        runs: PCA, classical-init MDS and PCA-init t-SNE are deterministic, and only
+        UMAP varies with the random seed (&rho;&nbsp;.60&ndash;.68 over 12 seeds,
+        mean&nbsp;.65), so the t-SNE&nbsp;.64 / UMAP&nbsp;.67 gap is within that noise.
+        All four share the same rigid Procrustes
         (rotation/reflection) alignment to geography (step&nbsp;9),
         which cannot change these distance-based scores.</li>
       <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
@@ -1177,11 +1241,12 @@
         read them as distances.`,
       umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al.,
         2018)</a>, the most recent, also prioritizes local neighbourhoods (via a
-        15-nearest-neighbour graph in cosine space). In the configuration shown its
-        distances track great-circle distances best (geo-fidelity &rho; = .67),
-        though the t-SNE/UMAP ordering is seed-dependent — the robust point is that
-        the neighbourhood methods recover geography at least as well as the
-        distance-faithful ones, because nearby cities really do share the most news.`,
+        15-nearest-neighbour graph in cosine space). Its distances track
+        great-circle distances best in the run shown (geo-fidelity &rho; = .67); it
+        is the one method here that shifts with the random seed (&rho; .60&ndash;.68
+        across 12 seeds), so its .67 and t-SNE's fixed .64 are effectively tied. The
+        robust point: the neighbourhood methods recover geography at least as well as
+        the distance-faithful ones, because nearby cities really do share the most news.`,
     };
     const METHOD_STATS = {
       mds: `recall@10 = .52 &middot; geo-fidelity &rho; = .57 &middot; ` +
@@ -1247,7 +1312,7 @@
         const ly = +mds.labels[k].getAttribute("y") + 3;  // ~text mid
         const dx = lx - px, dy = ly - py, dist = Math.hypot(dx, dy);
         const L = mds.leaders[k];
-        if (dist > 24) {
+        if (dist > 21) {
           const ux = dx / dist, uy = dy / dist;
           L.setAttribute("x1", (px + ux * 6).toFixed(1));
           L.setAttribute("y1", (py + uy * 6).toFixed(1));
@@ -1782,7 +1847,7 @@
     const cmc = document.getElementById("cmheat");
     if (cmc && DATA.cluster) {
       const cl = DATA.cluster, ord = cl.order;
-      const DW = 44, LW = 80, TS = 7, RH = 7, CW = 6;   // CSS px (fits desktop width)
+      const DW = 40, LW = 74, TS = 7, RH = 7, CW = 5;   // CSS px (fits desktop width)
       const ox = DW + LW, oy = TS + 3;
       const cssW = ox + n * CW, cssH = oy + n * RH;
       const dpr = Math.min(2, window.devicePixelRatio || 1);

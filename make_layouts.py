@@ -68,8 +68,8 @@ def label_positions(X, names):
         # keep labels close to their points: modest repulsion, and pull each
         # label back toward its own marker so none drifts far (leader lines in
         # the page connect the few that still separate)
-        adjust_text(texts, ax=ax, expand=(1.04, 1.10),
-                    force_text=(0.2, 0.35), force_pull=(0.4, 0.4))
+        adjust_text(texts, ax=ax, expand=(1.02, 1.06),
+                    force_text=(0.12, 0.22), force_pull=(0.9, 0.9))
     pos = np.array([t.get_position() for t in texts])
     plt.close(fig)
     return pos
