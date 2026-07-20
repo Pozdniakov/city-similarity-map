@@ -257,3 +257,14 @@ final round is unanimously clean.
       inline hero anchor-nav is used instead (the two no longer double up). Verified: rail clears
       the reading column, scrollspy tracks correctly, no page h-scroll at desktop/tablet/mobile,
       no console errors, theme-aware.
+
+## Academic peer-review panel — Round 4 (Opus + Sonnet + Haiku) — after hero + rail
+wf_2c129996. Haiku: clean. Two LOW findings, both fixed:
+- [x] LOW (Opus, clarity): the dissimilarity-transform table's "Spearman ρ" column
+      (.709 for 1-cos MDS = the dissimilarity<->2-D-distance fit) shares the label
+      "Spearman ρ" with the headline geo-fidelity metric (.57 for MDS), which could be
+      misread as a contradictory geo-fidelity value. Renamed the column header to
+      "fit ρ (d <-> 2-D)".
+- [x] LOW (Sonnet, statistics): "SD .02" was non-italic; APA italicises SD/M/N/r.
+      Wrapped it: "<i>SD</i> .02" (matches the page's italic r, M elsewhere).
+The hero teaser map and section rail added no content issues.
