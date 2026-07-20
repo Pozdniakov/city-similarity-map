@@ -28,3 +28,10 @@ Layout:
 - [ ] Desktop + mobile pass (user reports it opens badly on both).
 
 ## Phase 1+ — multi-agent reviewer loop (below)
+
+## Round 1 (workflow wf_99f9cea5) — citations lens (only lens that completed)
+- [x] MED: orphan ref Liétard 2021 — added in-text cite in Related-work LLM sentence.
+- [x] MED: refs out of order (Kruskal before Konkol) — swapped so Ko < Kr.
+- [x] LOW: McInnes cited two ways — JS UMAP note now 'McInnes et al., 2018' to match.
+- [x] LOW: combined (Kruskal 1964; Borg & Groenen 2005) both linked #ref-kruskal — split anchors.
+- facts/grammar/clarity/consistency lenses FAILED (stalls/API) — re-running lighter.

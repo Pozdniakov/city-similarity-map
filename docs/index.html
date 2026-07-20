@@ -709,8 +709,10 @@
     </ol>
     <h3 class="meth-sub">Projection and evaluation</h3>
     <ol start="6">
-      <li><b>MDS.</b> Metric MDS <a class="cite" href="#ref-kruskal">(Kruskal,
-        1964; Borg &amp; Groenen, 2005)</a> via SMACOF (scikit-learn 1.9) on the
+      <li><b>MDS.</b> Metric MDS
+        (<a class="cite" href="#ref-kruskal">Kruskal, 1964</a>;
+        <a class="cite" href="#ref-borg">Borg &amp; Groenen, 2005</a>)
+        via SMACOF (scikit-learn 1.9) on the
         precomputed dissimilarities: 2 components, classical-MDS (Torgerson)
         initialization followed by stress-majorization iterations (max 3000,
         tolerance 10<sup>&minus;9</sup>), which makes the solution deterministic.
@@ -874,11 +876,13 @@
       famous entity (their Kobe&nbsp;&rarr;&nbsp;the basketball player,
       Bismarck&nbsp;&rarr;&nbsp;the chancellor; here Lisbon, St&nbsp;Petersburg,
       Santiago). For contemporary language models the same signal appears in
-      hidden states, linearly decodable and improving with scale but
-      geographically unequal — worst for Oceania, South Asia and South America,
-      the same asymmetry as this map's weak north&ndash;south axis
-      <a class="cite" href="#ref-gurnee">(Gurnee &amp; Tegmark, 2024)</a>;
-      <a class="cite" href="#ref-godey">(Godey et&nbsp;al., 2024)</a> — and
+      hidden states — probed early by Liétard et al.
+      <a class="cite" href="#ref-lietard">(2021)</a> and mapped in detail by
+      Gurnee &amp; Tegmark <a class="cite" href="#ref-gurnee">(2024)</a> and Godey
+      et al. <a class="cite" href="#ref-godey">(2024)</a> — linearly decodable and
+      improving with scale but geographically unequal, worst for Oceania, South
+      Asia and South America, the same asymmetry as this map's weak
+      north&ndash;south axis. And
       Barenholtz <a class="cite" href="#ref-barenholtz">(2026)</a> showed plain
       word2vec/GloVe already carry it, riding on lexical directions (country and
       climate words) rather than on any built-in coordinate.</p>
@@ -932,14 +936,14 @@
     <p id="ref-harris">Harris, Z. S. (1954). Distributional structure.
       <i>Word, 10</i>(2&ndash;3), 146&ndash;162.
       <a href="https://doi.org/10.1080/00437956.1954.11659520">https://doi.org/10.1080/00437956.1954.11659520</a></p>
-    <p id="ref-kruskal">Kruskal, J. B. (1964). Multidimensional scaling by
-      optimizing goodness of fit to a nonmetric hypothesis.
-      <i>Psychometrika, 29</i>(1), 1&ndash;27.
-      <a href="https://doi.org/10.1007/BF02289565">https://doi.org/10.1007/BF02289565</a></p>
     <p id="ref-konkol">Konkol, M., Brychcín, T., Nykl, M., &amp; Hercig, T. (2017).
       Geographical evaluation of word embeddings. In <i>Proceedings of the Eighth
       International Joint Conference on Natural Language Processing</i>
       (pp. 224&ndash;232). <a href="https://aclanthology.org/I17-1023/">https://aclanthology.org/I17-1023/</a></p>
+    <p id="ref-kruskal">Kruskal, J. B. (1964). Multidimensional scaling by
+      optimizing goodness of fit to a nonmetric hypothesis.
+      <i>Psychometrika, 29</i>(1), 1&ndash;27.
+      <a href="https://doi.org/10.1007/BF02289565">https://doi.org/10.1007/BF02289565</a></p>
     <p id="ref-lietard">Liétard, B., Abdou, M., &amp; Søgaard, A. (2021). Do
       language models know the way to Rome? In <i>Proceedings of the Fourth
       BlackboxNLP Workshop</i> (pp. 510&ndash;517).
@@ -1098,8 +1102,8 @@
         perplexity 20). Local structure is the sharpest of the four — but the gaps
         <i>between</i> clusters are largely artifacts of the optimizer, so do not
         read them as distances.`,
-      umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes, Healy, &amp;
-        Melville, 2018)</a>, the most recent, also prioritizes local
+      umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al.,
+        2018)</a>, the most recent, also prioritizes local
         neighbourhoods (via a 15-nearest-neighbour graph in cosine space). Curiously
         it lands closest to the real map: its distances track great-circle distances
         best of the four (geo-fidelity &rho; = .67) — the neighbourhood methods
