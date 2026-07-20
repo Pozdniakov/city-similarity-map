@@ -109,3 +109,32 @@ Facts:
       rho). Snapped all dots to x = 119.6 + (rho-.50)*911 so each dot sits exactly
       on its labelled value; moved the dashed baseline onto the .50 gridline and
       dropped the now-redundant solid .50 gridline.
+
+## Round 4 (wf_5f43e777) — CONVERGED: facts/citations/grammar all clean
+Only 1 LOW consistency nit: Related-work "reductions concentrate the geographic signal
+by discarding noise" stated as fact while the geo-fidelity sections now hedge it.
+- [x] Hedged to "plausibly because the reductions shed noise directions and concentrate
+      what geographic signal remains".
+
+## User revision round 2 (design + content requests)
+- [x] geo-fidelity now EXPLAINED on the page: added a definition paragraph (Spearman rank
+      correlation over all 7,626 pairs, on-screen vs great-circle distance; rho=1 exact,
+      rho=0 none; Procrustes-invariant) + why raw is only rho~.50 ("a moderate correlation …
+      word2vec encodes much more than geography"). Trimmed the duplicate m-legend clause.
+- [x] Moved "How geographic is each layout?" (definition + dot-plot + interpretation) BELOW
+      the semantic map (was above). Rationale: show the map, then analyse it.
+- [x] Related work: removed selective author-name bolding (Louwerse&Zwaan, Konkol) -> none
+      bold, consistent.
+- [x] Software: added every version (Python 3.11, NumPy 2.4, pandas 3.0, scikit-learn 1.9.0,
+      umap-learn 0.5.12, SciPy 1.17.1, matplotlib 3.11, adjustText 1.4, KaTeX 0.16); clarified
+      vectors are parsed from the GoogleNews binary by a custom NumPy parser (no gensim);
+      explained Natural Earth 110m; named the viz tools (hand-written SVG/canvas + KaTeX).
+- [x] Section headings enlarged (group-h 13->17px, teal top rule; sect-h 12->14px; References
+      given the group-h treatment) for clearer visual separation of parts.
+- [x] Similarity matrix shrunk (cells 8->6px wide, 7px rows, 6.5px names) so it fits desktop
+      with NO horizontal scroll (canvas 868px < 882px client).
+- [x] Overall column narrowed (wrap 1120->940px) so figures sit closer to the text measure
+      (charts ~868 vs text 746, was ~1080). Verified no page h-scroll desktop or mobile.
+- [x] Card fixes: angle diagram (card 3) label overlap fixed ("angles from Sydney" caption
+      moved to its own line, viewBox 132->148); added spacing under the visuals on cards 2,3,4
+      (ex-card padding-bottom 10->16, diagram margin ->12/12, heatcap margin-bottom 10).

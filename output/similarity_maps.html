@@ -75,7 +75,7 @@
   a { color: var(--accent); text-decoration-color: var(--grid); }
   a:hover { text-decoration-color: var(--accent); }
   .mono { font-family: var(--font-mono); }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 30px 20px 40px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 30px 20px 40px; }
   header h1 { font-size: 34px; font-weight: 600; margin: 0 0 2px; text-wrap: balance;
     letter-spacing: .01em; }
   header h1 { font-size: 38px; line-height: 1.08; }
@@ -93,9 +93,9 @@
   .anchornav a:hover { text-decoration: underline; }
   .anchornav a:not(:last-child)::after { content: "·"; color: var(--ink-3);
     padding: 0 9px; text-decoration: none; display: inline-block; }
-  .group-h, .notes h2.group-h { font: 500 13px var(--font-mono); letter-spacing: .1em;
-    text-transform: uppercase; color: var(--ink-1); margin: 34px 0 4px;
-    padding-top: 10px; border-top: 2px solid var(--grid); scroll-margin-top: 12px; }
+  .group-h, .notes h2.group-h { font: 600 17px var(--font-mono); letter-spacing: .07em;
+    text-transform: uppercase; color: var(--ink-1); margin: 48px 0 8px;
+    padding-top: 15px; border-top: 2px solid var(--accent); scroll-margin-top: 12px; }
   .group-lead { font-size: 15.5px; color: var(--ink-2); margin: 4px 0 14px;
     max-width: var(--measure); }
   .group-lead b { color: var(--ink-1); }
@@ -152,14 +152,15 @@
   .epigraph .src { font: 11.5px var(--font-mono); font-style: normal;
     color: var(--ink-3); margin-left: 10px; white-space: nowrap; }
   .ex-card { background: var(--surface); border: 1px solid var(--hairline);
-    border-radius: 10px; padding: 14px 16px 10px; font-size: 15.5px;
+    border-radius: 10px; padding: 14px 16px 16px; font-size: 15.5px;
     color: var(--ink-2); line-height: 1.45; }
   .ex-card h3 { display: flex; align-items: center; gap: 9px; margin: 0 0 6px;
     font-size: 17px; font-weight: 600; color: var(--ink-1); }
   .ex-card h3 .n { background: var(--accent); color: var(--plane); width: 19px;
     height: 19px; border-radius: 50%; display: inline-flex; align-items: center;
     justify-content: center; font: 500 11px var(--font-mono); flex: none; }
-  .ex-card svg.diagram { display: block; margin: 10px auto 2px; max-width: 100%; }
+  .ex-card svg.diagram { display: block; margin: 12px auto 12px; max-width: 100%; }
+  .ex-card .heatcap { margin-bottom: 10px; }
   .diagram text { font-family: var(--font-mono); }
   .minichart { display: block; margin: 10px 0 2px; max-width: 100%; height: auto; }
   .minichart .mc-grid { stroke: var(--grid); stroke-width: 0.5; }
@@ -222,7 +223,7 @@
   .sect { margin-top: 6px; }
   .sect-h { display: flex; align-items: baseline; gap: 12px; margin: 16px 2px 10px;
     flex-wrap: wrap; }
-  .sect-h h2 { font: 500 12px var(--font-mono); letter-spacing: .09em;
+  .sect-h h2 { font: 600 14px var(--font-mono); letter-spacing: .08em;
     text-transform: uppercase; color: var(--ink-1); margin: 0; }
   .sect-h .sub { font-size: 15.5px; color: var(--ink-3); font-style: italic; }
   .seg { display: inline-flex; border: 1.5px solid var(--accent); border-radius: 999px;
@@ -453,7 +454,7 @@
       <span class="math" data-tex="\cos 90^{\circ} = 0">cos 90&deg; = 0</span>
       when they share no direction in this representation. Below, the arrows of
       the three vectors from card&nbsp;2, at their <b>real, measured angles</b>:
-      <svg id="angdemo" class="diagram" viewBox="0 0 230 132" width="230" height="132"
+      <svg id="angdemo" class="diagram" viewBox="0 0 230 148" width="230" height="148"
         aria-label="Real angles between the Sydney, Melbourne and New York vectors in a coordinate plane"></svg>
       <div id="angcap"></div>
     </div>
@@ -541,28 +542,25 @@
     <p class="m-legend"><b>recall@10</b> — of each city's 10 truly nearest
       neighbours (by cosine, in 300-d), how many stay among its 10 nearest on
       this 2-D screen (local faithfulness) &middot; <b>geo-fidelity</b> — rank
-      correlation between on-screen distances and real great-circle distances;
-      alignment-free (the raw 300-d embedding scores &rho;&nbsp;&asymp;&nbsp;.50, so
-      every layout here beats it) &middot; <b>Stress-1</b> — how far on-screen distances
+      correlation between on-screen distances and real great-circle distances,
+      alignment-free (defined in full below the map) &middot; <b>Stress-1</b> — how far on-screen distances
       deviate from the target dissimilarities (0 = perfect; only MDS optimizes it)
       &middot; <b>E&ndash;W / N&ndash;S <i>r</i></b> — axis correlation with
       longitude / latitude, measured <i>after</i> the geographic alignment, so
       descriptive only.</p>
-    <p class="gf-lead"><b>How geographic is each layout?</b> Reading down the chart,
-      fidelity climbs: the raw 300-d embedding sits at the &rho;&nbsp;&asymp;&nbsp;.50
-      baseline, and every 2-D projection clears it. The two <b>global</b> methods —
-      MDS, which fits every pairwise distance, and PCA, the linear variance
-      projection — land just above it (&rho;&nbsp;.57 and .60), with
-      <b>MDS the least geographic</b> of the four. The two <b>neighbourhood</b>
-      methods, <b>t-SNE and UMAP, score highest</b> (.64 and .67): preserving
-      who-sits-next-to-whom tracks geography better, because a city's semantic
-      neighbours tend to be its geographic ones. Why any projection beats the raw
-      space is less certain — dropping most of the 300 dimensions plausibly sheds
-      noise directions and concentrates the signal — and the gain is not guaranteed.
-      So read it as a tendency, <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>,
-      not a leaderboard: t-SNE and UMAP are effectively tied — in the seed shown UMAP
-      leads .67 to .64, but across seeds t-SNE (&rho;&nbsp;.63&ndash;.73) generally
-      matches or beats UMAP (.51&ndash;.67), which can itself dip below PCA.</p>
+    <div class="panel">
+      <svg id="chart" class="chart" role="img"
+        aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
+      <div class="tip" id="tip1"></div>
+    </div>
+    <p class="gf-lead"><b>How geographic is each layout?</b> Each map is scored by
+      <b>geo-fidelity</b> — the Spearman rank correlation, taken over all 7,626 city
+      pairs, between the distance separating a pair on screen and the real
+      great-circle distance between the two cities. &rho;&nbsp;=&nbsp;1 would mean the
+      layout ranks every pair's distance exactly as geography does;
+      &rho;&nbsp;=&nbsp;0 means no relationship at all. It looks at distances only, so
+      the Procrustes alignment — which merely rotates the finished map — leaves the
+      score untouched.</p>
     <svg class="gfchart" viewBox="0 0 372 130" width="372" height="130"
       role="img" aria-label="Geographic fidelity by layout: raw 300-d embedding .50, MDS .57, PCA .60, t-SNE .64, UMAP .67 — all above the raw baseline">
       <line x1="165.1" y1="12" x2="165.1" y2="114" class="gf-grid"/>
@@ -594,11 +592,25 @@
       <text x="210.7" y="126" class="gf-tick" text-anchor="middle">.60</text>
       <text x="301.8" y="126" class="gf-tick" text-anchor="middle">geo-fidelity ρ .70</text>
     </svg>
-    <div class="panel">
-      <svg id="chart" class="chart" role="img"
-        aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
-      <div class="tip" id="tip1"></div>
-    </div>
+    <p class="gf-lead">Reading down the chart, fidelity climbs. The raw 300-d
+      embedding sits at the <b>&rho;&nbsp;&asymp;&nbsp;.50 baseline</b> — only a
+      moderate correlation, because word2vec distance reflects much more than
+      geography (a city's size, the language and news sphere it is discussed in,
+      name collisions), so its ranking of pairs only partly follows the map — and
+      every 2-D projection clears it. The two
+      <b>global</b> methods — MDS, which fits every pairwise distance, and PCA, the
+      linear variance projection — land just above the baseline (&rho;&nbsp;.57 and
+      .60), with <b>MDS the least geographic</b> of the four. The two
+      <b>neighbourhood</b> methods, <b>t-SNE and UMAP, score highest</b> (.64 and
+      .67): preserving who-sits-next-to-whom tracks geography better, because a
+      city's semantic neighbours tend to be its geographic ones. Why any projection
+      beats the raw space is less certain — dropping most of the 300 dimensions
+      plausibly sheds noise directions and concentrates the signal — and the gain is
+      not guaranteed. So read it as a tendency,
+      <b>neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&ge;&nbsp;raw</b>, not a
+      leaderboard: t-SNE and UMAP are effectively tied — in the seed shown UMAP leads
+      .67 to .64, but across seeds t-SNE (&rho;&nbsp;.63&ndash;.73) generally matches
+      or beats UMAP (.51&ndash;.67), which can itself dip below PCA.</p>
   </section>
 
   <section class="sect">
@@ -909,10 +921,22 @@
         co-occurrence" story for quality.</li>
     </ol>
     <h3 class="meth-sub">Software</h3>
-    <p>Built in Python with the GoogleNews-vectors-negative300 word2vec model,
-      scikit-learn&nbsp;1.9.0 (MDS, PCA, t-SNE), umap-learn&nbsp;0.5.12,
-      SciPy&nbsp;1.17.1, NumPy, pandas and matplotlib; the base map is Natural
-      Earth&nbsp;110m. Source, data and build scripts are in the
+    <p>The pipeline runs on Python&nbsp;3.11. The GoogleNews-vectors-negative300
+      word2vec vectors <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al.,
+      2013)</a> are read straight from Google's published binary by a small NumPy
+      parser (no gensim dependency); numerical work uses NumPy&nbsp;2.4 and
+      pandas&nbsp;3.0. The projections use scikit-learn&nbsp;1.9.0 (MDS, PCA, t-SNE)
+      and umap-learn&nbsp;0.5.12, and the pairwise distances, hierarchical clustering
+      and orthogonal-Procrustes alignment use SciPy&nbsp;1.17.1.</p>
+    <p>The figures are drawn in the browser with no charting library: the two maps,
+      the network, the geo-fidelity dot-plot and the clustered matrix are
+      hand-written inline SVG and HTML <span class="tok">&lt;canvas&gt;</span>, and
+      the formulae are typeset with KaTeX&nbsp;0.16. The non-overlapping city labels
+      were pre-computed offline with matplotlib&nbsp;3.11 and adjustText&nbsp;1.4,
+      then baked into the page as fixed coordinates. The faint continent outlines
+      behind the network map are the <i>land</i> layer of Natural&nbsp;Earth —
+      a free, public-domain world basemap — at its 1:110m (one-to-110-million)
+      resolution, the coarsest it ships. Source, data and build scripts are in the
       <a href="https://github.com/Pozdniakov/city-similarity-map">GitHub
       repository</a>.</p>
   </section>
@@ -920,7 +944,7 @@
   <section class="notes" id="related">
     <h2 class="group-h">Related work</h2>
     <p>Recovering geography from text alone has a long pedigree.
-      <b>Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a></b>
+      Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a>
       applied MDS to newspaper-text similarities for the 50 largest US cities and
       recovered their latitude and longitude, connecting it to Tobler's first law;
       the effect is robust across corpora and parameters
@@ -929,7 +953,7 @@
       the co-occurrences in Tolkien
       <a class="cite" href="#ref-benesh">(Louwerse &amp; Benesh, 2012)</a>. The
       closest precedent to this page is
-      <b>Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a></b>, who fit
+      Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a>, who fit
       city vectors from 17 embedding models to real coordinates as a benchmark —
       with a more rigorous setup (a spherical 3-D target, error reported in
       kilometres, noise-robustness and cross-validation) and exactly the failure
@@ -955,8 +979,9 @@
       compared <i>across projections</i> rather than across embeddings, and all
       four 2-D layouts reproduce geography <i>better</i> than the raw 300-d cosine
       distances they come from (geo-fidelity &rho;&nbsp;&asymp;&nbsp;.57&ndash;.67
-      vs a raw-space baseline of &rho;&nbsp;&asymp;&nbsp;.50) — the reductions
-      concentrate the geographic signal by discarding noise. <b>(2)</b> The
+      vs a raw-space baseline of &rho;&nbsp;&asymp;&nbsp;.50), plausibly because the
+      reductions shed noise directions and concentrate what geographic signal
+      remains. <b>(2)</b> The
       semi-metric objection to <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
       is checked exhaustively (all 310,124 triples; 2 violations, max&nbsp;excess
       .023) rather than assumed. <b>(3)</b> The dateline-token artefact —
@@ -970,7 +995,7 @@
   </section>
 
   <section class="notes refs" id="refs">
-    <h2>References</h2>
+    <h2 class="group-h">References</h2>
     <p id="ref-barjoseph">Bar-Joseph, Z., Gifford, D. K., &amp; Jaakkola, T. S.
       (2001). Fast optimal leaf ordering for hierarchical clustering.
       <i>Bioinformatics, 17</i>(Suppl.&nbsp;1), S22&ndash;S29.
@@ -1699,7 +1724,7 @@
             "stroke-dasharray": i === 2 ? "3 2" : "none" });
         }
       });
-      svgPut(ang, "text", { x: O[0], y: 129, "font-size": 8.5,
+      svgPut(ang, "text", { x: O[0], y: 143, "font-size": 8.5,
         fill: "var(--ink-3)" }, "angles from Sydney, to scale");
       const degTo = i =>
         Math.round(Math.acos(Math.min(1, demo.sims[0][i])) * 180 / Math.PI);
@@ -1771,7 +1796,7 @@
     const cmc = document.getElementById("cmheat");
     if (cmc && DATA.cluster) {
       const cl = DATA.cluster, ord = cl.order;
-      const DW = 46, LW = 82, TS = 8, RH = 8, CW = 8;   // CSS px; square cells
+      const DW = 44, LW = 80, TS = 7, RH = 7, CW = 6;   // CSS px (fits desktop width)
       const ox = DW + LW, oy = TS + 3;
       const cssW = ox + n * CW, cssH = oy + n * RH;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1788,7 +1813,7 @@
         g.setTransform(dpr, 0, 0, dpr, 0, 0);
         g.clearRect(0, 0, cssW, cssH);
         g.textBaseline = "middle";
-        g.font = "7px ui-monospace, Menlo, monospace";
+        g.font = "6.5px ui-monospace, Menlo, monospace";
         // dendrogram at left: leaf position -> row Y, merge height -> X
         g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 0.75; g.globalAlpha = 0.8;
         const dX = d => DW - 3 - (d / cl.dmax) * (DW - 7);
