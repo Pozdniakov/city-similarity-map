@@ -35,3 +35,11 @@ Layout:
 - [x] LOW: McInnes cited two ways — JS UMAP note now 'McInnes et al., 2018' to match.
 - [x] LOW: combined (Kruskal 1964; Borg & Groenen 2005) both linked #ref-kruskal — split anchors.
 - facts/grammar/clarity/consistency lenses FAILED (stalls/API) — re-running lighter.
+
+## Round 1b (wf_89fa9fd9) — facts+consistency CLEAN; grammar 6, clarity 4 (all fixed)
+Grammar: cosines run/pushed tense; coloring->colouring; Firth curly->straight quotes;
+artifact->artefact; fully-documented->fully documented; ambiguous "it is used"->"each name is used".
+Clarity: card 4 wrongly lumped PCA with t-SNE/UMAP (fixed, split out); "What to notice"
+UMAP>MDS overclaim reframed to "projections beat raw .50 ceiling, ordering seed-dependent";
+Louwerse/Barenholtz duplication in methodology item 1 compressed to a pointer;
+Procrustes glossed + step-9 ref on first use in item 8.

@@ -367,7 +367,7 @@
     <p class="method"><b>Short answer: partly, yes.</b> <b>word2vec</b> — a model
       that turns each word into a vector of numbers from the company it keeps —
       never saw coordinates. It learned each of these 124 city names only from how
-      it is <i>used</i> in Google News. Comparing those usages reconstructs a
+      each name is <i>used</i> in Google News. Comparing those usages reconstructs a
       surprising amount of real geography, while news events, ambiguous names and
       shared institutions bend the map in revealing ways. The similarities are
       explored in <b>three linked views</b> below; select any city to light up its
@@ -395,8 +395,8 @@
       vectors. All three cities are English-speaking — what separates them is
       <i>whose news</i> they share, not language. No atlas, no coordinates: the
       model never sees geography, only text.
-      <p class="ex-quote">&ldquo;You shall know a word by the company it
-        keeps.&rdquo; <span class="src">&mdash; J. R. Firth
+      <p class="ex-quote">"You shall know a word by the company it
+        keeps." <span class="src">&mdash; J. R. Firth
         <a class="cite" href="#ref-firth">(1957)</a></span></p>
     </div>
     <div class="ex-card">
@@ -440,9 +440,9 @@
       the whole 124&times;124 table (fit: Stress-1&nbsp;=&nbsp;.347).
       <svg id="mdsdemo" class="diagram" viewBox="0 0 230 118" width="230" height="118"
         aria-label="The three-city similarity matrix becoming points on a map"></svg>
-      PCA, t-SNE and UMAP (switcher below) offer alternative 2-D views: instead
-      of honouring the whole distance table, they prioritize each vector's local
-      neighbourhoods.
+      PCA, t-SNE and UMAP (switcher below) offer alternative 2-D views: PCA is a
+      flat linear shadow of the cloud, while t-SNE and UMAP drop the whole
+      distance table and instead prioritize each vector's local neighbourhoods.
     </div>
   </div>
 
@@ -581,10 +581,12 @@
       landed inside the US cluster with the obvious token, which is dominated by
       St.&nbsp;Petersburg, <i>Florida</i> (see Methodology&nbsp;&rarr; Token
       resolution).</li>
-    <li><b>The counter-intuitive winner.</b> Switch the semantic map to
-      <b>UMAP</b>: it reproduces real geography <i>better</i> than MDS
-      (geo-fidelity .67 vs .57), because it locks onto the local neighbourhoods
-      that geography lives in.</li>
+    <li><b>The projections beat the raw space.</b> Every 2-D layout reproduces
+      real geography better than the raw 300-d cosine distances (geo-fidelity
+      &rho;&nbsp;.57&ndash;.67 vs a ceiling of .50) — the neighbourhood methods
+      most, because they lock onto the local structure geography lives in. Switch
+      the semantic map between MDS, PCA, t-SNE and UMAP to feel the difference
+      (the exact ordering is seed-dependent; see Methodology).</li>
   </ul>
 
   <section class="notes">
@@ -605,23 +607,17 @@
         directly from the training data: what drives similarity is <i>news
         salience</i>, not geography (a shared war, league or stock exchange pulls
         cities together as surely as a shared border), and the corpus is frozen
-        in ~2013, so prominence and usage reflect that period's coverage.
-        That geography can be recovered from text at all is a long-known effect:
-        Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a> ran
-        essentially this analysis — LSA then MDS on the 50 largest US cities — and
-        recovered their latitude and longitude, and linear probes recover city
-        coordinates from word2vec/GloVe at
-        <i>R</i>&sup2;&nbsp;&asymp;&nbsp;.66&ndash;.87 — longitude better than
-        latitude, the same asymmetry this map shows
-        <a class="cite" href="#ref-barenholtz">(Barenholtz, 2026)</a>. The signal
-        rides on how cities are <i>described</i> — country names, climate words —
-        never on coordinates.</li>
+        in ~2013, so prominence and usage reflect that period's coverage. That
+        geography is recoverable from this text at all is a long-known effect
+        (see <a href="#related">Related work</a>): the signal rides on how cities
+        are <i>described</i> — country names, climate words — never on
+        coordinates.</li>
       <li><b>City list.</b> 124 cities curated by hand: metropolitan-area
         population roughly &gt;1&nbsp;million and global prominence, deliberately
         <i>balanced</i> across 9 regions rather than ranked by population — a
         strict top-N by population would be dominated by Chinese and South-Asian
         metros, and the map would lose most of the regions a general reader
-        recognizes. Region labels are used only for coloring — they play no role
+        recognizes. Region labels are used only for colouring — they play no role
         in the computation.</li>
       <li class="stat"><b>Token resolution.</b> word2vec knows only tokens, not
         "cities", so each city is mapped to the vocabulary entry that best carries
@@ -639,7 +635,7 @@
             all-caps <span class="tok">MEXICO_CITY</span> (from agency datelines,
             "MEXICO CITY (Reuters)&nbsp;&mdash;&hellip;") was tested and rejected:
             dateline tokens keep company with other datelines, so their cosines
-            run uniformly low and pushed the city to the map's edge.</li>
+            run uniformly low and push the city to the map's edge.</li>
           <li><b>Ho Chi Minh City</b> &rarr; <span class="tok">Saigon</span>: the
             full name fragmented, but 2013 news overwhelmingly used "Saigon", a
             well-trained token with the right meaning.</li>
@@ -748,7 +744,8 @@
         UMAP is <i>not</i> stable, though — across perplexity/seed t-SNE spans
         &asymp;&nbsp;.63&ndash;.73 and UMAP &asymp;&nbsp;.51&ndash;.67 — so read it
         as <b>neighbourhood&nbsp;&ge;&nbsp;linear&nbsp;&ge;&nbsp;raw</b>, not as a
-        fixed leaderboard. All four share the same rigid Procrustes alignment,
+        fixed leaderboard. All four share the same rigid Procrustes
+        (rotation/reflection) alignment to geography (step&nbsp;9),
         which cannot change these distance-based scores.</li>
       <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
         only up to rotation, reflection and translation, so the raw axes are
@@ -874,7 +871,7 @@
       climate words) rather than on any built-in coordinate.</p>
     <p><b>What this page adds is small and specific.</b> The central finding is
       not new, and Konkol et al. established it more rigorously; the contribution
-      here is an interactive, fully-documented re-examination, plus three minor
+      here is an interactive, fully documented re-examination, plus three minor
       empirical points I did not find in that literature. <b>(1)</b> The map is
       compared <i>across projections</i> rather than across embeddings, and all
       four 2-D layouts reproduce geography <i>better</i> than the raw 300-d cosine
@@ -883,7 +880,7 @@
       concentrate the geographic signal by discarding noise. <b>(2)</b> The
       semi-metric objection to <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
       is checked exhaustively (all 310,124 triples; 2 violations, max&nbsp;excess
-      .023) rather than assumed. <b>(3)</b> The dateline-token artifact —
+      .023) rather than assumed. <b>(3)</b> The dateline-token artefact —
       <span class="tok">MEXICO_CITY</span> sitting among other agency datelines,
       so its cosines to ordinary words run uniformly low — is a concrete,
       checkable fact about the GoogleNews vectors. A caveat the literature
@@ -1086,7 +1083,7 @@
         &amp; Hinton, 2008)</a> is a nonlinear method that prioritizes local
         neighbourhoods over global distances (it matches neighbour probabilities;
         perplexity 20). Local structure is the sharpest of the four — but the gaps
-        <i>between</i> clusters are largely artifacts of the optimizer, so do not
+        <i>between</i> clusters are largely artefacts of the optimizer, so do not
         read them as distances.`,
       umap: `<b>UMAP</b> <a class="cite" href="#ref-mcinnes">(McInnes et&nbsp;al.,
         2018)</a>, the most recent, also prioritizes local
