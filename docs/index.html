@@ -259,6 +259,10 @@
     max-width: var(--measure); }
   .cmwrap { position: relative; overflow-x: auto; border-radius: 8px; }
   #cmheat { display: block; cursor: crosshair; margin: 0 auto; }
+  /* the 124x124 matrix keeps square cells, so it is allowed to break out of the
+     text column and centre on the viewport (never wider than the viewport). */
+  .cmpanel { width: min(890px, calc(100vw - 24px)); margin-left: 50%;
+    transform: translateX(-50%); }
 
   .panel { background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 10px; padding: 8px; position: relative; }
@@ -604,8 +608,8 @@
       (.49 vs&nbsp;.73) — Lisbon's vector leans towards EU-institution language. Enough
       such misses, summed over all 7,626 pairs, hold even the best layout near
       ρ&nbsp;.67 rather than 1.</p>
-    <svg class="gfchart" viewBox="0 0 372 150" width="372" height="150"
-      role="img" aria-label="Geo-fidelity by layout on a 0-to-1 correlation scale: raw 300-d .50 baseline, MDS .57, PCA .60, t-SNE .64, UMAP .67 with UMAP varying .60 to .68 across seeds; every projection above the raw baseline">
+    <svg class="gfchart" viewBox="0 0 372 164" width="372" height="164"
+      role="img" aria-label="Geo-fidelity by layout on a 0-to-1 correlation scale: raw 300-d .50 baseline, MDS .57, PCA .60, t-SNE .64, UMAP .67. Only UMAP varies with the random seed; its whisker spans the min-to-max, .60 to .68, over 12 seeds. Every projection is above the raw baseline.">
       <line x1="88" y1="12" x2="88" y2="122" class="gf-grid"/>
       <line x1="152.5" y1="12" x2="152.5" y2="122" class="gf-grid"/>
       <line x1="217" y1="12" x2="217" y2="122" class="gf-grid"/>
@@ -630,26 +634,30 @@
       <line x1="243" y1="106.5" x2="243" y2="113.5" class="gf-whisk"/>
       <line x1="263" y1="106.5" x2="263" y2="113.5" class="gf-whisk"/>
       <text x="268" y="113" class="gf-val">.67</text>
-      <text x="88" y="134" class="gf-tick" text-anchor="middle">0</text>
-      <text x="152.5" y="134" class="gf-tick" text-anchor="middle">.25</text>
-      <text x="217" y="134" class="gf-tick" text-anchor="middle">.5</text>
-      <text x="281.5" y="134" class="gf-tick" text-anchor="middle">.75</text>
-      <text x="346" y="134" class="gf-tick" text-anchor="middle">1</text>
+      <text x="88" y="133" class="gf-tick" text-anchor="middle">0</text>
+      <text x="152.5" y="133" class="gf-tick" text-anchor="middle">.25</text>
+      <text x="217" y="133" class="gf-tick" text-anchor="middle">.5</text>
+      <text x="281.5" y="133" class="gf-tick" text-anchor="middle">.75</text>
+      <text x="346" y="133" class="gf-tick" text-anchor="middle">1</text>
       <text x="217" y="146" class="gf-axt" text-anchor="middle">geo-fidelity — Spearman ρ (0 = no relation, 1 = perfect)</text>
+      <text x="217" y="158" class="gf-axt" text-anchor="middle">UMAP whisker = min–max over 12 seeds · others deterministic</text>
     </svg>
     <p class="gf-lead">The order is the same every time:
       <b>raw&nbsp;.50 &lt; MDS&nbsp;.57 &lt; PCA&nbsp;.60 &lt; t-SNE&nbsp;.64 &asymp;
       UMAP&nbsp;.67</b>. The two <b>neighbourhood</b> methods (t-SNE, UMAP) — which
       preserve who-sits-next-to-whom — beat the two <b>global</b> methods (MDS, which
       fits every pairwise distance; PCA, the linear variance projection), and both
-      beat the raw space. On <b>run-to-run stability</b>: PCA, classical-init MDS, and
-      t-SNE (with PCA initialisation) are deterministic — the same number every run —
-      so only UMAP wanders. Across 12 random seeds UMAP ranges
-      <b>ρ&nbsp;.60&ndash;.68</b> (mean&nbsp;.65; the whisker on the chart), and the
-      run shown, .67, sits near the top of that band. So t-SNE (.64) and UMAP
-      (.65&nbsp;±&nbsp;.02) are effectively tied; the neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw
-      ordering holds in every run, only the t-SNE-vs-UMAP photo-finish is within
-      noise.</p>
+      beat the raw space. <b>Why has only UMAP got a whisker?</b> Because the other
+      three are <i>deterministic</i> — PCA and classical-init MDS have no random step,
+      and t-SNE, initialised from PCA rather than a random layout, also lands on the
+      same result every run (its geo-fidelity was .644 on all 12 seeds we tried, so
+      there is nothing to show). UMAP is the one stochastic method here. Re-running it
+      under 12 random seeds gave a <b>min of .60 and a max of .68</b> (mean&nbsp;.65,
+      SD&nbsp;.02) — that observed <b>min–max range</b> is what the whisker spans (not
+      a confidence interval), and the run shown, .67, sits near its top. So t-SNE
+      (.64) and UMAP (.65&nbsp;±&nbsp;.02) are effectively tied; the
+      neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw ordering holds in every
+      run, only the t-SNE-vs-UMAP photo-finish is within noise.</p>
     <p class="gf-lead"><b>Why should squeezing 300 dimensions into 2 make the map
       <i>more</i> geographic, not less?</b> Throwing away 298 dimensions should lose
       information, so you would expect the 2-D distances to track geography worse than
@@ -682,7 +690,7 @@
       bridges, pale rows are loners. The tree at left shows where groups merge —
       shorter&nbsp;=&nbsp;more similar. Row names are coloured by region; hover any
       cell for the pair, click to pin the row's city.</div>
-    <div class="panel">
+    <div class="panel cmpanel">
       <div class="cmwrap">
         <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix, with a dendrogram and city names down the left edge"></canvas>
       </div>
@@ -1861,7 +1869,7 @@
     const cmc = document.getElementById("cmheat");
     if (cmc && DATA.cluster) {
       const cl = DATA.cluster, ord = cl.order;
-      const DW = 40, LW = 74, TS = 7, RH = 7, CW = 5;   // CSS px (fits desktop width)
+      const DW = 40, LW = 74, TS = 6, RH = 6, CW = 6;   // CSS px; square cells (breakout panel)
       const ox = DW + LW, oy = TS + 3;
       const cssW = ox + n * CW, cssH = oy + n * RH;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1878,7 +1886,7 @@
         g.setTransform(dpr, 0, 0, dpr, 0, 0);
         g.clearRect(0, 0, cssW, cssH);
         g.textBaseline = "middle";
-        g.font = "6.5px ui-monospace, Menlo, monospace";
+        g.font = "6px ui-monospace, Menlo, monospace";
         // dendrogram at left: leaf position -> row Y, merge height -> X
         g.strokeStyle = cssVar("--ink-3"); g.lineWidth = 0.75; g.globalAlpha = 0.8;
         const dX = d => DW - 3 - (d / cl.dmax) * (DW - 7);

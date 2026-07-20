@@ -176,3 +176,17 @@ Data: ran compute_intervals.py — 12-seed sweep. Corrected the seed story:
       UMAP JS method-note.
 - [x] Illustrated geo-fidelity with three real pairs (Madrid–Barcelona 505 km/cos .73 agree;
       Tokyo–Lisbon 11,140 km/cos .23 agree; Lisbon–Madrid 503 km/cos .49 disagree).
+
+## User revision round 4 (matrix squares + label the spread measure)
+- [x] Matrix cells square again: CW=RH=6 (were 5x7 non-square). To keep square cells
+      readable AND avoid desktop h-scroll, the matrix panel now BREAKS OUT of the 800px
+      text column: .cmpanel width min(890px, 100vw-24), centred on the viewport
+      (never wider than it). Canvas 858x753, square 6px cells; verified no page h-scroll
+      desktop or mobile, no internal scroll on desktop.
+- [x] Spread measure labelled explicitly. Chart: added a legend line "UMAP whisker =
+      min–max over 12 seeds · others deterministic" + aria-label update. Text: states
+      it is the observed min–max range (min .60, max .68, mean .65, SD .02), NOT a
+      confidence interval.
+- [x] Explained why t-SNE has no whisker: it is deterministic (PCA-init t-SNE gave .644
+      on all 12 seeds; PCA and classical-init MDS have no random step). Only UMAP is
+      stochastic here.
