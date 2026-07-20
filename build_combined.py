@@ -32,6 +32,44 @@ SLIDER_MAX = 0.86
 SLIDER_DEFAULT = 0.50
 
 
+def make_minichart(sims):
+    """Build the link-count-vs-cutoff mini chart from the SAME sims the live
+    slider reads, so its baked-in numbers can never drift from the interactive
+    counter. Log y-axis: count 10 -> y 100, one decade -> 33.8 px."""
+    import math
+    arr = np.asarray(sims)
+    cutoffs = [round(0.30 + 0.05 * i, 2) for i in range(11)]   # 0.30 .. 0.80
+    counts = [int((arr >= c - 1e-9).sum()) for c in cutoffs]
+    x0, x1 = 42.0, 330.0
+    step = (x1 - x0) / (len(cutoffs) - 1)
+    ymap = lambda cnt: 100.0 - (math.log10(max(cnt, 1)) - 1.0) * 33.8
+    pts = " ".join(f"{x0 + step * i:.1f},{ymap(counts[i]):.1f}"
+                   for i in range(len(cutoffs)))
+    i50 = cutoffs.index(0.50)
+    c30, c50, c80 = counts[cutoffs.index(0.30)], counts[i50], counts[cutoffs.index(0.80)]
+    xdef, ydef = x0 + step * i50, ymap(c50)
+    aria = ("Number of links versus similarity cutoff, log scale, falling from "
+            f"{c30} at 0.30 to {c80} at 0.80, {c50} at the default 0.50")
+    return (
+        f'<svg class="minichart" viewBox="0 0 344 122" width="344" height="122"\n'
+        f'          role="img" aria-label="{aria}">\n'
+        '          <line x1="42" y1="16.2" x2="330" y2="16.2" class="mc-grid"/>\n'
+        '          <line x1="42" y1="32.4" x2="330" y2="32.4" class="mc-grid"/>\n'
+        '          <line x1="42" y1="66.2" x2="330" y2="66.2" class="mc-grid"/>\n'
+        '          <line x1="42" y1="100" x2="330" y2="100" class="mc-axis"/>\n'
+        '          <text x="38" y="19" class="mc-lab" text-anchor="end">3000</text>\n'
+        '          <text x="38" y="35" class="mc-lab" text-anchor="end">1000</text>\n'
+        '          <text x="38" y="69" class="mc-lab" text-anchor="end">100</text>\n'
+        '          <text x="38" y="103" class="mc-lab" text-anchor="end">10</text>\n'
+        f'          <polyline points="{pts}" class="mc-line"/>\n'
+        f'          <line x1="{xdef:.1f}" y1="14" x2="{xdef:.1f}" y2="106" class="mc-def"/>\n'
+        f'          <circle cx="{xdef:.1f}" cy="{ydef:.1f}" r="3.4" class="mc-defdot"/>\n'
+        f'          <text x="{xdef:.1f}" y="118" class="mc-lab" text-anchor="middle">default 0.50 → {c50}</text>\n'
+        '          <text x="42" y="118" class="mc-lab" text-anchor="start">0.30</text>\n'
+        '          <text x="330" y="118" class="mc-lab" text-anchor="end">cutoff 0.80</text>\n'
+        '        </svg>')
+
+
 def main():
     idx = pd.read_csv("data/city_index.csv")
     Sdf = pd.read_csv("data/similarity_matrix.csv", index_col=0)
@@ -95,7 +133,9 @@ def main():
 
     tpl = open("combined_template.html").read()
     assert "__DATA__" in tpl and tpl.count("<script>") == 1
+    assert "__MINICHART__" in tpl, "minichart placeholder missing"
     page = tpl.replace("__DATA__", payload)
+    page = page.replace("__MINICHART__", make_minichart(sims))
 
     # Standalone / GitHub Pages build gets a proper <head> (lang, description,
     # Open Graph) that the artifact runtime supplies on its own. The scratch

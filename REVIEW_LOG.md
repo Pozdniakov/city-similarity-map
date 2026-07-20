@@ -276,3 +276,12 @@ wf_8a0101df. Haiku: clean. Two LOW findings, both fixed:
 - [x] LOW (Sonnet, citations): References list had Bar-Joseph (2001) before
       Barenholtz (2026); APA letter-by-letter (hyphen ignored) puts "Bare..." before
       "Barj...". Swapped the two entries.
+
+## Academic peer-review panel — Round 6 (Opus + Sonnet + Haiku)
+wf_758393b7. Opus clean, Haiku clean. One MED finding, fixed:
+- [x] MED (Sonnet, statistics): the static link-count minichart had baked-in numbers
+      (3403 @ 0.30, 451 @ 0.50, 10 @ 0.80) that had drifted from the live slider counter,
+      which reads DATA.sims and shows 454 @ 0.50, 3413 @ 0.30. Root-fix: the minichart is
+      now GENERATED at build time (build_combined.make_minichart) from the same sims the
+      slider uses, so its polyline, marker, labels and aria-label can never drift again.
+      Verified live counter (454) == chart label (454) at the default cutoff.
