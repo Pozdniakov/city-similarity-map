@@ -463,7 +463,7 @@
       surprising amount of real geography, while news events, ambiguous names and
       shared institutions bend the map in revealing ways. The similarities are
       explored in <b>three linked views</b> below; select any city to light up its
-      neighbours in all of them.</p>
+      neighbours in both maps and rank them in the side panel.</p>
     <a class="heromap-wrap" href="#explore" aria-label="Skip to the interactive maps">
       <svg id="heromap" role="img"
         aria-label="The 124 cities at their real coordinates on a faint world map, coloured by region"></svg>
@@ -553,8 +553,9 @@
   </div>
 
   <h2 class="group-h" id="explore">Explore the maps</h2>
-  <p class="group-lead">The cutoff slider and city search drive all
-    <b>three views at once</b>. <b>Select a city</b> — hover, tap, or Tab to it —
+  <p class="group-lead">The cutoff slider and city search drive
+    <b>both maps at once</b> (the matrix below always shows every pair).
+    <b>Select a city</b> — hover, tap, or Tab to it —
     to preview its five closest neighbours; <b>pin it</b> (click or Enter) to open
     the full ranking in the side panel. Try:
     <button type="button" class="trycity">Lisbon</button> ·
@@ -705,7 +706,7 @@
       beat the raw space. <b>Why has only UMAP got a whisker?</b> Because the other
       three are <i>deterministic</i> — PCA and classical-init MDS have no random step,
       and t-SNE, initialized from PCA rather than a random layout, also lands on the
-      same result every run (its geo-fidelity was .644 on all 12 seeds we tried, so
+      same result every run (its geo-fidelity was .644 on all 12 seeds tried, so
       there is nothing to show). UMAP is the one stochastic method here. Re-running it
       under 12 random seeds gave a <b>min of .60 and a max of .68</b> (mean&nbsp;.65,
       <i>SD</i>&nbsp;.02) — that observed <b>min–max range</b> is what the whisker spans (not
@@ -762,7 +763,7 @@
 
   <h2 class="group-h" id="notice">What to notice</h2>
   <p class="group-lead">A few things the map gets right, and a few it gets wrong.
-    Click a city to light it up in all three views.</p>
+    Click a city to light it up in both maps.</p>
   <ul class="findings">
     <li><b>The tightest pair in the whole matrix</b> is
       <button type="button" class="trycity">Sydney</button> &amp;
@@ -1081,7 +1082,7 @@
       <a class="cite" href="#ref-benesh">(Louwerse &amp; Benesh, 2012)</a>. The
       closest precedent to this page is
       Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a>, who fit
-      city vectors from 17 embedding models to real coordinates as a benchmark —
+      city vectors from 16 embedding models to real coordinates as a benchmark —
       with a more rigorous setup (a spherical 3-D target, error reported in
       kilometres, noise-robustness and cross-validation) and exactly the failure
       mode this map shows: the worst errors come from a name overlapping a more
@@ -1119,7 +1120,7 @@
       coordinates recovers geography far better (reported <i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8
       by Barenholtz, <a class="cite" href="#ref-barenholtz">2026</a>) than these
       <i>unsupervised</i> layouts do
-      (geo-fidelity&nbsp;&rho;&nbsp;&asymp;&nbsp;.5&ndash;.7) — the two figures are
+      (geo-fidelity&nbsp;&rho;&nbsp;&asymp;&nbsp;.57&ndash;.67) — the two figures are
       different metrics on different scales (variance-explained vs rank correlation),
       so read them as a direction, not a subtraction. Either way, what you see is a
       map of <i>discourse</i> more than of the Earth.</p>
@@ -1810,7 +1811,7 @@
     }
     renderMath(document);
 
-    // ---- through-line demo: Paris / London / Lagos in every card ----
+    // ---- through-line demo: Sydney / Melbourne / New York in every card ----
     const demo = DATA.demo;
     const DCOL = ["var(--accent)", "var(--c3)", "var(--c5)"];
     const fmt2 = x => (x < 0 ? "−" : "") + Math.abs(x).toFixed(2).replace("0.", ".");
@@ -1833,7 +1834,7 @@
         });
       });
 
-      // card 2: first five real numbers of Paris, values inside the squares
+      // card 2: first five real numbers of Sydney, values inside the squares
       const mini = document.getElementById("minirow");
       demo.vecs[0].slice(0, 5).forEach(x => {
         const sq = document.createElement("span");

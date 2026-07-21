@@ -42,7 +42,7 @@ selection):
 - **Semantic map** ([plot_map.py](plot_map.py), [make_layouts.py](make_layouts.py))
   — cities placed by dimensionality reduction, so *distance itself* encodes
   dissimilarity; switchable between MDS / PCA / t-SNE / UMAP, each rotated onto
-  real geography (Method, step 9).
+  real geography (Method step 9, layout alternatives).
 - **Clustered similarity matrix** — the full 124×124 matrix, rows/columns
   seriated by hierarchical clustering, dendrogram + region-coloured names down
   the left edge.
@@ -87,7 +87,8 @@ map of *discourse* more than of the Earth.
    to `data/word2vec-google-news-300.bin.gz` (1.74 GB, not committed). Under
    the distributional hypothesis, cities mentioned in similar news contexts
    get similar vectors. No geography enters the similarity computation or the
-   layout — it is used only for the final rigid orientation (step 8).
+   layout — it is used only for the final rigid orientation (step 8,
+   orientation).
 2. **City list.** 124 cities curated by hand (metro population roughly >1M plus
    global prominence), balanced across 9 regions. Region labels are only used
    to colour the plot; they play no role in the computation.

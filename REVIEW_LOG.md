@@ -334,3 +334,27 @@ safety classifier). 1 MED + 6 LOW, all fixed:
       strips the fragment's head lines for the standalone build (the artifact copy keeps
       them — the artifact platform reads the <title>). Standalone now has exactly one of
       each; page verified rendering with no console errors.
+
+## Fable review panel — Round 2 (page + readme + cross-file; all three lenses ran)
+wf_f9f79483. README: CLEAN. Page: 2 MED + 1 LOW. Cross-file: 3 LOW. All fixed:
+- [x] MED (page, truth): "17 embedding models" for Konkol et al. (2017) was WRONG.
+      Verified against the published PDF itself (fetched aclanthology I17-1023,
+      extracted Table 1): exactly 16 embedding models (GloVe 6B x4, 42B, 840B,
+      LexVec x2, MetaEmbeddings, SkipGram x3, FastText, WoRel, LSA, PPMI-SVD) plus
+      2 random baselines. The "17" came from the user-supplied lit review; primary
+      source wins. -> "16 embedding models".
+- [x] MED (page, clarity): "cutoff slider and city search drive all three views at
+      once" + "light up ... in all of them" + "light it up in all three views"
+      overstated — the matrix ignores the slider/search/selection (verified in code:
+      applyThreshold and select() never touch the canvas; the slider label itself
+      says "both maps"). Reworded all three to "both maps" (+ note the matrix always
+      shows every pair).
+- [x] LOW (page): stale comments "Paris / London / Lagos" and "first five real
+      numbers of Paris" -> Sydney / Melbourne / New York, Sydney.
+- [x] LOW (cross-file, stats): supervised-probe sentence used loose "rho ~ .5-.7"
+      vs the measured .57-.67 stated earlier on the page and in the README -> .57-.67.
+- [x] LOW (cross-file): README numeric step cross-refs now carry names
+      ("step 8, orientation"; "Method step 9, layout alternatives") since page/README
+      step numbering differs.
+- [x] LOW (cross-file, voice): "all 12 seeds we tried" -> "all 12 seeds tried"
+      (single-author page; only "we").
