@@ -312,3 +312,25 @@ wf_806dbe0b. One MED, fixed:
 - [x] MED: "Tobler's law" mentioned without an in-text cite while Tobler (1970) is in
       References -> "(linking it to Tobler's law; Tobler, 1970)".
 All numbers, spelling, reference formatting and grammar otherwise verified correct.
+
+## Fable review panel — Round 1 (fable:page FAILED session limit; readme + cross-file ran)
+wf_446adb64. Page lens hit a session limit; README and cross-file lenses completed.
+All findings verified by hand before applying (the cross-file agent ran without the
+safety classifier). 1 MED + 6 LOW, all fixed:
+- [x] MED (cross-file, truth): README pipeline table row 6 said "MDS + UMAP + t-SNE",
+      omitting PCA — contradicting the README's own step 9, the intro, and the page's
+      four-way switcher (make_layouts.py does compute PCA). -> "MDS + PCA + t-SNE + UMAP".
+- [x] LOW x2 (grammar): README "recognisable" -> "recognizable", "initialised" ->
+      "initialized" (Oxford -ize convention).
+- [x] LOW (clarity): thousands separator "7 626" (space, x2) -> "7,626" to match the
+      rest of the README and the page.
+- [x] LOW (clarity): "(step 9)" in Three linked views reads against the 7-row pipeline
+      table -> "(Method, step 9)".
+- [x] LOW (citations): page's Louwerse & Benesh (2012) entry linked PubMed; replaced
+      with the DOI (10.1111/cogs.12000 — verified via Crossref: exact title/authors/
+      volume/pages match).
+- [x] LOW (clarity/validity): built page duplicated <meta charset>, <meta viewport>
+      and <title> inside <body> (template fragment + build head). build_combined.py now
+      strips the fragment's head lines for the standalone build (the artifact copy keeps
+      them — the artifact platform reads the <title>). Standalone now has exactly one of
+      each; page verified rendering with no console errors.

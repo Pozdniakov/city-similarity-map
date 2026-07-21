@@ -21,7 +21,7 @@ Treaty-of-Lisbon coverage).
 | 3. Similarity + MDS | [run_mds.py](run_mds.py) | `data/similarity_matrix.csv`, `data/dissimilarity_matrix.csv`, `data/mds_coordinates.csv` |
 | 4. Plot (MDS map) | [plot_map.py](plot_map.py) | `output/city_map.png`, `output/city_map.html`, `output/artifact_data.json` |
 | 5. Plot (geo network) | [plot_geo_network.py](plot_geo_network.py) | `output/geo_network.png`, `output/geo_network.html`, `output/geo_network_data.json` |
-| 6. Layout variants | [make_layouts.py](make_layouts.py) | `output/layouts.json` — MDS + UMAP + t-SNE, geo-aligned, with metrics |
+| 6. Layout variants | [make_layouts.py](make_layouts.py) | `output/layouts.json` — MDS + PCA + t-SNE + UMAP, geo-aligned, with metrics |
 | 7. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html`, `docs/index.html` — both views, layout switcher, shared cutoff slider, click-to-pin city drawer |
 
 Supporting study: [dissim_study.py](dissim_study.py) — empirical comparison of
@@ -37,12 +37,12 @@ selection):
   at their *true* longitude/latitude on an equirectangular world map, with an
   edge drawn between any pair whose cosine similarity clears the cutoff (line
   opacity/width ∝ similarity). Slider spans **0.30–0.86**; default **0.50**
-  (~450 of 7 626 pairs). A compact Natural Earth 110m land outline
+  (~450 of 7,626 pairs). A compact Natural Earth 110m land outline
   (`data/ne_110m_land.geojson`) is embedded, so no external map tiles.
 - **Semantic map** ([plot_map.py](plot_map.py), [make_layouts.py](make_layouts.py))
   — cities placed by dimensionality reduction, so *distance itself* encodes
   dissimilarity; switchable between MDS / PCA / t-SNE / UMAP, each rotated onto
-  real geography (step 9).
+  real geography (Method, step 9).
 - **Clustered similarity matrix** — the full 124×124 matrix, rows/columns
   seriated by hierarchical clustering, dendrogram + region-coloured names down
   the left edge.
@@ -52,11 +52,11 @@ The page ([build_combined.py](build_combined.py) → `output/similarity_maps.htm
 Explore (the three views) → What to notice → Methodology → Related work →
 References**, with anchor navigation. Hovering a city previews its top-5 neighbours on both maps; clicking
 pins it and opens a side drawer ranking all 123 others. Ships the full
-7 626-pair similarity array inline, so every list is computed live.
+7,626-pair similarity array inline, so every list is computed live.
 
 ## Related work
 
-Recovering a recognisable map from text-only co-occurrence is a robust,
+Recovering a recognizable map from text-only co-occurrence is a robust,
 long-established result. Louwerse and Zwaan (2009) recovered US-city coordinates
 via LSA + MDS (linking it to Tobler's law; Tobler, 1970); Konkol et al. (2017) fit
 word-embedding city vectors to real coordinates as a benchmark; Liétard et al.
@@ -170,7 +170,7 @@ map of *discourse* more than of the Earth.
 
 **Reproducibility.** Stochastic steps are seeded (seed 42). PCA is
 deterministic; MDS uses a deterministic classical-MDS init + single SMACOF
-restart; t-SNE is initialised from PCA rather than a random layout, which makes
+restart; t-SNE is initialized from PCA rather than a random layout, which makes
 it deterministic too (identical geo-fidelity on all 12 seeds tried). Only UMAP
 genuinely varies with the seed (geo-fidelity ρ .60–.68). Hyperparameters are in
 the scripts; versions are pinned

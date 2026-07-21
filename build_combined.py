@@ -157,7 +157,14 @@ def main():
         '<meta property="og:url" content="https://pozdniakov.github.io/city-similarity-map/">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         '</head>\n<body>\n')
-    standalone = head + page + "\n</body>\n</html>"
+    # The artifact fragment keeps its own charset/viewport/title (the artifact
+    # platform reads the <title>); the standalone build supplies these in
+    # <head>, so strip the duplicates from the body fragment.
+    frag_head = ('<meta charset="utf-8">\n'
+                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+                 '<title>Could language reconstruct a map of the world?</title>\n')
+    assert page.startswith(frag_head), "template head lines moved"
+    standalone = head + page[len(frag_head):] + "\n</body>\n</html>"
     os.makedirs("output", exist_ok=True)
     os.makedirs("docs", exist_ok=True)
     with open("output/similarity_maps.html", "w") as f:
