@@ -22,7 +22,7 @@ Treaty-of-Lisbon coverage).
 | 4. Plot (MDS map) | [plot_map.py](plot_map.py) | `output/city_map.png`, `output/city_map.html`, `output/artifact_data.json` |
 | 5. Plot (geo network) | [plot_geo_network.py](plot_geo_network.py) | `output/geo_network.png`, `output/geo_network.html`, `output/geo_network_data.json` |
 | 6. Layout variants | [make_layouts.py](make_layouts.py) | `output/layouts.json` — MDS + PCA + t-SNE + UMAP, geo-aligned, with metrics |
-| 7. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html`, `docs/index.html` — both views, layout switcher, shared cutoff slider, click-to-pin city drawer |
+| 7. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html`, `docs/index.html` — all three views, layout switcher, shared cutoff slider, click-to-pin city drawer |
 
 Supporting study: [dissim_study.py](dissim_study.py) — empirical comparison of
 similarity→dissimilarity transforms (see below).
@@ -114,7 +114,8 @@ map of *discourse* more than of the Earth.
    The textbook objection — `1 − cos` is only a semi-metric — is nearly moot
    here: enumerating **all C(124,3) = 310,124 triples**, exactly **2** violate
    the triangle inequality, by a largest excess of .023 (negligible for SMACOF).
-   `1 − cos` also fits its target best, preserves the cosine ranking best, and
+   `1 − cos` also fits its target best, preserves the global cosine ranking
+   (Spearman ρ) and top-10 neighbourhoods best, and
    all three layouts are nearly identical anyway (Procrustes disparity ≤ .005).
    The chord would be the safer default for datasets with near-duplicates; here
    the simplest transform wins. (Being monotone in each other, all three would
@@ -213,7 +214,7 @@ curl -L -o data/ne_110m_land.geojson \
 .venv/bin/python run_mds.py
 .venv/bin/python plot_map.py           # semantic (MDS) map
 .venv/bin/python plot_geo_network.py   # geographic similarity network
-.venv/bin/python make_layouts.py       # MDS/UMAP/t-SNE layouts + metrics
+.venv/bin/python make_layouts.py       # MDS/PCA/t-SNE/UMAP layouts + metrics
 .venv/bin/python build_combined.py     # combined interactive page (docs/)
 ```
 
@@ -233,10 +234,12 @@ curl -L -o data/ne_110m_land.geojson \
   https://arxiv.org/abs/2310.02207
 - Konkol, M., Brychcín, T., Nykl, M., & Hercig, T. (2017). Geographical
   evaluation of word embeddings. In *Proceedings of the Eighth International
-  Joint Conference on Natural Language Processing* (pp. 224–232).
+  Joint Conference on Natural Language Processing (Volume 1: Long Papers)*
+  (pp. 224–232).
   https://aclanthology.org/I17-1023/
 - Liétard, B., Abdou, M., & Søgaard, A. (2021). Do language models know the way
-  to Rome? In *Proceedings of the Fourth BlackboxNLP Workshop* (pp. 510–517).
+  to Rome? In *Proceedings of the Fourth BlackboxNLP Workshop on Analyzing and
+  Interpreting Neural Networks for NLP* (pp. 510–517).
   https://aclanthology.org/2021.blackboxnlp-1.40/
 - Louwerse, M. M., & Zwaan, R. A. (2009). Language encodes geographical
   information. *Cognitive Science, 33*(1), 51–73.

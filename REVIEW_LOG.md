@@ -384,3 +384,23 @@ wf_b41d79c9. 2 MED + 5 LOW, all fixed:
 - [x] LOW (readme): decimal style unified to APA no-leading-zero for statistics
       (.347/.515/.709 table, fit stats, cosine range/mean, Tampa/Moscow cosines);
       slider cutoffs keep the UI's 0.xx form.
+
+## Fable review panel — Round 4 (all three lenses ran)
+wf_194b27fb. NO HIGH/MED remaining — 7 LOW copy-edit items (one duplicated across
+two reviewers), all fixed:
+- [x] LOW (page, grammar): lone serial comma "hover, tap, or Tab" -> "hover, tap or
+      Tab" (page-wide no-serial-comma style).
+- [x] LOW (page, clarity): "the same asymmetry as this map's weak north-south axis"
+      overstated the equivalence with the LLM-probing papers' regional inequality ->
+      "an asymmetry that echoes ...".
+- [x] LOW x2 (readme + cross-file, duplicate): Run-it comment "# MDS/UMAP/t-SNE
+      layouts" omitted PCA -> "# MDS/PCA/t-SNE/UMAP layouts + metrics".
+- [x] LOW (readme, citations): two truncated proceedings titles completed in BOTH
+      files: IJCNLP + "(Volume 1: Long Papers)"; BlackboxNLP + "on Analyzing and
+      Interpreting Neural Networks for NLP" (titles per aclanthology).
+- [x] LOW (readme, statistics): "preserves the cosine ranking best" qualified to
+      "the global cosine ranking (Spearman ρ) and top-10 neighbourhoods best"
+      (dissim_study also computes recall@5, where the transforms edge ahead within
+      noise).
+- [x] LOW (cross-file): pipeline table "both views" (stale, pre-matrix) -> "all three
+      views".
