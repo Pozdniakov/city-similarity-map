@@ -42,7 +42,7 @@ selection):
 - **Semantic map** ([plot_map.py](plot_map.py), [make_layouts.py](make_layouts.py))
   — cities placed by dimensionality reduction, so *distance itself* encodes
   dissimilarity; switchable between MDS / PCA / t-SNE / UMAP, each rotated onto
-  real geography (Method step 9, layout alternatives).
+  real geography (Method step 8, layout alternatives).
 - **Clustered similarity matrix** — the full 124×124 matrix, rows/columns
   seriated by hierarchical clustering, dendrogram + region-coloured names down
   the left edge.
@@ -87,7 +87,7 @@ map of *discourse* more than of the Earth.
    to `data/word2vec-google-news-300.bin.gz` (1.74 GB, not committed). Under
    the distributional hypothesis, cities mentioned in similar news contexts
    get similar vectors. No geography enters the similarity computation or the
-   layout — it is used only for the final rigid orientation (step 8,
+   layout — it is used only for the final rigid orientation (step 9,
    orientation).
 2. **City list.** 124 cities curated by hand (metro population roughly >1M plus
    global prominence), balanced across 9 regions. Region labels are only used
@@ -100,22 +100,22 @@ map of *discourse* more than of the Earth.
    verified by full-vocabulary scans, and ambiguous tokens tested empirically
    (see notes below).
 4. **Similarity.** Vectors L2-normalized; full 124×124 cosine-similarity
-   matrix (7,626 unique pairs). Observed range −0.06 (Houston–Lisbon) to 0.86
-   (Sydney–Melbourne), mean 0.30.
+   matrix (7,626 unique pairs). Observed range −.06 (Houston–Lisbon) to .86
+   (Sydney–Melbourne), mean .30.
 5. **Dissimilarity: why `d = 1 − cos`.** Three monotone transforms were
    compared empirically with identical SMACOF runs ([dissim_study.py](dissim_study.py)):
 
    | transform | stress-1 | recall@10 | fit ρ (d ↔ 2-D) | layout Δ vs 1−cos |
    |---|---|---|---|---|
-   | `1 − cos` | **0.347** | **0.515** | **0.709** | — |
-   | `√(2(1−cos))` (chord, metric) | 0.392 | 0.505 | 0.687 | 0.005 |
-   | `arccos(cos)` (angle, metric) | 0.384 | 0.511 | 0.692 | 0.003 |
+   | `1 − cos` | **.347** | **.515** | **.709** | — |
+   | `√(2(1−cos))` (chord, metric) | .392 | .505 | .687 | .005 |
+   | `arccos(cos)` (angle, metric) | .384 | .511 | .692 | .003 |
 
    The textbook objection — `1 − cos` is only a semi-metric — is nearly moot
    here: enumerating **all C(124,3) = 310,124 triples**, exactly **2** violate
    the triangle inequality, by a largest excess of .023 (negligible for SMACOF).
    `1 − cos` also fits its target best, preserves the cosine ranking best, and
-   all three layouts are nearly identical anyway (Procrustes disparity ≤ 0.005).
+   all three layouts are nearly identical anyway (Procrustes disparity ≤ .005).
    The chord would be the safer default for datasets with near-duplicates; here
    the simplest transform wins. (Being monotone in each other, all three would
    give an *identical* nonmetric MDS.)
@@ -123,12 +123,30 @@ map of *discourse* more than of the Earth.
    2 components, classical-MDS (Torgerson) init + stress-majorization
    iterations (max 3000, eps 1e-9) — deterministic. Minimizes raw stress
    Σ(d̂ᵢⱼ − dᵢⱼ)².
-7. **Fit diagnostics.** Kruskal stress-1 = √(Σ(d̂ᵢⱼ−dᵢⱼ)²/Σdᵢⱼ²) = **0.347**;
-   Pearson r between input dissimilarities and 2-D distances **0.71**
-   (Spearman ρ 0.71). A heavily compressed fit — expected when flattening
+7. **Fit diagnostics.** Kruskal stress-1 = √(Σ(d̂ᵢⱼ−dᵢⱼ)²/Σdᵢⱼ²) = **.347**;
+   Pearson r between input dissimilarities and 2-D distances **.71**
+   (Spearman ρ .71). A heavily compressed fit — expected when flattening
    high-rank 300-d similarity structure into a plane. Cluster membership and
-   adjacency are trustworthy; fine distance differences are not.
-8. **Orientation (geographic).** MDS solutions are unique up to rotation/
+   broad groupings are trustworthy; exact adjacency and fine distance
+   differences are not (recall@10 = .52 — read nearest neighbours from the
+   similarity ranking, not the map).
+8. **Layout alternatives + geographic fidelity.** Four layouts on the same
+   vectors/cosine distance ([make_layouts.py](make_layouts.py)), each
+   geo-aligned by the same rigid Procrustes step (step 9), switchable on the
+   page: **PCA** (linear baseline, recall@10 .41), **MDS** (only method
+   optimizing all pairwise distances; default), **t-SNE** and **UMAP**
+   (nonlinear, local neighbourhoods; recall@10 .71 / .70). To compare them
+   *as maps of the world*, score each by **geo-fidelity** — the alignment-free
+   rank correlation between on-screen distances and real great-circle
+   distances. Result:
+   **t-SNE .64 ≈ UMAP .67 > PCA .60 > MDS .57 > raw 300-d .50** — the
+   neighbourhood methods (t-SNE, UMAP) recover geography better than the global
+   ones (PCA, MDS), which in turn beat the un-projected 300-d cosine distances,
+   because geographically near cities tend to be one another's semantic
+   neighbours. Only UMAP is seed-dependent (ρ .60–.68 over 12 seeds, mean .65);
+   PCA, classical-init MDS and PCA-init t-SNE are deterministic, so the
+   t-SNE/UMAP gap sits within that seed noise.
+9. **Orientation (geographic).** MDS solutions are unique up to rotation/
    reflection/translation, so the raw axes are meaningless. Rather than an
    arbitrary convention, the configuration is aligned to real geography by
    **orthogonal Procrustes** (`cities.CITY_LATLON`): the rotation + reflection
@@ -139,22 +157,7 @@ map of *discourse* more than of the Earth.
    longitude at r = .70 and N–S with latitude at only r = .17. **These axis
    correlations are measured after an alignment that itself uses the real
    coordinates**, so they describe residual correspondence, not unsupervised
-   recovery — for an alignment-free measure, see geo-fidelity below.
-9. **Layout alternatives + geographic fidelity.** Four layouts on the same
-   vectors/cosine distance ([make_layouts.py](make_layouts.py)), each
-   geo-aligned by the same rigid Procrustes step, switchable on the page: **PCA**
-   (linear baseline, recall@10 .41), **MDS** (only method optimizing all
-   pairwise distances; default), **t-SNE** and **UMAP** (nonlinear, local
-   neighbourhoods; recall@10 .71 / .70). To compare them *as maps of the world*,
-   score each by **geo-fidelity** — the alignment-free rank correlation between
-   on-screen distances and real great-circle distances. Result:
-   **t-SNE .64 ≈ UMAP .67 > PCA .60 > MDS .57 > raw 300-d .50** — the
-   neighbourhood methods (t-SNE, UMAP) recover geography better than the global
-   ones (PCA, MDS), which in turn beat the un-projected 300-d cosine distances,
-   because geographically near cities tend to be one another's semantic
-   neighbours. Only UMAP is seed-dependent (ρ .60–.68 over 12 seeds, mean .65);
-   PCA, classical-init MDS and PCA-init t-SNE are deterministic, so the
-   t-SNE/UMAP gap sits within that seed noise.
+   recovery — for an alignment-free measure, see geo-fidelity in step 8.
 10. **Beyond word2vec.** Kept deliberately as the canonical teaching model
     with ready phrase tokens and instructive quirks. Cleaner alternatives:
     **Wikipedia2Vec** (entity vectors — solves name collisions like
@@ -193,8 +196,8 @@ Verified against the full 3M-token vocabulary:
   exile the city to the periphery; the composition places it correctly beside
   Monterrey and Guadalajara.
 - St Petersburg uses `Saint_Petersburg`: the more frequent `St._Petersburg`
-  token is dominated by St. Petersburg, *Florida* (cos to Tampa 0.68 vs
-  Moscow 0.60).
+  token is dominated by St. Petersburg, *Florida* (cos to Tampa .68 vs
+  Moscow .60).
 - Kyiv resolves to its own `Kyiv` token even in this 2013-era corpus.
 
 ## Run it

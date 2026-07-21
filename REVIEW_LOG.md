@@ -358,3 +358,29 @@ wf_f9f79483. README: CLEAN. Page: 2 MED + 1 LOW. Cross-file: 3 LOW. All fixed:
       step numbering differs.
 - [x] LOW (cross-file, voice): "all 12 seeds we tried" -> "all 12 seeds tried"
       (single-author page; only "we").
+
+## Fable review panel — Round 3 (all three lenses ran; the earlier "round 3" was a
+## full session-limit failure and does not count)
+wf_b41d79c9. 2 MED + 5 LOW, all fixed:
+- [x] MED (page, statistics): "The order is the same every time ... holds in every
+      run" overstated — UMAP's worst seed (.603) sits .004 above PCA (.599), invisible
+      at 2 decimals and far inside UMAP's seed SD (.021). Rewrote: deterministic part
+      never moves (raw < MDS < PCA < t-SNE); UMAP usually on top; ordering held in all
+      12 runs but at its narrowest by .004 — "a strong tendency, not a law".
+- [x] MED (cross-file, truth): README "Cluster membership and adjacency are
+      trustworthy" contradicted the page (recall@10 .52; "read neighbours from the
+      ranking"). -> "broad groupings trustworthy; exact adjacency and fine distances
+      not (recall@10 = .52 ...)".
+- [x] LOW (page): Kyiv item's "standard English form after 2014" was misleading ->
+      "displaced 'Kiev' ... (most news style guides switched around 2019)".
+- [x] LOW (page): Oceania shared --c1 blue with North America — indistinguishable on
+      the colour-only hero map (8 colours for 9 regions). Added a ninth colour --c9
+      (brown #8a5a2b light / #c08b4d dark) in all four palette blocks; hero now shows
+      9 distinct fills (verified: 5 Oceania dots on --c9).
+- [x] LOW (cross-file): page's "2013 news overwhelmingly used Saigon" unsupported ->
+      "still common in news and historical coverage".
+- [x] LOW (cross-file): README Method steps renumbered to match the page (Layout
+      alternatives = 8, Orientation = 9) with both cross-references updated.
+- [x] LOW (readme): decimal style unified to APA no-leading-zero for statistics
+      (.347/.515/.709 table, fit stats, cosine range/mean, Tampa/Moscow cosines);
+      slider cutoffs keep the UI's 0.xx form.

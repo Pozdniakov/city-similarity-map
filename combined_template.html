@@ -17,6 +17,7 @@
     --edge: 42,120,214;
     --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
     --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834;
+    --c9: #8a5a2b;
     --font-body: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   }
@@ -30,6 +31,7 @@
       --edge: 90,160,240;
       --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #009000;
       --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926;
+      --c9: #c08b4d;
     }
   }
   :root[data-theme="light"] {
@@ -41,6 +43,7 @@
     --edge: 42,120,214;
     --c1: #2a78d6; --c2: #1baf7a; --c3: #eda100; --c4: #008300;
     --c5: #4a3aa7; --c6: #e34948; --c7: #e87ba4; --c8: #eb6834;
+    --c9: #8a5a2b;
   }
   :root[data-theme="dark"] {
     --plane: #191713; --surface: #211e19;
@@ -51,6 +54,7 @@
     --edge: 90,160,240;
     --c1: #3987e5; --c2: #199e70; --c3: #c98500; --c4: #009000;
     --c5: #9085e9; --c6: #e66767; --c7: #d55181; --c8: #d95926;
+    --c9: #c08b4d;
   }
   * { box-sizing: border-box; }
   body {
@@ -687,9 +691,10 @@
       <text x="217" y="146" class="gf-axt" text-anchor="middle">geo-fidelity — Spearman ρ (0 = no relation, 1 = perfect)</text>
       <text x="217" y="158" class="gf-axt" text-anchor="middle">UMAP whisker = min–max over 12 seeds · others deterministic</text>
     </svg>
-    <p class="gf-lead">The order is the same every time:
-      <b>raw&nbsp;.50 &lt; MDS&nbsp;.57 &lt; PCA&nbsp;.60 &lt; t-SNE&nbsp;.64 &asymp;
-      UMAP&nbsp;.67</b>. The two <b>neighbourhood</b> methods (t-SNE, UMAP) — which
+    <p class="gf-lead">The deterministic part of the order never moves:
+      <b>raw&nbsp;.50 &lt; MDS&nbsp;.57 &lt; PCA&nbsp;.60 &lt; t-SNE&nbsp;.64</b>,
+      and <b>UMAP usually lands on top</b> (.67 in the run shown). The two
+      <b>neighbourhood</b> methods (t-SNE, UMAP) — which
       preserve who-sits-next-to-whom — beat the two <b>global</b> methods (MDS, which
       fits every pairwise distance; PCA, the linear variance projection), and both
       beat the raw space. <b>Why has only UMAP got a whisker?</b> Because the other
@@ -700,9 +705,10 @@
       under 12 random seeds gave a <b>min of .60 and a max of .68</b> (mean&nbsp;.65,
       <i>SD</i>&nbsp;.02) — that observed <b>min–max range</b> is what the whisker spans (not
       a confidence interval), and the run shown, .67, sits near its top. So t-SNE
-      (.64) and UMAP (.65&nbsp;±&nbsp;.02) are effectively tied; the
-      neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw ordering holds in every
-      run, only the t-SNE-vs-UMAP photo-finish is within noise.</p>
+      (.64) and UMAP (.65&nbsp;±&nbsp;.02) are effectively tied, and the
+      neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&gt;&nbsp;raw ordering held in all 12
+      runs tried — though at its narrowest (UMAP's worst seed .603 vs PCA's .599) by
+      only .004, so read it as a strong tendency, not a law.</p>
     <p class="gf-lead"><b>Why should squeezing 300 dimensions into 2 make the map
       <i>more</i> geographic, not less?</b> Throwing away 298 dimensions should lose
       information, so you would expect the 2-D distances to track geography worse than
@@ -834,15 +840,17 @@
             dateline tokens keep company with other datelines, so their cosines
             run uniformly low and push the city to the map's edge.</li>
           <li><b>Ho Chi Minh City</b> &rarr; <span class="tok">Saigon</span>: the
-            full name fragmented, but 2013 news overwhelmingly used "Saigon", a
-            well-trained token with the right meaning.</li>
+            full name fragmented into pieces, while <span class="tok">Saigon</span>
+            — still common in news and historical coverage — is a well-trained
+            token with the right meaning.</li>
           <li><b>St&nbsp;Petersburg</b> &rarr; <span class="tok">Saint_Petersburg</span>,
             not the commoner <span class="tok">St._Petersburg</span> — which is
             dominated by St.&nbsp;Petersburg, <i>Florida</i> (cos to Tampa .68 vs
             Moscow .60).</li>
           <li><b>Kyiv</b> &rarr; <span class="tok">Kyiv</span>: this spelling
-            already had its own token in the 2013 corpus, years before it became
-            the standard English form after 2014. <b>New York</b> and
+            already had its own token in the 2013 corpus, years before it displaced
+            "Kiev" as the standard English form (most news style guides switched
+            around 2019). <b>New York</b> and
             <b>Delhi</b> fall back to <span class="tok">New_York</span> and
             <span class="tok">Delhi</span>.</li>
         </ul>
@@ -1217,7 +1225,7 @@
       "South Asia":                 { c: "--c6", m: "plus" },
       "East Asia":                  { c: "--c7", m: "x" },
       "Southeast Asia":             { c: "--c8", m: "pent" },
-      "Oceania":                    { c: "--c1", m: "tri" },
+      "Oceania":                    { c: "--c9", m: "tri" },
     };
     const MARK = {
       circle:  s => `M ${-s},0 a ${s},${s} 0 1,0 ${2*s},0 a ${s},${s} 0 1,0 ${-2*s},0`,
