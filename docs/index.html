@@ -755,25 +755,31 @@
       <tr><th></th><th>raw 300-d</th><th>MDS</th><th>PCA</th><th>t-SNE</th><th>UMAP</th></tr>
       <tr><td>geo-fidelity, all 7,626 pairs</td><td>.50</td><td>.57</td><td>.60</td><td>.64</td><td>.67</td></tr>
       <tr><td>within-region pairs only (12%)</td><td><b>.33</b></td><td>.23</td><td>.23</td><td><b>.33</b></td><td>.28</td></tr>
-      <tr><td>region-collapsed layout (9 points)</td><td>&mdash;</td><td><b>.71</b></td><td><b>.71</b></td><td><b>.68</b></td><td><b>.72</b></td></tr>
+      <tr><td>region-collapsed (9 points)</td><td><b>.82</b></td><td><b>.71</b></td><td><b>.71</b></td><td><b>.68</b></td><td><b>.72</b></td></tr>
       <tr><td>geographic neighbours kept, recall@10</td><td><b>.59</b></td><td>.45</td><td>.36</td><td>.61</td><td>.61</td></tr>
     </table></div>
     <p class="gf-cap">Read row by row: <b>within regions</b> the raw space ties the
       best layout (.33) and beats the rest — the projections add nothing there.
-      <b>Collapse each layout to nine region-centroid points</b> — destroying every
-      within-region detail — and the score <i>rises</i> for all four (e.g.
-      UMAP .67&nbsp;&rarr;&nbsp;.72), because 88% of city pairs are between-region.
+      <b>Collapse to nine region points</b> — destroying every within-region
+      detail — and the score <i>rises</i> for all five (e.g.
+      UMAP .67&nbsp;&rarr;&nbsp;.72), because 88% of city pairs are between-region;
+      the raw space rises most of all (.50&nbsp;&rarr;&nbsp;.82: nine region-mean
+      <i>vectors</i> track great-circle distance better than any 2-D layout retains,
+      so the embedding's regional core is richer than what reaches the screen).
       And on <b>keeping each city's ten nearest geographic neighbours</b>, the raw
       space (.59) beats both global layouts outright and is within a whisker of
       t-SNE/UMAP (.61).</p>
     <p class="gf-cap">Aren't nine hand-drawn regions an artificial yardstick? Three
       controls say the collapse result is real. The lift <b>does not need the
       labels</b>: cutting this page's own similarity dendrogram into nine
-      <i>data-driven</i> clusters (no geography, no labels) lifts MDS/PCA/t-SNE the
-      same way (.57&rarr;.69, .60&rarr;.66, .64&rarr;.67; UMAP flat). Grouping by
-      k-means on the <i>true coordinates</i> lifts scores even higher (up to .74).
+      <i>data-driven</i> clusters (no geography, no labels) lifts the raw space and
+      MDS/PCA/t-SNE the same way (raw .50&rarr;.71; .57&rarr;.69, .60&rarr;.66,
+      .64&rarr;.67; UMAP flat). Grouping by
+      k-means on the <i>true coordinates</i> lifts scores higher still (layouts up
+      to .74, raw to .83).
       And collapsing by <b>random groupings</b> of the same sizes crashes every score
-      to &rho;&nbsp;&asymp;&nbsp;.03 — collapsing per se earns nothing; only
+      to noise level (&rho;&nbsp;&asymp;&nbsp;0, means .01&ndash;.03 over 20 draws) —
+      collapsing per se earns nothing; only
       geographically meaningful grouping does, and the layouts discovered that
       grouping themselves. So "every projection beats the raw space" is true for the
       headline metric, but the gain lives almost entirely in <b>between-region
@@ -853,7 +859,7 @@
     <li><b>The map's two systematic failures</b> — showcased, not hidden. First,
       the default MDS view recovers almost no <b>north&ndash;south</b> structure
       (latitude <i>r</i>&nbsp;=&nbsp;.17; even the best possible rotation only
-      reaches .21, while t-SNE manages .40). Second, on-screen <b>adjacency lies</b>:
+      reaches .21, while t-SNE manages .41). Second, on-screen <b>adjacency lies</b>:
       about half of each city's true top-10 neighbours sit somewhere else in 2-D
       (recall@10&nbsp;.52 for MDS), which is why the pinned drawer always ranks
       neighbours from the true 300-d cosines. The charming single-city quirks above
@@ -1131,8 +1137,8 @@
     </ol>
     <h3 class="meth-sub">Software</h3>
     <p>The pipeline runs on Python&nbsp;3.11. The GoogleNews-vectors-negative300
-      word2vec vectors <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al.,
-      2013)</a> are read straight from Google's published binary by a small NumPy
+      word2vec vectors <a class="cite" href="#ref-mikolov">(Mikolov, Sutskever,
+      et&nbsp;al., 2013)</a> are read straight from Google's published binary by a small NumPy
       parser (no gensim dependency); numerical work uses NumPy&nbsp;2.4 and
       pandas&nbsp;3.0. The projections use scikit-learn&nbsp;1.9.0 (MDS, PCA, t-SNE)
       and umap-learn&nbsp;0.5.12, and the pairwise distances, hierarchical clustering

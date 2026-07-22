@@ -80,10 +80,12 @@ result), and an alignment-free geo-fidelity metric compared *across
 projections* rather than across embeddings — with a decomposition showing that
 the layouts' advantage over the raw space lives almost entirely in
 between-region structure (within regions the raw space ties the best layout,
-and collapsing any layout to nine region points *raises* its score — a lift
-that survives label-free controls: data-driven dendrogram clusters lift scores
-the same way, k-means on true coordinates lifts them higher, and random
-groupings of the same sizes crash them to ρ ≈ .03). It also
+and collapsing to nine region points *raises* every score — the raw space most
+of all, .50 → .82: nine region-mean vectors track great-circle distance better
+than any 2-D layout retains). The lift survives label-free controls: data-driven
+dendrogram clusters lift the raw space and MDS/PCA/t-SNE the same way (UMAP
+stays flat), k-means on true coordinates lifts scores higher still, and random
+groupings of the same sizes crash them to noise level, ρ ≈ 0. It also
 shows the gap the literature predicts: a *supervised* probe that regresses
 coordinates recovers geography far better (R² ≈ .8, reported in a preprint;
 Barenholtz, 2026) than these *unsupervised* layouts do (geo-fidelity
@@ -102,8 +104,9 @@ the Earth: a sharp map of the world's regions, a blurry map inside them.
    to `data/word2vec-google-news-300.bin.gz` (1.74 GB, not committed). Under
    the distributional hypothesis, cities mentioned in similar news contexts
    get similar vectors. No geography enters the similarity computation or the
-   layout — it is used only for the final rigid orientation (step 9,
-   orientation).
+   layout — it is used for the final rigid orientation (step 9, orientation)
+   and, as ground truth, in adjudicating ambiguous token choices (step 3): a
+   fully blind pipeline would have put St Petersburg in Florida.
 2. **City list.** 124 cities curated by hand (metro population roughly >1M plus
    global prominence), balanced across 9 regions. Region labels are only used
    to colour the plot; they play no role in the computation.

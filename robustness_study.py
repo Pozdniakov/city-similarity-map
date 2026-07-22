@@ -27,7 +27,11 @@ from scipy.stats import spearmanr
 
 from cities import CITY_LATLON
 
-RNG = np.random.default_rng(42)
+# Dedicated RNG streams per analysis, so adding/reordering sections can never
+# silently shift another section's numbers (this bit us once: the random-
+# partition control consumed shared RNG state and moved the bootstrap CIs).
+RNG_BOOT = np.random.default_rng(42)
+RNG_RAND = np.random.default_rng(43)
 
 
 def great_circle(names):
@@ -89,7 +93,18 @@ def main():
     print("full   :", out["geofid_full"])
     print("within :", out["geofid_within"])
 
-    # 2) region-collapse counterfactual
+    # 2) region-collapse counterfactual — for the layouts (collapse in 2-D
+    #    coordinates) AND for the raw space (collapse in 300-d: assign every
+    #    city its region's mean vector, then cosine distances between means)
+    def collapse_raw_by(labels):
+        Vc = V.copy()
+        for r in set(labels):
+            m = labels == r
+            Vc[m] = V[m].mean(axis=0)
+        Vc = Vc / np.linalg.norm(Vc, axis=1, keepdims=True)
+        Dc = 1.0 - np.clip(Vc @ Vc.T, -1, 1)
+        return geofid_from_dist(Dc, gc, iu)
+
     out["geofid_region_collapsed"] = {}
     for k in keys:
         Xc = X[k].copy()
@@ -98,6 +113,7 @@ def main():
             Xc[m] = X[k][m].mean(axis=0)
         out["geofid_region_collapsed"][k] = round(
             geofid_from_dist(squareform(pdist(Xc)), gc, iu), 3)
+    out["geofid_region_collapsed"]["raw"] = round(collapse_raw_by(regions), 3)
     print("region-collapsed:", out["geofid_region_collapsed"])
 
     # 2b) collapse CONTROLS — is the region-collapse lift an artefact of the
@@ -129,18 +145,21 @@ def main():
     geo9 = KMeans(n_clusters=9, n_init=10, random_state=0).fit_predict(xyz)
     out["collapse_dendrogram9"] = {k: round(collapse_by(dendro9, X[k]), 3)
                                    for k in keys}
+    out["collapse_dendrogram9"]["raw"] = round(collapse_raw_by(dendro9), 3)
     out["collapse_geo_kmeans9"] = {k: round(collapse_by(geo9, X[k]), 3)
                                    for k in keys}
-    rand_vals = {k: [] for k in keys}
+    out["collapse_geo_kmeans9"]["raw"] = round(collapse_raw_by(geo9), 3)
+    rand_vals = {k: [] for k in keys + ["raw"]}
     for rep in range(20):
-        perm = RNG.permutation(regions)  # same group sizes, random membership
+        perm = RNG_RAND.permutation(regions)  # same group sizes, random membership
         for k in keys:
             rand_vals[k].append(collapse_by(perm, X[k]))
+        rand_vals["raw"].append(collapse_raw_by(perm))
     out["collapse_random_mean"] = {k: round(float(np.mean(rand_vals[k])), 3)
-                                   for k in keys}
+                                   for k in keys + ["raw"]}
     out["collapse_random_range"] = {k: [round(float(np.min(rand_vals[k])), 3),
                                         round(float(np.max(rand_vals[k])), 3)]
-                                    for k in keys}
+                                    for k in keys + ["raw"]}
     print("collapse by data-driven dendrogram cut (k=9):", out["collapse_dendrogram9"])
     print("collapse by k-means on true coords (k=9):   ", out["collapse_geo_kmeans9"])
     print("collapse by RANDOM partitions (mean of 20): ", out["collapse_random_mean"])
@@ -154,7 +173,7 @@ def main():
     B = 1000
     boots = {k: np.empty(B) for k in keys + ["raw"]}
     for b in range(B):
-        s = RNG.integers(0, n, n)
+        s = RNG_BOOT.integers(0, n, n)
         su = np.triu_indices(n, k=1)
         gcb = gc[np.ix_(s, s)]
         keep = gcb[su] > 0  # drop duplicate-city zero-distance pairs

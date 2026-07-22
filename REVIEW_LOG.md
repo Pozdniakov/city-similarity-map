@@ -483,3 +483,56 @@ hand-drawn regions an artificial yardstick?"), README mirrored.
 Also per Ivan: the page's dual identity (teaching demonstration AND small standalone
 investigation) now stated explicitly in Related work + README intro; EiC's
 teaching-apparatus request remains open as a deliberate positioning choice.
+
+## Raw-space collapse added (Ivan: "почему region-collapsed не делается для raw?")
+No principled reason — an omission. Added collapse_raw_by(): assign each city its
+region's MEAN 300-d vector, cosine distances between means, geo-fidelity. Results
+(robustness.json): region-collapsed raw = .815 — the highest of all (collapsed
+layouts .68-.72); dendrogram-cut raw .711; k-means-coords raw .825; random .024.
+Reading: the embedding's regional core is RICHER than what any 2-D layout retains —
+nine region-mean vectors track great-circle distance at rho=.82 with no projection.
+Table "—" replaced with .82; controls paragraph + README updated.
+
+## Re-review round 1 (partial: recommended lens ran; required + fresh-eyes hit session
+## limit, relaunching)
+rr:recommended verified S1-S4 + A1-A2 against files and shipped artifacts:
+S1/S3/S4/A1/A2 Addressed, S2 Partially. Residuals triaged (classifier was unavailable
+for this agent, so every claim re-verified by hand):
+- [x] REAL: step-8 details bootstrap CIs had drifted — my collapse-controls insertion
+      consumed shared RNG state before the bootstrap, shifting resamples. Root fix:
+      dedicated RNG streams per analysis (RNG_BOOT=42, RNG_RAND=43) so section order
+      can never move another section's numbers; rerun reproduces the page's CIs
+      exactly ([-.02,.08], [-.05,.10], [.04,.15]).
+- [x] REAL: ".40 vs .41" — What-to-notice failures item said t-SNE "manages .40" while
+      step 9's rotation scan says .41 (canonical .407). -> .41.
+- [x] REAL (follow-on): placebo means with the dedicated stream are .01-.03; page
+      wording made rerun-proof: "noise level (rho ~= 0, means .01-.03 over 20 draws)".
+- [~] REJECTED: claimed leftover "(Mikolov et al., 2013)" in Software section — the
+      built page has only disambiguated forms (2x Sutskever, 1x Yih); verified by grep.
+
+## Re-review complete (all three lenses) — verification matrix
+REQUIRED:  R1 Addressed / R2 Addressed / R3 Addressed / R4 Addressed /
+           R5 Deliberately declined (dual positioning stated; venue-fit question
+           stays open by design) / R6 Addressed.
+RECOMMENDED: S1 / S3 / S4 / A1 / A2 Addressed; S2 Partially -> now fully.
+Fresh-eyes found 3 MED + 1 LOW in the revised material, all fixed:
+- [x] MED citations: "(Mikolov et al., 2013)" in the Software section WAS ambiguous
+      after all — the cite is split across a line break, which my single-line grep
+      missed. My earlier "REJECTED" note was WRONG; the reviewer was right. Fixed to
+      (Mikolov, Sutskever, et al., 2013); built page now has 3x Sutskever + 1x Yih.
+      CORRECTION to the previous log entry.
+- [x] MED statistics: README said dendrogram clusters "lift scores the same way" —
+      false for UMAP (flat, .671->.665). Mirrored the page's honest scoping.
+- [x] MED truth: README step 1 lacked the ground-truth-adjudication qualification the
+      page carries (R3) — added ("...and, as ground truth, in adjudicating ambiguous
+      token choices (step 3): a fully blind pipeline would have put St Petersburg in
+      Florida").
+- [x] LOW grammar: README parenthetical broken by the raw-collapse edit (sentence
+      break inside "(...)", stranded ")") — restructured.
+Noted, no action: keyboard access is Tab-through-124-markers (future accessibility
+pass); k-means raw .825 -> ".83" (consistent half-up rounding); MDS recall@10 .52
+(half-up of .515 per layouts.json).
+NEW EDITORIAL DECISION: ACCEPT (with the R5 venue-fit question recorded as open by
+deliberate positioning). All round-1 CRITICAL and MAJOR findings verified closed by
+analysis and reframing; revision additions (centroid controls, raw-collapse .82)
+verified against shipped artifacts.
