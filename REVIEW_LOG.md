@@ -414,3 +414,72 @@ Fable loop complete: R1 (1 MED + 6 LOW) -> R2 (2 MED + 5 LOW) -> R3 (2 MED + 5 L
 -> R4 (7 LOW) -> R5 (clean x3). Combined with the earlier Opus+Sonnet+Haiku loop
 (also converged), the page and README have now passed two independent multi-round
 multi-model review loops.
+
+## Major-Revision implementation (panel roadmap: REQUIRED + RECOMMENDED, per Ivan's
+## approval; R5 teaching apparatus deliberately skipped — page stays an essay)
+New analysis: robustness_study.py -> output/robustness.json (all numbers verified):
+  between-region share .878; within-region geo-fidelity raw .33 = t-SNE .33 > UMAP .28
+  > MDS .23 = PCA .23; region-collapse RAISES every layout (MDS .574->.706, PCA
+  .599->.705, t-SNE .644->.681, UMAP .671->.720); geographic neighbour recall@10 raw
+  .59 vs MDS .45 / PCA .36 / t-SNE .61 / UMAP .61; 1000-resample city bootstrap:
+  all layout-minus-raw CIs exclude 0 (PCA-raw [.04,.15]), all adjacent layout CIs
+  include 0; rotation scan MDS max lat-r .209, t-SNE .407.
+- [x] R1 (DA C1/C2): geo-fidelity DECOMPOSITION added to the page — new table (full /
+      within-region / region-collapsed / neighbour recall) + rewritten mechanism
+      paragraph presenting denoising AND cluster quantization; verdict propagated to
+      hero ("partly has a precise shape... sharp map of regions, blurry inside"),
+      What-to-notice, Related work, README.
+- [x] R2: hero now defines "partly" (regional structure strong, within-region blurry,
+      N-S weaker than E-W).
+- [x] R3: "no geographic information enters" contradiction resolved — Methodology
+      step 1 now discloses that token resolution was adjudicated with geographic
+      ground truth (a blind pipeline would put St Petersburg in Florida).
+- [x] R4: compute_intervals.py fixed — classical-init MDS seed sweep (constant .572
+      x12, determinism now VERIFIED) + separate honest random-init sensitivity sweep
+      (.496-.578); r~=.21 latitude ceiling now backed by a shipped rotation scan;
+      both scripts added to README pipeline + Run-it.
+- [x] R6 (R3-reviewer W1-W3): Oceania got a unique HEXAGON marker; hero draws region
+      SHAPES (colour+shape redundant from the first figure); geo-map edges and
+      spotlight lines now wrap at the antimeridian (154 ambient + e.g. 36 of
+      Auckland's 123 spot lines draw the short way across the Pacific); interactive
+      SVGs role="group", markers role="button" with "City, Region" labels; matrix
+      rows get shape glyphs (Path2D) + canvas aria points to the accessible
+      search/drawer pathway; drawer head aria-live="polite".
+- [x] S1: city-bootstrap caveat added ("advantage over raw survives, podium positions
+      do not").
+- [x] S2: added verified refs Mikolov-Yih-Zweig 2013 (N13-1090), Montello et al. 2003
+      (COSIT, DOI), Gupta et al. 2015 (D15-1002), Espadoto et al. 2021 (TVCG DOI);
+      Mikolov 2013 cites disambiguated APA-style (Mikolov, Sutskever, et al.);
+      "echoes N-S axis" category confusion fixed; Recchia & Louwerse re-glossed;
+      unverified "worst for Oceania/South Asia/South America" list dropped.
+- [x] S3 (light): step-8 stability machinery moved into a <details> disclosure.
+- [x] S4: Barenholtz marked "preprint"; two systematic failures (N-S weakness,
+      adjacency distortion) added as an explicit What-to-notice item; London hinge
+      operationalized (.31 vs .30, "among the closest, not a podium"); Dubai top-10
+      now includes Amman + flagged-ambiguous Hyderabad; Sydney-Melbourne gloss hedged.
+Verified: build OK; 9 region colours + shapes on hero; decomposition table exact;
+154 wrapped edges; Auckland spotlight wraps (36/123); no dead cite anchors; roles
+correct; no console errors; no h-scroll desktop/mobile.
+NOT pushed — awaiting Ivan's approval per ask-before-final-edits.
+
+## Centroid-critique deep-dive (Ivan: "они же очень artificial? насколько эта критика
+## вообще имеет место?")
+Three controls added to robustness_study.py (shipped in output/robustness.json):
+- LABEL-FREE: cutting the page's own average-linkage dendrogram (built from 1-cos
+  alone) into 9 data-driven clusters reproduces the lift for MDS .574->.688,
+  PCA .599->.659, t-SNE .644->.670; UMAP essentially flat (.671->.665). The effect
+  does NOT depend on the hand-drawn region labels.
+- GEOMETRIC: k-means (k=9) on the true coordinates lifts higher still (up to
+  UMAP .742) — the metric essentially measures region-scale geographic recovery.
+- PLACEBO: collapsing by RANDOM partitions of the same sizes crashes every score to
+  rho ~= .03 (20 reps, range tight) — collapsing per se earns nothing; only
+  geographically meaningful grouping does.
+VERDICT: the DA's core point stands (the aggregate metric is dominated by
+between-region structure and prefers a 9-point regional diagram to the full map),
+but the "gazetteer" framing overstates: the collapsed points sit where each layout
+itself put the regions, i.e. the between-region arrangement is genuinely recovered
+geography at continental scale. Page updated: new controls paragraph ("Aren't nine
+hand-drawn regions an artificial yardstick?"), README mirrored.
+Also per Ivan: the page's dual identity (teaching demonstration AND small standalone
+investigation) now stated explicitly in Related work + README intro; EiC's
+teaching-apparatus request remains open as a deliberate positioning choice.

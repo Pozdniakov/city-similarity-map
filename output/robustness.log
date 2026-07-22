@@ -1,0 +1,37 @@
+pairs: 7626  between-region share: 0.878
+full   : {'mds': 0.574, 'pca': 0.599, 'tsne': 0.644, 'umap': 0.671, 'raw': 0.503}
+within : {'mds': 0.232, 'pca': 0.225, 'tsne': 0.332, 'umap': 0.28, 'raw': 0.332}
+region-collapsed: {'mds': 0.706, 'pca': 0.705, 'tsne': 0.681, 'umap': 0.72}
+geo neighbour recall@10: {'mds': 0.452, 'pca': 0.362, 'tsne': 0.606, 'umap': 0.612, 'raw': 0.594}
+bootstrap 95% CIs: {
+  "pca_minus_mds": [
+    -0.023,
+    0.076
+  ],
+  "tsne_minus_pca": [
+    -0.01,
+    0.094
+  ],
+  "umap_minus_tsne": [
+    -0.045,
+    0.096
+  ],
+  "mds_minus_raw": [
+    0.023,
+    0.118
+  ],
+  "pca_minus_raw": [
+    0.042,
+    0.15
+  ],
+  "tsne_minus_raw": [
+    0.08,
+    0.204
+  ],
+  "umap_minus_raw": [
+    0.091,
+    0.241
+  ]
+}
+max |corr(y', lat)| over rotations: {'mds': 0.209, 'tsne': 0.407}
+Saved output/robustness.json

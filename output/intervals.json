@@ -16,7 +16,14 @@
     "sd": 0.021,
     "seed42": 0.671
   },
-  "mds": {
+  "mds_classical_init": {
+    "min": 0.572,
+    "max": 0.572,
+    "mean": 0.572,
+    "sd": 0.0,
+    "seed42": 0.572
+  },
+  "mds_random_init_sensitivity": {
     "min": 0.496,
     "max": 0.578,
     "mean": 0.551,

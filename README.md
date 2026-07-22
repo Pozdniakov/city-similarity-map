@@ -1,16 +1,18 @@
 # Could language reconstruct a map of the world?
 
-**Live page: https://pozdniakov.github.io/city-similarity-map/** — a teaching
-demo: a geographic similarity network, a semantic map (MDS / PCA / t-SNE / UMAP),
+**Live page: https://pozdniakov.github.io/city-similarity-map/** — deliberately
+both a teaching demo and a small standalone investigation: a geographic
+similarity network, a semantic map (MDS / PCA / t-SNE / UMAP),
 and a clustered similarity matrix, with a shared cutoff slider and per-city drawer.
 
 A word2vec-based "map" of 124 major world cities: pairwise cosine similarity
 between city name vectors is converted to dissimilarity and projected to 2-D
 with metric multidimensional scaling. Cities cluster by the company they keep
-in news text — which largely reconstructs geography, with informative
-exceptions (Dubai's ties reach from the Gulf into South Asia, London sits
-between the US and Europe, Lisbon is pulled away from Iberia by
-Treaty-of-Lisbon coverage).
+in news text — which recovers the world's broad *regional* structure well
+(within-region geography stays blurry; a decomposition on the page shows where
+the signal lives), with informative exceptions (Dubai's ties reach from the
+Gulf into South Asia, London sits between the US and Europe, Lisbon is pulled
+away from Iberia by Treaty-of-Lisbon coverage).
 
 ## Pipeline
 
@@ -24,8 +26,13 @@ Treaty-of-Lisbon coverage).
 | 6. Layout variants | [make_layouts.py](make_layouts.py) | `output/layouts.json` — MDS + PCA + t-SNE + UMAP, geo-aligned, with metrics |
 | 7. Combined page | [build_combined.py](build_combined.py) | `output/similarity_maps.html`, `docs/index.html` — all three views, layout switcher, shared cutoff slider, click-to-pin city drawer |
 
-Supporting study: [dissim_study.py](dissim_study.py) — empirical comparison of
-similarity→dissimilarity transforms (see below).
+Supporting studies: [dissim_study.py](dissim_study.py) — empirical comparison
+of similarity→dissimilarity transforms; [compute_intervals.py](compute_intervals.py)
+— seed sweep at the shown configurations plus a separate MDS init-sensitivity
+sweep (`output/intervals.json`); [robustness_study.py](robustness_study.py) —
+between/within-region decomposition of geo-fidelity, region-collapse
+counterfactual, geographic neighbour recall, city-level bootstrap, and the
+rotation scan behind the latitude ceiling (`output/robustness.json`).
 
 ## Three linked views
 
@@ -68,14 +75,22 @@ same signal, riding on lexical directions (country/climate words) — the map is
 
 What this adds is small and specific: a transparent, interactive build with
 fully disclosed token-resolution calls, an exhaustive triangle-inequality audit
-of `1 − cos` (all 310,124 triples), and an alignment-free geo-fidelity metric
-compared *across projections* rather than across embeddings. It also shows the
-gap the literature predicts: a *supervised* probe that regresses coordinates
-recovers geography far better (R² ≈ .8; Barenholtz, 2026) than these
-*unsupervised* layouts do (geo-fidelity ρ ≈ .57–.67). Those two figures are
-different metrics on different scales (variance-explained vs rank correlation),
-so read the gap as a direction, not a subtraction — either way, the result is a
-map of *discourse* more than of the Earth.
+of `1 − cos` (all 310,124 triples; a check of this dataset, not a general
+result), and an alignment-free geo-fidelity metric compared *across
+projections* rather than across embeddings — with a decomposition showing that
+the layouts' advantage over the raw space lives almost entirely in
+between-region structure (within regions the raw space ties the best layout,
+and collapsing any layout to nine region points *raises* its score — a lift
+that survives label-free controls: data-driven dendrogram clusters lift scores
+the same way, k-means on true coordinates lifts them higher, and random
+groupings of the same sizes crash them to ρ ≈ .03). It also
+shows the gap the literature predicts: a *supervised* probe that regresses
+coordinates recovers geography far better (R² ≈ .8, reported in a preprint;
+Barenholtz, 2026) than these *unsupervised* layouts do (geo-fidelity
+ρ ≈ .57–.67). Those two figures are different metrics on different scales
+(variance-explained vs rank correlation), so read the gap as a direction, not
+a subtraction — either way, the result is a map of *discourse* more than of
+the Earth: a sharp map of the world's regions, a blurry map inside them.
 
 ## Method
 
@@ -141,12 +156,22 @@ map of *discourse* more than of the Earth.
    rank correlation between on-screen distances and real great-circle
    distances. Result:
    **t-SNE .64 ≈ UMAP .67 > PCA .60 > MDS .57 > raw 300-d .50** — the
-   neighbourhood methods (t-SNE, UMAP) recover geography better than the global
-   ones (PCA, MDS), which in turn beat the un-projected 300-d cosine distances,
-   because geographically near cities tend to be one another's semantic
-   neighbours. Only UMAP is seed-dependent (ρ .60–.68 over 12 seeds, mean .65);
-   PCA, classical-init MDS and PCA-init t-SNE are deterministic, so the
-   t-SNE/UMAP gap sits within that seed noise.
+   neighbourhood methods (t-SNE, UMAP) score higher than the global
+   ones (PCA, MDS), which in turn beat the un-projected 300-d cosine distances.
+   A decomposition ([robustness_study.py](robustness_study.py)) shows where
+   that gain lives: 88% of pairs are between-region; *within* regions the raw
+   space (.33) ties the best layout; and collapsing any layout to its nine
+   region centroids **raises** its score (e.g. UMAP .67 → .72) — so the metric
+   mostly rewards regional sorting, and two mechanisms (noise-shedding vs
+   cluster quantization, the neighbourhood methods' exaggeration of
+   between-cluster separation) are both consistent with the ordering. Only
+   UMAP is seed-dependent (ρ .60–.68 over 12 seeds, mean .65); PCA,
+   classical-init MDS (verified constant across 12 seeds) and PCA-init t-SNE
+   are deterministic, so the t-SNE/UMAP gap sits within that seed noise —
+   though SMACOF started from *random* inits instead spans ρ .50–.58
+   ([compute_intervals.py](compute_intervals.py)). A 1,000-resample city-level
+   bootstrap keeps each layout-minus-raw difference away from zero (95% CIs)
+   but not the adjacent layout-vs-layout gaps.
 9. **Orientation (geographic).** MDS solutions are unique up to rotation/
    reflection/translation, so the raw axes are meaningless. Rather than an
    arbitrary convention, the configuration is aligned to real geography by
@@ -216,6 +241,8 @@ curl -L -o data/ne_110m_land.geojson \
 .venv/bin/python plot_geo_network.py   # geographic similarity network
 .venv/bin/python make_layouts.py       # MDS/PCA/t-SNE/UMAP layouts + metrics
 .venv/bin/python build_combined.py     # combined interactive page (docs/)
+.venv/bin/python compute_intervals.py  # seed + MDS-init sensitivity sweeps
+.venv/bin/python robustness_study.py   # decomposition, bootstrap, rotation scan
 ```
 
 ## References

@@ -394,12 +394,12 @@
     background: var(--surface); border: 1px solid var(--hairline);
     border-radius: 5px; padding: 0 5px; }
   .cmp-wrap { overflow-x: auto; margin: 8px 0; max-width: 100%; }
-  .notes table.cmp { border-collapse: collapse; font: 11.5px var(--font-mono);
+  table.cmp { border-collapse: collapse; font: 11.5px var(--font-mono);
     font-variant-numeric: tabular-nums; }
-  .notes table.cmp th, .notes table.cmp td { border: 1px solid var(--grid);
+  table.cmp th, table.cmp td { border: 1px solid var(--grid);
     padding: 4px 10px; text-align: right; }
-  .notes table.cmp th:first-child, .notes table.cmp td:first-child { text-align: left; }
-  .notes table.cmp th { color: var(--ink-3); font-weight: 500; }
+  table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
+  table.cmp th { color: var(--ink-3); font-weight: 500; }
   details { margin-top: 24px; }
   summary { cursor: pointer; color: var(--ink-2); font: 500 12px var(--font-mono);
     letter-spacing: .07em; text-transform: uppercase; }
@@ -449,11 +449,14 @@
     <h1>Could language reconstruct a map of the world?</h1>
     <p class="subtitle">124 world cities arranged by word2vec similarity &middot;
       <a href="https://pozdniakov.github.io">Ivan Pozdniakov</a></p>
-    <p class="method"><b>Short answer: partly, yes.</b> <b>word2vec</b> — a model
+    <p class="method"><b>Short answer: partly, yes — and "partly" has a precise
+      shape.</b> <b>word2vec</b> — a model
       that turns each word into a vector of numbers from the company it keeps —
       never saw coordinates. It learned each of these 124 city names only from how
-      each name is <i>used</i> in Google News. Comparing those usages reconstructs a
-      surprising amount of real geography, while news events, ambiguous names and
+      each name is <i>used</i> in Google News. Comparing those usages recovers the
+      world's <b>broad regional structure</b> remarkably well; the geography
+      <i>within</i> regions stays blurry, north&ndash;south weaker than
+      east&ndash;west, while news events, ambiguous names and
       shared institutions bend the map in revealing ways. The similarities are
       explored in <b>three linked views</b> below; select any city to light up its
       neighbours in both maps and rank them in the side panel.</p>
@@ -477,7 +480,7 @@
       ~100&nbsp;billion words of Google News (2013) and training a small neural
       network to predict the words that appear <i>around</i> each word
       (the skip-gram objective)
-      <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>.
+      <a class="cite" href="#ref-mikolov">(Mikolov, Sutskever, et&nbsp;al., 2013)</a>.
       Names that occur in interchangeable contexts end up with nearly the same
       numbers:
       <div class="ctx">&hellip;storms lashed <span class="cchip d0">Sydney</span> late on Friday&hellip;</div>
@@ -583,7 +586,7 @@
       news text: mostly the law wins, and the exceptions are the interesting
       part.</div>
     <div class="panel geo">
-      <svg id="map" class="chart" role="img"
+      <svg id="map" class="chart" role="group"
         aria-label="World map of cities connected by semantic similarity"></svg>
       <div class="tip" id="tip2"></div>
     </div>
@@ -621,7 +624,7 @@
       longitude / latitude, measured <i>after</i> the geographic alignment, so
       descriptive only.</p>
     <div class="panel">
-      <svg id="chart" class="chart" role="img"
+      <svg id="chart" class="chart" role="group"
         aria-label="Scatter of 124 cities positioned by semantic similarity"></svg>
       <div class="tip" id="tip1"></div>
     </div>
@@ -708,25 +711,65 @@
       (.64) and UMAP (.65&nbsp;±&nbsp;.02) are effectively tied, and the
       neighbourhood&nbsp;&ge;&nbsp;global&nbsp;&gt;&nbsp;raw ordering held in all 12
       runs tried — though at its narrowest (UMAP's worst seed .603 vs PCA's .599) by
-      only .004, so read it as a strong tendency, not a law.</p>
+      only .004, so read it as a strong tendency, not a law. Seeds are not the only
+      uncertainty: the 124 cities are themselves one curated sample. A city-level
+      bootstrap (1,000 resamples) keeps every layout's advantage <i>over the raw
+      space</i> outside sampling noise (all four 95%&nbsp;CIs exclude zero), but the
+      adjacent layout-vs-layout gaps — MDS&nbsp;vs&nbsp;PCA, t-SNE&nbsp;vs&nbsp;UMAP —
+      all sit within it, so the individual podium positions should not be
+      over-read.</p>
     <p class="gf-lead"><b>Why should squeezing 300 dimensions into 2 make the map
       <i>more</i> geographic, not less?</b> Throwing away 298 dimensions should lose
       information, so you would expect the 2-D distances to track geography worse than
-      the full-space ones — yet they track it better. The reason is that word2vec
-      distance blends geography with a great deal of non-geographic variation (news
-      salience, city size, language, name collisions), smeared across all 300 axes. A
-      projection keeps only a few directions — of greatest variance for PCA/MDS, or of
-      local neighbourhood structure for t-SNE/UMAP — and drops the rest. When the
-      dropped directions are mostly the non-geographic ones, the surviving 2-D
-      distances are less diluted by that noise, so they line up better with real
-      distance. Two things make geography the part that survives: it is a large,
-      coherent slice of the embedding's structure, and it is intrinsically
-      two-dimensional (cities sit on a surface), so a 2-D layout is exactly the right
-      shape to hold it while in 300-d it is spread thin. The projection cannot add
-      geography that is not there — it <i>concentrates</i> the geography that is, by
-      shedding noise. That it is not guaranteed (a projection that discarded the
-      geographic directions instead would score <i>worse</i>) is part of why the four
-      methods differ.</p>
+      the full-space ones — yet on this metric they track it better. Two candidate
+      mechanisms fit that result, and they read very differently.
+      <b>Denoising</b>: word2vec distance blends geography with non-geographic
+      variation (news salience, city size, language, name collisions) smeared across
+      all 300 axes; a projection keeps a few dominant or neighbourhood directions,
+      and when the dropped ones are mostly non-geographic, the surviving distances
+      are less diluted. <b>Cluster quantization</b>: the neighbourhood methods
+      exaggerate the separation <i>between</i> regional clusters and shrink the
+      spread <i>within</i> them — the very between-cluster distances this page
+      elsewhere warns are "largely artefacts of the optimizer" — and since most city
+      pairs lie in different regions, a metric over all pairs rewards exactly that
+      exaggeration. The projection cannot add geography that is not there; the real
+      question is <i>which kind</i> of geography the score is picking up. The
+      decomposition below suggests the answer is: mostly the coarse, regional
+      kind.</p>
+    <p class="gf-cap"><b>What kind of geography is the score rewarding?</b> Three
+      probes on the same data, side by side (computed in
+      <span class="tok">robustness_study.py</span>):</p>
+    <div class="cmp-wrap"><table class="cmp"
+      aria-label="Decomposition of geo-fidelity: full metric, within-region only, region-collapsed, and geographic neighbour recall, for the raw space and all four layouts">
+      <tr><th></th><th>raw 300-d</th><th>MDS</th><th>PCA</th><th>t-SNE</th><th>UMAP</th></tr>
+      <tr><td>geo-fidelity, all 7,626 pairs</td><td>.50</td><td>.57</td><td>.60</td><td>.64</td><td>.67</td></tr>
+      <tr><td>within-region pairs only (12%)</td><td><b>.33</b></td><td>.23</td><td>.23</td><td><b>.33</b></td><td>.28</td></tr>
+      <tr><td>region-collapsed layout (9 points)</td><td>&mdash;</td><td><b>.71</b></td><td><b>.71</b></td><td><b>.68</b></td><td><b>.72</b></td></tr>
+      <tr><td>geographic neighbours kept, recall@10</td><td><b>.59</b></td><td>.45</td><td>.36</td><td>.61</td><td>.61</td></tr>
+    </table></div>
+    <p class="gf-cap">Read row by row: <b>within regions</b> the raw space ties the
+      best layout (.33) and beats the rest — the projections add nothing there.
+      <b>Collapse each layout to nine region-centroid points</b> — destroying every
+      within-region detail — and the score <i>rises</i> for all four (e.g.
+      UMAP .67&nbsp;&rarr;&nbsp;.72), because 88% of city pairs are between-region.
+      And on <b>keeping each city's ten nearest geographic neighbours</b>, the raw
+      space (.59) beats both global layouts outright and is within a whisker of
+      t-SNE/UMAP (.61).</p>
+    <p class="gf-cap">Aren't nine hand-drawn regions an artificial yardstick? Three
+      controls say the collapse result is real. The lift <b>does not need the
+      labels</b>: cutting this page's own similarity dendrogram into nine
+      <i>data-driven</i> clusters (no geography, no labels) lifts MDS/PCA/t-SNE the
+      same way (.57&rarr;.69, .60&rarr;.66, .64&rarr;.67; UMAP flat). Grouping by
+      k-means on the <i>true coordinates</i> lifts scores even higher (up to .74).
+      And collapsing by <b>random groupings</b> of the same sizes crashes every score
+      to &rho;&nbsp;&asymp;&nbsp;.03 — collapsing per se earns nothing; only
+      geographically meaningful grouping does, and the layouts discovered that
+      grouping themselves. So "every projection beats the raw space" is true for the
+      headline metric, but the gain lives almost entirely in <b>between-region
+      structure</b>. The nine collapsed points are no foreign object — they sit
+      where each layout put the regions, genuinely recovered geography at
+      continental scale. That is the precise sense in which language reconstructs
+      "a map": a sharp map of the world's regions, a blurry map inside them.</p>
   </section>
 
   <section class="sect matrix">
@@ -743,7 +786,7 @@
       cell for the pair, click to pin the row's city.</div>
     <div class="panel cmpanel">
       <div class="cmwrap">
-        <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix, with a dendrogram and city names down the left edge"></canvas>
+        <canvas id="cmheat" aria-label="Clustered heatmap of the full 124 by 124 similarity matrix, with a dendrogram and city names down the left edge. This canvas is a visual summary; for a non-visual reading of any city's neighbours, use the Find-a-city search box and the ranked list in the city drawer."></canvas>
       </div>
       <div class="tip" id="tip3"></div>
       <div class="heatcap" style="margin-top:8px">
@@ -763,33 +806,47 @@
     <li><b>The tightest pair in the whole matrix</b> is
       <button type="button" class="trycity">Sydney</button> &amp;
       <button type="button" class="trycity">Melbourne</button> (cos&nbsp;=&nbsp;.86)
-      — Australian cities are nearly interchangeable in world news.</li>
+      — plausibly because Australian cities appear in near-interchangeable
+      contexts in world news (though with only five Oceania cities sampled,
+      "tightest in the matrix" is partly a fact about the sample).</li>
     <li><b>A city with a wide footprint.</b>
       <button type="button" class="trycity">Dubai</button> is a Gulf city first —
       its nearest neighbours are Abu&nbsp;Dhabi, Jeddah, Doha and Riyadh — but its
-      top ten reaches into Southeast Asia (Singapore, Kuala&nbsp;Lumpur) and South
-      Asia (Karachi, Mumbai), the trace of its trade and labour-migration
-      links.</li>
+      top ten reaches through Amman into Southeast Asia (Singapore,
+      Kuala&nbsp;Lumpur) and South Asia (Karachi, Mumbai, and the ambiguous token
+      Hyderabad), consistent with its trade and labour-migration links.</li>
     <li><b>Where the corpus bends the map.</b>
       <button type="button" class="trycity">Lisbon</button> drifts off Iberia —
       the <i>Treaty of Lisbon</i> pulls its vector towards EU-institution language
       rather than towards Madrid or Barcelona.</li>
     <li><b>The transatlantic hinge.</b>
-      <button type="button" class="trycity">London</button> is the European city
-      that leans hardest towards the United States — a hub both news spheres
-      share.</li>
+      <button type="button" class="trycity">London</button> leans towards the
+      United States about as much as any European city — a hub both news spheres
+      share (by mean cosine to the North American cities it edges Madrid only
+      narrowly, .31 vs .30, so read it as "among the closest", not a
+      podium).</li>
     <li><b>A data-quality near-miss.</b>
       <button type="button" class="trycity">St Petersburg</button> would have
       landed inside the US cluster with the obvious token, which is dominated by
       St.&nbsp;Petersburg, <i>Florida</i> (see Methodology&nbsp;&rarr; Token
       resolution).</li>
-    <li><b>The projections beat the raw space.</b> Every 2-D layout reproduces
-      real geography better than the raw 300-d cosine distances (geo-fidelity
-      &rho;&nbsp;.57&ndash;.67 vs a measured baseline of .50) — the neighbourhood
-      methods most, because they lock onto the local structure geography lives in.
-      Switch the semantic map between MDS, PCA, t-SNE and UMAP to feel the difference;
-      the ordering neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw is stable,
-      only t-SNE and UMAP trade places (see Methodology).</li>
+    <li><b>The projections beat the raw space — on the headline metric.</b> Every
+      2-D layout scores higher geo-fidelity than the raw 300-d cosine distances
+      (&rho;&nbsp;.57&ndash;.67 vs a measured baseline of .50), and the advantage
+      survives a city-level bootstrap. But the decomposition under the semantic map
+      shows where the gain lives: almost entirely in <b>between-region</b> structure —
+      within regions the raw space ties the best layout, and collapsing any layout to
+      nine region points <i>raises</i> its score. Switch between MDS, PCA, t-SNE and
+      UMAP to feel the difference, and read the result as regional sorting made
+      legible, not street-level cartography.</li>
+    <li><b>The map's two systematic failures</b> — showcased, not hidden. First,
+      the default MDS view recovers almost no <b>north&ndash;south</b> structure
+      (latitude <i>r</i>&nbsp;=&nbsp;.17; even the best possible rotation only
+      reaches .21, while t-SNE manages .40). Second, on-screen <b>adjacency lies</b>:
+      about half of each city's true top-10 neighbours sit somewhere else in 2-D
+      (recall@10&nbsp;.52 for MDS), which is why the pinned drawer always ranks
+      neighbours from the true 300-d cosines. The charming single-city quirks above
+      are the memorable failures; these two are the consequential ones.</li>
   </ul>
 
   <section class="notes">
@@ -799,14 +856,18 @@
       <li><b>Embedding model.</b> GoogleNews-vectors-negative300: word2vec
         (skip-gram with negative sampling) trained by Google on ~100&nbsp;billion
         words of Google News text, circa 2013
-        <a class="cite" href="#ref-mikolov">(Mikolov et&nbsp;al., 2013)</a>.
+        <a class="cite" href="#ref-mikolov">(Mikolov, Sutskever, et&nbsp;al., 2013)</a>.
         Vocabulary of 3&nbsp;million tokens, 300 dimensions per vector, with
         frequent multiword phrases merged into single tokens
         (<span class="tok">New_York</span>, <span class="tok">Buenos_Aires</span>).
         Under the distributional hypothesis
         <a class="cite" href="#ref-harris">(Harris, 1954)</a>, cities mentioned in
-        similar news contexts receive similar vectors — no geographic information
-        enters the similarity computation at any point. Two caveats follow
+        similar news contexts receive similar vectors — the cosine computation
+        itself sees only text. One honest qualification: choosing <i>which token</i>
+        represents an ambiguous name was adjudicated with geographic ground truth in
+        hand (step&nbsp;3) — a fully blind pipeline would have put St&nbsp;Petersburg
+        in Florida — so "no geography enters" holds for the similarity computation,
+        not for every judgment call around it. Two caveats follow
         directly from the training data: what drives similarity is <i>news
         salience</i>, not geography (a shared war, league or stock exchange pulls
         cities together as surely as a shared border), and the corpus is frozen
@@ -942,25 +1003,36 @@
         <b>raw 300-d cosine distances</b>, before any projection, which you might
         expect to be the best a 2-D map could hope to match. They score only
         &rho;&nbsp;&asymp;&nbsp;<b>.50</b> (measured&nbsp;.503), and every 2-D layout
-        beats that baseline (MDS&nbsp;.57, PCA&nbsp;.60, t-SNE&nbsp;.64,
-        UMAP&nbsp;.67): compressing to two dimensions can <i>raise</i> geo-fidelity
-        because word2vec distance blends geography with much non-geographic variation
-        (news salience, city size, language, name collisions) spread over all 300
-        axes; a projection keeps a few dominant or neighbourhood directions and drops
-        the rest, and when the dropped ones are mostly non-geographic the surviving
-        2-D distances are less diluted (geography, a large and intrinsically
-        two-dimensional slice of the structure, is exactly what a 2-D layout can
-        hold). The two neighbourhood methods (t-SNE, UMAP) score highest —
-        geographically near cities really are one another's semantic neighbours,
-        which is what they lock onto — while the two global methods (MDS, PCA) sit
-        lower. The tier ordering
-        <b>neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw</b> is stable across
-        runs: PCA, classical-init MDS and PCA-init t-SNE are deterministic, and only
-        UMAP varies with the random seed (&rho;&nbsp;.60&ndash;.68 over 12 seeds,
-        mean&nbsp;.65), so the t-SNE&nbsp;.64 / UMAP&nbsp;.67 gap is within that noise.
-        All four share the same rigid Procrustes
-        (rotation/reflection) alignment to geography (step&nbsp;9),
-        which cannot change these distance-based scores.</li>
+        beats that baseline on this metric (MDS&nbsp;.57, PCA&nbsp;.60,
+        t-SNE&nbsp;.64, UMAP&nbsp;.67). Two mechanisms can produce that gain —
+        <i>denoising</i> (the projection drops mostly non-geographic directions) and
+        <i>cluster quantization</i> (the neighbourhood methods exaggerate
+        between-region separation, which a metric dominated by between-region pairs
+        rewards) — and the decomposition under the semantic map indicates the gain
+        lives almost entirely in between-region structure: within regions the raw
+        space ties the best layout, and collapsing any layout to nine region points
+        raises its score. The tier ordering
+        <b>neighbourhood&nbsp;&gt;&nbsp;global&nbsp;&gt;&nbsp;raw</b> is stable
+        across reruns, and each layout's advantage over the raw space survives a
+        city-level bootstrap; adjacent layout-vs-layout gaps do not.
+        <details><summary>Stability details (seeds, initialization, bootstrap)</summary>
+        <p class="stat">PCA, classical-init MDS and PCA-init t-SNE are
+        deterministic — the classical-init MDS sweep in
+        <span class="tok">compute_intervals.py</span> returns &rho;&nbsp;=&nbsp;.572
+        on all 12 seeds — and only UMAP varies with the random seed
+        (&rho;&nbsp;.60&ndash;.68, mean&nbsp;.65), so the t-SNE&nbsp;.64 /
+        UMAP&nbsp;.67 gap is within that noise. Initialization matters more than
+        seeds: SMACOF started from <i>random</i> configurations instead of the
+        classical solution spans &rho;&nbsp;.50&ndash;.58 over 12 starts — an
+        init-sensitivity result reported separately in the same script. A
+        1,000-resample city-level bootstrap (<span class="tok">robustness_study.py</span>)
+        gives 95%&nbsp;CIs excluding zero for every layout-minus-raw difference
+        (e.g. PCA&minus;raw [.04,&nbsp;.15]) and including zero for every adjacent
+        layout difference (PCA&minus;MDS [&minus;.02,&nbsp;.08],
+        UMAP&minus;t-SNE [&minus;.05,&nbsp;.10]).</p></details>
+        All four are scaled to a common size and rigidly rotated onto geography by
+        the same Procrustes step (step&nbsp;9); the reported metrics are invariant
+        to that alignment.</li>
       <li class="stat"><b>Orientation (geographic).</b> An MDS solution is unique
         only up to rotation, reflection and translation, so the raw axes are
         meaningless. Instead of an arbitrary convention, the configuration is
@@ -975,10 +1047,11 @@
         decides which way is up. Afterwards east&ndash;west correlates with
         longitude at <i>r</i> = .70 and north&ndash;south with latitude at only
         <i>r</i> = .17; even the single best rotation cannot lift the MDS layout's
-        latitude past <i>r</i> &asymp; .21, so <b>the MDS map recovers little
-        north&ndash;south structure</b> (a statement about this projection, not a
-        claim that the 300-d space contains none — t-SNE, for one, reaches
-        north&ndash;south <i>r</i> = .40). These axis correlations are
+        latitude past <i>r</i> = .21 (a 3,600-angle rotation scan in
+        <span class="tok">robustness_study.py</span>), so <b>the MDS map recovers
+        little north&ndash;south structure</b> (a statement about this projection,
+        not a claim that the 300-d space contains none — the same scan on t-SNE
+        reaches north&ndash;south <i>r</i> = .41). These axis correlations are
         measured <i>after</i> an alignment that itself uses the real coordinates,
         so they describe residual correspondence rather than prove unsupervised
         recovery — for that, see the alignment-free geo-fidelity metric under the
@@ -1052,15 +1125,23 @@
 
   <section class="notes" id="related">
     <h2 class="group-h">Related work</h2>
-    <p>Recovering geography from text alone has a long pedigree.
+    <p>Recovering geography from text alone has a long pedigree — word2vec itself
+      famously encodes geographic relations as vector offsets, answering
+      <i>Paris&nbsp;&minus;&nbsp;France&nbsp;+&nbsp;Italy&nbsp;&asymp;&nbsp;Rome</i>
+      <a class="cite" href="#ref-mikolovyih">(Mikolov, Yih, &amp; Zweig, 2013)</a>.
       Louwerse and Zwaan <a class="cite" href="#ref-louwerse">(2009)</a>
       applied MDS to newspaper-text similarities for the 50 largest US cities and
       recovered their latitude and longitude, connecting it to Tobler's first law;
-      the effect is robust across corpora and parameters
+      the approach even extends to estimating the locations of <i>unseen</i> place
+      names from their linguistic associations
       <a class="cite" href="#ref-recchia">(Recchia &amp; Louwerse, 2014)</a> and
-      even reconstructs an <i>invented</i> world — the cities of Middle-earth from
+      reconstructs an <i>invented</i> world — the cities of Middle-earth from
       the co-occurrences in Tolkien
       <a class="cite" href="#ref-benesh">(Louwerse &amp; Benesh, 2012)</a>. The
+      very reading this page relies on — screen distance as similarity — is the
+      "first law of cognitive geography" that spatialization research has tested
+      on human readers directly
+      <a class="cite" href="#ref-montello">(Montello et&nbsp;al., 2003)</a>. The
       closest precedent to this page is
       Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a>, who fit
       city vectors from 16 embedding models to real coordinates as a benchmark —
@@ -1069,37 +1150,50 @@
       mode this map shows: the worst errors come from a name overlapping a more
       famous entity (their Kobe&nbsp;&rarr;&nbsp;the basketball player,
       Bismarck&nbsp;&rarr;&nbsp;the chancellor; here Lisbon, St&nbsp;Petersburg,
-      Santiago). For contemporary language models the same signal appears in
+      Santiago); supervised probes recover referential attributes of entities from
+      distributional vectors more generally
+      <a class="cite" href="#ref-gupta">(Gupta et&nbsp;al., 2015)</a>. For
+      contemporary language models the same signal appears in
       hidden states — probed early by Liétard et al.
       <a class="cite" href="#ref-lietard">(2021)</a> and mapped in detail by
       Gurnee and Tegmark <a class="cite" href="#ref-gurnee">(2024)</a> and Godey
-      et al. <a class="cite" href="#ref-godey">(2024)</a> — linearly decodable and
-      improving with scale but geographically unequal, worst for Oceania, South
-      Asia and South America — an asymmetry that echoes this map's weak
-      north&ndash;south axis. And
+      et al. <a class="cite" href="#ref-godey">(2024)</a> — linearly decodable,
+      improving with scale, but geographically uneven, weakest where corpus
+      coverage is thinnest; a different mechanism from this map's weak
+      north&ndash;south recovery (a projection artefact), but the same lesson:
+      geographic signal in text models is unevenly distributed. And
       Barenholtz <a class="cite" href="#ref-barenholtz">(2026)</a> showed plain
       word2vec/GloVe already carry it, riding on lexical directions (country and
       climate words) rather than on any built-in coordinate.</p>
     <p><b>What this page adds is small and specific.</b> The central finding is
       not new, and Konkol et al. <a class="cite" href="#ref-konkol">(2017)</a>
       established it more rigorously; the contribution
-      here is an interactive, fully documented re-examination, plus three minor
-      empirical points I did not find in that literature. <b>(1)</b> The map is
+      here is an interactive, fully documented re-examination — deliberately both
+      a teaching demonstration and a small standalone investigation — plus three
+      minor empirical points I did not find in the geographic-embeddings literature
+      (projection-quality comparison is of course a field of its own;
+      <a class="cite" href="#ref-espadoto">Espadoto et&nbsp;al., 2021</a> — the
+      geographic instantiation, not the comparison itself, is the new part).
+      <b>(1)</b> The map is
       compared <i>across projections</i> rather than across embeddings, and all
-      four 2-D layouts reproduce geography <i>better</i> than the raw 300-d cosine
-      distances they come from (geo-fidelity &rho;&nbsp;&asymp;&nbsp;.57&ndash;.67
-      vs a raw-space baseline of &rho;&nbsp;&asymp;&nbsp;.50), plausibly because the
-      reductions shed noise directions and concentrate what geographic signal
-      remains. <b>(2)</b> The
+      four 2-D layouts score higher geo-fidelity than the raw 300-d cosine
+      distances they come from (&rho;&nbsp;&asymp;&nbsp;.57&ndash;.67
+      vs a raw-space baseline of &rho;&nbsp;&asymp;&nbsp;.50) — though the
+      decomposition on the page shows the gain is almost entirely between-region
+      structure, so this is a claim about the global rank metric on this curated
+      sample, not about street-level geography surviving projection.
+      <b>(2)</b> The
       semi-metric objection to <span class="math" data-tex="d = 1 - \cos\theta">d = 1 &minus; cos&nbsp;&theta;</span>
       is checked exhaustively (all 310,124 triples; 2 violations, max&nbsp;excess
-      .023) rather than assumed. <b>(3)</b> The dateline-token artefact —
+      .023) rather than assumed — a check of this dataset, not a general result
+      about 1&nbsp;&minus;&nbsp;cos. <b>(3)</b> The dateline-token artefact —
       <span class="tok">MEXICO_CITY</span> sitting among other agency datelines,
       so its cosines to ordinary words run uniformly low — is a concrete,
       checkable fact about the GoogleNews vectors. A caveat the literature
       predicts and this page inherits: a <i>supervised</i> probe trained to regress
-      coordinates recovers geography far better (reported <i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8
-      by Barenholtz, <a class="cite" href="#ref-barenholtz">2026</a>) than these
+      coordinates recovers geography far better (<i>R</i>&sup2;&nbsp;&asymp;&nbsp;.8,
+      reported in a preprint by Barenholtz,
+      <a class="cite" href="#ref-barenholtz">2026</a>) than these
       <i>unsupervised</i> layouts do
       (geo-fidelity&nbsp;&rho;&nbsp;&asymp;&nbsp;.57&ndash;.67) — the two figures are
       different metrics on different scales (variance-explained vs rank correlation),
@@ -1124,12 +1218,22 @@
     <p id="ref-borg">Borg, I., &amp; Groenen, P. J. F. (2005). <i>Modern
       multidimensional scaling: Theory and applications</i> (2nd ed.). Springer.
       <a href="https://doi.org/10.1007/0-387-28981-X">https://doi.org/10.1007/0-387-28981-X</a></p>
+    <p id="ref-espadoto">Espadoto, M., Martins, R. M., Kerren, A., Hirata,
+      N. S. T., &amp; Telea, A. C. (2021). Toward a quantitative survey of
+      dimension reduction techniques. <i>IEEE Transactions on Visualization and
+      Computer Graphics, 27</i>(3), 2153&ndash;2173.
+      <a href="https://doi.org/10.1109/TVCG.2019.2944182">https://doi.org/10.1109/TVCG.2019.2944182</a></p>
     <p id="ref-firth">Firth, J. R. (1957). A synopsis of linguistic theory
       1930&ndash;1955. In <i>Studies in linguistic analysis</i> (Special volume of
       the Philological Society, pp. 1&ndash;32). Blackwell.</p>
     <p id="ref-godey">Godey, N., de la Clergerie, É., &amp; Sagot, B. (2024).
       <i>On the scaling laws of geographical representation in language
       models</i>. arXiv. <a href="https://arxiv.org/abs/2402.19406">https://arxiv.org/abs/2402.19406</a></p>
+    <p id="ref-gupta">Gupta, A., Boleda, G., Baroni, M., &amp; Padó, S. (2015).
+      Distributional vectors encode referential attributes. In <i>Proceedings of
+      the 2015 Conference on Empirical Methods in Natural Language Processing</i>
+      (pp. 12&ndash;21).
+      <a href="https://aclanthology.org/D15-1002/">https://aclanthology.org/D15-1002/</a></p>
     <p id="ref-gurnee">Gurnee, W., &amp; Tegmark, M. (2024). Language models
       represent space and time. In <i>International Conference on Learning
       Representations</i>. <a href="https://arxiv.org/abs/2310.02207">https://arxiv.org/abs/2310.02207</a></p>
@@ -1163,6 +1267,18 @@
       Dean, J. (2013). Distributed representations of words and phrases and their
       compositionality. <i>Advances in Neural Information Processing Systems,
       26</i>, 3111&ndash;3119. <a href="https://arxiv.org/abs/1310.4546">https://arxiv.org/abs/1310.4546</a></p>
+    <p id="ref-mikolovyih">Mikolov, T., Yih, W.-t., &amp; Zweig, G. (2013).
+      Linguistic regularities in continuous space word representations. In
+      <i>Proceedings of the 2013 Conference of the North American Chapter of the
+      Association for Computational Linguistics: Human Language Technologies</i>
+      (pp. 746&ndash;751).
+      <a href="https://aclanthology.org/N13-1090/">https://aclanthology.org/N13-1090/</a></p>
+    <p id="ref-montello">Montello, D. R., Fabrikant, S. I., Ruocco, M., &amp;
+      Middleton, R. S. (2003). Testing the first law of cognitive geography on
+      point-display spatializations. In <i>Spatial information theory
+      (COSIT&nbsp;2003), Lecture Notes in Computer Science, 2825</i>
+      (pp. 316&ndash;331). Springer.
+      <a href="https://doi.org/10.1007/978-3-540-39923-0_21">https://doi.org/10.1007/978-3-540-39923-0_21</a></p>
     <p id="ref-pearson">Pearson, K. (1901). On lines and planes of closest fit to
       systems of points in space. <i>The London, Edinburgh, and Dublin
       Philosophical Magazine and Journal of Science, 2</i>(11), 559&ndash;572.
@@ -1203,7 +1319,7 @@
 </div>
 
 <aside id="side" role="complementary" aria-label="Selected city details">
-  <div class="head">
+  <div class="head" aria-live="polite">
     <div class="row1"><span id="s-glyph"></span><span class="nm" id="s-name"></span>
       <button class="close" id="s-close" aria-label="Close">&times;</button></div>
     <div class="meta" id="s-meta"></div>
@@ -1226,7 +1342,7 @@
       "South Asia":                 { c: "--c6", m: "plus" },
       "East Asia":                  { c: "--c7", m: "x" },
       "Southeast Asia":             { c: "--c8", m: "pent" },
-      "Oceania":                    { c: "--c9", m: "tri" },
+      "Oceania":                    { c: "--c9", m: "hex" },
     };
     const MARK = {
       circle:  s => `M ${-s},0 a ${s},${s} 0 1,0 ${2*s},0 a ${s},${s} 0 1,0 ${-2*s},0`,
@@ -1241,6 +1357,10 @@
       pent:    s => { const p = []; for (let k = 0; k < 5; k++) {
           const a = -Math.PI/2 + k*2*Math.PI/5;
           p.push(`${(Math.cos(a)*s*1.15).toFixed(2)},${(Math.sin(a)*s*1.15).toFixed(2)}`); }
+        return "M " + p.join(" L ") + " Z"; },
+      hex:     s => { const p = []; for (let k = 0; k < 6; k++) {
+          const a = -Math.PI/2 + k*Math.PI/3;
+          p.push(`${(Math.cos(a)*s*1.12).toFixed(2)},${(Math.sin(a)*s*1.12).toFixed(2)}`); }
         return "M " + p.join(" L ") + " Z"; },
     };
     const st = r => REGION[r] || REGION["North America"];
@@ -1339,7 +1459,8 @@
         p.setAttribute("fill", `var(${st(c.r).c})`);
         p.setAttribute("class", "pt");
         p.setAttribute("tabindex", "0");
-        p.setAttribute("aria-label", c.n);
+        p.setAttribute("role", "button");
+        p.setAttribute("aria-label", `${c.n}, ${c.r}`);
         gPts.append(p);
         return p;
       });
@@ -1428,9 +1549,12 @@
       }
       C.forEach(c => {
         const [x, y] = hp(c.lon, c.lat);
-        const dot = document.createElementNS(NS, "circle");
-        dot.setAttribute("cx", x.toFixed(1)); dot.setAttribute("cy", y.toFixed(1));
-        dot.setAttribute("r", 4.5); dot.setAttribute("class", "hm-dot");
+        // same region marker shapes as the interactive charts, so the encoding
+        // is redundant (colour + shape) from the very first figure
+        const dot = document.createElementNS(NS, "path");
+        dot.setAttribute("d", MARK[st(c.r).m](4.4));
+        dot.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)})`);
+        dot.setAttribute("class", "hm-dot");
         dot.setAttribute("fill", `var(${st(c.r).c})`);
         hm.append(dot);
       });
@@ -1469,19 +1593,39 @@
       const s = S(i, j);
       if (s >= meta.min) pairsMin.push([i, j, s]);
     }
-    function buildAmbient(view) {
+    // A straight segment misrepresents trans-Pacific pairs on an equirectangular
+    // map (Auckland–Vancouver would draw ~300° the long way round). When a pair
+    // is closer across the antimeridian, draw two segments that exit one side
+    // and re-enter the other; the overshoot is clipped by the svg viewport.
+    const W360 = W2 * 360 / (gm.lon1 - gm.lon0);  // pixel width of a full 360°
+    function geoSegD(x1, y1, x2, y2) {
+      if (Math.abs(x2 - x1) <= W360 / 2)
+        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      const sh = x2 > x1 ? W360 : -W360;
+      return `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${(x2 - sh).toFixed(1)} ${y2.toFixed(1)} ` +
+             `M ${(x1 + sh).toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+    }
+    function buildAmbient(view, wrapped) {
       return pairsMin.map(([i, j]) => {
-        const ln = document.createElementNS(NS, "line");
-        ln.setAttribute("x1", view.xy[i][0].toFixed(1));
-        ln.setAttribute("y1", view.xy[i][1].toFixed(1));
-        ln.setAttribute("x2", view.xy[j][0].toFixed(1));
-        ln.setAttribute("y2", view.xy[j][1].toFixed(1));
+        let ln;
+        if (wrapped) {
+          ln = document.createElementNS(NS, "path");
+          ln.setAttribute("d", geoSegD(view.xy[i][0], view.xy[i][1],
+                                       view.xy[j][0], view.xy[j][1]));
+          ln.setAttribute("fill", "none");
+        } else {
+          ln = document.createElementNS(NS, "line");
+          ln.setAttribute("x1", view.xy[i][0].toFixed(1));
+          ln.setAttribute("y1", view.xy[i][1].toFixed(1));
+          ln.setAttribute("x2", view.xy[j][0].toFixed(1));
+          ln.setAttribute("y2", view.xy[j][1].toFixed(1));
+        }
         ln.setAttribute("class", "aedge");
         view.gEdge.append(ln);
         return ln;
       });
     }
-    const geoEls = buildAmbient(geo);
+    const geoEls = buildAmbient(geo, true);
     const mdsEls = buildAmbient(mds);
 
     // ---------- shared state ----------
@@ -1572,12 +1716,21 @@
 
     // ---------- spotlight ----------
     function drawLines(view, k, pairs, color) {
+      const wrapped = view === geo;   // antimeridian wrapping on the geo map
       for (const [j, s, above] of pairs) {
-        const ln = document.createElementNS(NS, "line");
-        ln.setAttribute("x1", view.xy[k][0].toFixed(1));
-        ln.setAttribute("y1", view.xy[k][1].toFixed(1));
-        ln.setAttribute("x2", view.xy[j][0].toFixed(1));
-        ln.setAttribute("y2", view.xy[j][1].toFixed(1));
+        let ln;
+        if (wrapped) {
+          ln = document.createElementNS(NS, "path");
+          ln.setAttribute("d", geoSegD(view.xy[k][0], view.xy[k][1],
+                                       view.xy[j][0], view.xy[j][1]));
+          ln.setAttribute("fill", "none");
+        } else {
+          ln = document.createElementNS(NS, "line");
+          ln.setAttribute("x1", view.xy[k][0].toFixed(1));
+          ln.setAttribute("y1", view.xy[k][1].toFixed(1));
+          ln.setAttribute("x2", view.xy[j][0].toFixed(1));
+          ln.setAttribute("y2", view.xy[j][1].toFixed(1));
+        }
         ln.setAttribute("class", "sline");
         ln.setAttribute("stroke", color);
         if (above) {
@@ -1998,7 +2151,8 @@
           const col = cssVar(st(C[ci].r).c);
           g.fillStyle = col;
           g.fillRect(ox + k * CW, 0, CW, TS);
-          g.fillRect(DW + 2, oy + k * RH + 1.5, 6, RH - 3);
+          const sw = new Path2D(MARK[st(C[ci].r).m](2.6));
+          g.save(); g.translate(DW + 5, rowY(k)); g.fill(sw); g.restore();
           g.fillStyle = cssVar("--ink-1");
           const nm = C[ci].n;
           const label = nm.length > 15 ? nm.slice(0, 14) + "…" : nm;

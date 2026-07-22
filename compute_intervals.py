@@ -1,12 +1,18 @@
-"""Seed-variability of geo-fidelity for each 2-D layout.
+"""Seed- and init-variability of geo-fidelity for each 2-D layout.
 
 Geo-fidelity = Spearman(pairwise 2-D distances, great-circle distances). It is
 alignment-free (rotation/scale preserve pairwise distances), so no Procrustes
 step is needed here — we only need each layout's pairwise distances.
 
-For t-SNE and UMAP we refit under N random seeds at the *shown* hyperparameters
-and report the spread. PCA is deterministic; classical-init MDS (SMACOF) is
-effectively deterministic, but we still sweep its random_state to confirm.
+Two separate analyses (the panel review caught the earlier version conflating
+them — EDITORIAL_REVIEW.md item R4):
+  1. SEED sweep at the shown configurations: t-SNE (PCA init) and UMAP under
+     N random seeds; MDS with classical (Torgerson) initialization — the
+     pipeline's configuration — which has no random step, so its sweep should
+     show zero variance (verified, not assumed). PCA is deterministic.
+  2. INIT-sensitivity sweep for MDS: SMACOF from N random starts (sklearn's
+     default init). This is NOT the shown configuration; it measures how much
+     the MDS solution depends on initialization.
 
 Outputs: output/intervals.json  and prints a table.
 """
@@ -69,7 +75,7 @@ def main():
     # PCA — deterministic (sign flips don't change distances)
     pca = geofid(PCA(n_components=2, random_state=0).fit_transform(V), gc, iu)
 
-    tsne_vals, umap_vals, mds_vals = [], [], []
+    tsne_vals, umap_vals, mds_classical_vals, mds_random_vals = [], [], [], []
     import umap
     for s in seeds:
         ts = TSNE(n_components=2, metric="cosine", perplexity=20, init="pca",
@@ -78,11 +84,20 @@ def main():
         um = umap.UMAP(n_components=2, metric="cosine", n_neighbors=15,
                        min_dist=0.3, random_state=s).fit_transform(V)
         umap_vals.append(geofid(um, gc, iu))
-        md = MDS(n_components=2, dissimilarity="precomputed", random_state=s,
-                 n_init=1, normalized_stress=False).fit_transform(D)
-        mds_vals.append(geofid(md, gc, iu))
+        # seed sweep at the SHOWN configuration: classical (Torgerson) init —
+        # no random step, so this should be constant across s
+        mc = MDS(n_components=2, dissimilarity="precomputed", random_state=s,
+                 n_init=1, init="classical_mds",
+                 normalized_stress=False).fit_transform(D)
+        mds_classical_vals.append(geofid(mc, gc, iu))
+        # separate INIT-sensitivity sweep: SMACOF from a random start
+        mr = MDS(n_components=2, dissimilarity="precomputed", random_state=s,
+                 n_init=1, init="random",
+                 normalized_stress=False).fit_transform(D)
+        mds_random_vals.append(geofid(mr, gc, iu))
         print(f"seed {s:>2}: tsne {tsne_vals[-1]:.3f}  umap {umap_vals[-1]:.3f}  "
-              f"mds {mds_vals[-1]:.3f}")
+              f"mds-classical {mds_classical_vals[-1]:.3f}  "
+              f"mds-random-init {mds_random_vals[-1]:.3f}")
 
     out = {
         "n_seeds": len(seeds),
@@ -90,7 +105,8 @@ def main():
         "pca": round(pca, 3),
         "tsne": stats(tsne_vals),
         "umap": stats(umap_vals),
-        "mds": stats(mds_vals),
+        "mds_classical_init": stats(mds_classical_vals),
+        "mds_random_init_sensitivity": stats(mds_random_vals),
     }
     with open("output/intervals.json", "w") as f:
         json.dump(out, f, indent=2)

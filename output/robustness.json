@@ -1,0 +1,102 @@
+{
+  "n_pairs": 7626,
+  "within_share": 0.122,
+  "between_share": 0.878,
+  "geofid_full": {
+    "mds": 0.574,
+    "pca": 0.599,
+    "tsne": 0.644,
+    "umap": 0.671,
+    "raw": 0.503
+  },
+  "geofid_within": {
+    "mds": 0.232,
+    "pca": 0.225,
+    "tsne": 0.332,
+    "umap": 0.28,
+    "raw": 0.332
+  },
+  "geofid_region_collapsed": {
+    "mds": 0.706,
+    "pca": 0.705,
+    "tsne": 0.681,
+    "umap": 0.72
+  },
+  "collapse_dendrogram9": {
+    "mds": 0.688,
+    "pca": 0.659,
+    "tsne": 0.67,
+    "umap": 0.665
+  },
+  "collapse_geo_kmeans9": {
+    "mds": 0.721,
+    "pca": 0.734,
+    "tsne": 0.701,
+    "umap": 0.742
+  },
+  "collapse_random_mean": {
+    "mds": 0.031,
+    "pca": 0.034,
+    "tsne": 0.028,
+    "umap": 0.031
+  },
+  "collapse_random_range": {
+    "mds": [
+      -0.053,
+      0.141
+    ],
+    "pca": [
+      -0.035,
+      0.128
+    ],
+    "tsne": [
+      -0.051,
+      0.147
+    ],
+    "umap": [
+      -0.048,
+      0.094
+    ]
+  },
+  "geo_recall10": {
+    "mds": 0.452,
+    "pca": 0.362,
+    "tsne": 0.606,
+    "umap": 0.612,
+    "raw": 0.594
+  },
+  "bootstrap_ci95": {
+    "pca_minus_mds": [
+      -0.028,
+      0.08
+    ],
+    "tsne_minus_pca": [
+      -0.009,
+      0.098
+    ],
+    "umap_minus_tsne": [
+      -0.038,
+      0.092
+    ],
+    "mds_minus_raw": [
+      0.024,
+      0.121
+    ],
+    "pca_minus_raw": [
+      0.042,
+      0.15
+    ],
+    "tsne_minus_raw": [
+      0.078,
+      0.204
+    ],
+    "umap_minus_raw": [
+      0.093,
+      0.244
+    ]
+  },
+  "rotation_scan_max_lat_r": {
+    "mds": 0.209,
+    "tsne": 0.407
+  }
+}
